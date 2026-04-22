@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Cycle Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-900: #0f3d2e;
+      --green-800: #165c3d;
+      --green-700: #1f7a4c;
+      --green-600: #2e8b57;
+      --green-500: #38a169;
+      --green-300: #86efac;
+      --green-200: #bbf7d0;
+      --green-100: #dcfce7;
+      --mint: #ecfdf5;
+      --white: #ffffff;
+      --shadow: 0 20px 50px rgba(15, 61, 46, 0.16);
+      --border: rgba(21, 128, 61, 0.16);
+      --muted: #587364;
+      --dark: #163020;
+      --footer: #0b2f22;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f6fff8 0%, #ecfdf5 100%);
+      color: var(--dark);
+      line-height: 1.5;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .navbar {
+      position: static;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0px 7%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(21, 128, 61, 0.08);
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.04);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--green-900);
+      flex-shrink: 0;
+    }
+
+    .logo-mark {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .logo-mark svg,
+    .logo-mark img {
+      display: block;
+      overflow: visible;
+      max-width: 170px;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .logo-ar {
+  margin-top:-14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f3d2e;
+  font-family: 'Cairo', sans-serif;
+  white-space: nowrap;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+    .logo-brand {
+      font-weight: 800;
+      font-size: 1.3rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #4ade80, #166534);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      box-shadow: 0 10px 24px rgba(22, 101, 52, 0.25);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      font-weight: 600;
+      color: #355943;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-links a:hover { color: var(--green-700); }
+
+    .lang-switch {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .lang-switch:hover {
+      color: var(--green-700);
+    }
+
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-actions .btn,
+    .nav-actions a.btn {
+      min-width: 102px;
+      padding: 11px 16px;
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s ease;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1px solid rgba(21, 128, 61, 0.18);
+      color: var(--green-800);
+    }
+
+    .btn-outline:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(21, 128, 61, 0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      color: white;
+      box-shadow: 0 15px 35px rgba(34, 139, 84, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 38px rgba(34, 139, 84, 0.3);
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: auto;
+      padding: 24px 7% 8px;
+      background: transparent;
+      border-bottom: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0;
+      width: 100%;
+    }
+
+    .hero-content p {
+      color: #163b28;
+      max-width: 980px;
+      font-family: 'Manrope', 'Inter', Arial, Helvetica, sans-serif;
+      font-size: 1.78rem;
+      font-weight: 800;
+      line-height: 1.45;
+      letter-spacing: -0.02em;
+      margin: 0 auto;
+    }
+
+    #submit-waste {
+      padding: 10px 7% 40px !important;
+      display: flex;
+      justify-content: center;
+    }
+
+    .submit-panel {
+      width: 100%;
+      max-width: 960px;
+    }
+
+    #submit-waste .hero-card {
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+      padding: 34px;
+    }
+
+    .hero-card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(21,128,61,0.1);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-top: 0;
+      align-self: start;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    .hero-card h2 {
+      color: var(--green-900);
+      font-size: 1.55rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-card p {
+      color: #52715f;
+      margin-bottom: 20px;
+      font-size: 0.96rem;
+    }
+
+    .hero-badges-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .badge-inline {
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--green-800);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      box-shadow: 0 8px 20px rgba(22, 101, 52, 0.06);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-type-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .type-tab {
+      border: 1px solid rgba(21, 128, 61, 0.16);
+      background: #f7fff9;
+      color: var(--green-800);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.25s ease;
+      font-family: inherit;
+    }
+
+    .type-tab.active {
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      color: white;
+      box-shadow: 0 15px 30px rgba(34, 139, 84, 0.18);
+      border-color: transparent;
+    }
+
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    .otp-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .otp-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .otp-btn {
+      min-width: 120px;
+      height: 49px;
+      align-self: end;
+    }
+
+    .terms-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      color: #355943;
+      font-size: 0.94rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .terms-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: #2e8b57;
+      flex-shrink: 0;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #214433;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(21, 128, 61, 0.16);
+      background: #fbfffc;
+      font-size: 0.96rem;
+      outline: none;
+      transition: 0.2s ease;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--green-500);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+      background: white;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+      background: var(--mint);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-note {
+      font-size: 0.88rem;
+      color: #5c7767;
+      margin-top: -4px;
+      margin-bottom: 16px;
+    }
+
+    .helper-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .section {
+      padding: 74px 7%;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 42px;
+    }
+
+    .section-title h2 {
+      font-size: 2rem;
+      color: var(--green-900);
+      margin-bottom: 10px;
+    }
+
+    .section-title p {
+      color: var(--muted);
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+      margin-top: 36px;
+    }
+
+    #objectives .section-title h2 {
+      font-size: 2.45rem;
+    }
+
+    #objectives .section-title p {
+      font-size: 1.1rem;
+    }
+
+    .objective-card {
+      background: white;
+      border-radius: 24px;
+      padding: 34px;
+      border: 1px solid rgba(21, 128, 61, 0.12);
+      box-shadow: 0 18px 45px rgba(15, 61, 46, 0.08);
+      min-height: 255px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .objective-card p {
+      margin: 0;
+      color: #223227;
+      line-height: 1.9;
+      font-size: 1.12rem;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .cards, .sponsor-grid, .ads-grid, .news-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .cards { grid-template-columns: repeat(3, 1fr); }
+    .sponsor-grid { grid-template-columns: repeat(4, 1fr); }
+    .ads-grid { grid-template-columns: repeat(4, 1fr); }
+    .news-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .info-card,
+    .sponsor-card,
+    .ad-card,
+    .news-card,
+    .contact-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid rgba(21, 128, 61, 0.08);
+      box-shadow: 0 12px 30px rgba(15, 61, 46, 0.07);
+    }
+
+    .info-card h3,
+    .contact-card h3 {
+      color: var(--green-800);
+      margin-bottom: 12px;
+    }
+
+    .info-card p,
+    .contact-card p,
+    .news-card p {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .benefit-icon {
+      width: 66px;
+      height: 66px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      background: var(--green-100);
+      margin-bottom: 18px;
+    }
+
+    .sponsor-card {
+      text-align: center;
+    }
+
+    .sponsor-card img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sponsor-card h4,
+    .ad-card h4,
+    .news-card h4 {
+      color: var(--green-900);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .sponsor-card p,
+    .ad-card p {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .ad-card {
+      min-height: 270px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background-size: cover;
+      background-position: center;
+      padding: 22px;
+    }
+
+    .ad-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.68), rgba(0,0,0,0.18), transparent);
+      z-index: 1;
+    }
+
+    .ad-card > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .ad-badge {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.9);
+      color: #0f172a;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .ad-card h4,
+    .ad-card p {
+      color: white;
+    }
+
+    .ad-link {
+      margin-top: 12px;
+      color: #dcfce7;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .news-card span {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--green-700);
+      font-weight: 700;
+      font-size: 0.84rem;
+      background: var(--green-100);
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 22px;
+      margin-top: 28px;
+    }
+
+    .contact-card strong {
+      display: block;
+      color: var(--green-900);
+      margin-bottom: 6px;
+    }
+
+    footer {
+      background: var(--footer);
+      color: white;
+      padding: 30px 7%;
+    }
+
+    .footer-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: rgba(255,255,255,0.84);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 24, 15, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 26px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      position: relative;
+      animation: popUp 0.22s ease;
+    }
+
+    @keyframes popUp {
+      from { transform: translateY(12px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: #f2fdf5;
+      color: var(--green-800);
+      font-size: 1.3rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 16px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1200px) {
+      .sponsor-grid, .ads-grid { grid-template-columns: repeat(2, 1fr); }
+      .news-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .nav-links {
+        width: 100%;
+      }
+
+      .form-grid,
+      .cards,
+      .sponsor-grid,
+      .ads-grid,
+      .news-grid,
+      .form-type-switcher {
+        grid-template-columns: 1fr;
+      }
+
+      .otp-row {
+        grid-template-columns: 1fr;
+      }
+
+      .otp-btn {
+        width: 100%;
+      }
+
+      .hero-card, .modal { padding: 22px; }
+      .hero-showcase { min-height: 500px; }
+      .hero {
+        padding: 18px 5% 4px;
+      }
+      .hero-content {
+        min-height: auto;
+        padding: 0;
+      }
+      .hero-content p {
+        font-size: 1.38rem;
+        line-height: 1.5;
+      }
+      #objectives .section-title h2 {
+        font-size: 2rem;
+      }
+      #objectives .section-title p,
+      .objective-card p {
+        font-size: 1rem;
+      }
+      .objective-card {
+        min-height: auto;
+        padding: 26px;
+      }
+      #submit-waste {
+        padding: 8px 5% 34px !important;
+      }
+      .section { padding: 60px 5%; }
+      .navbar { padding: 16px 5%; }
+      footer { padding: 26px 5%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <div class="logo-mark">
+      <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
+    </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#objectives">Objectives</a>
+      <a href="#sponsors">Sponsors</a>
+      <a href="#incentives">Incentives Providers</a>
+      <a href="#incentives">Recycling Companies List</a>
+      <a href="#contact">Contact</a>
+      <a href="green_cycle_main_with_arabic_link.html" class="lang-switch" lang="ar">العربية</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="btn btn-outline" id="openLoginModal">Login</button>
+      <button class="btn btn-primary" id="openSignupModal">Sign Up</button>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <p>
+        Green Cycle Platform connects homes, businesses, recyclers, sponsors, and communities in one digital platform to safely route waste into reuse, recycling, and value-driven circular systems.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="submit-waste">
+    <div class="submit-panel">
+      <div class="hero-card">
+        <h2>Waste Material Submission</h2>
+      <p>Select the type of submission below and provide the required waste details so the right collection or recycling process can be assigned.</p>
+
+      <div class="form-type-switcher" id="formTypeSwitcher">
+        <button type="button" class="type-tab active" data-target="individualForm">Wastes By Individuals / Homes / etc</button>
+        <button type="button" class="type-tab" data-target="corporateForm">Wastes By Corporates / Shops / etc</button>
+      </div>
+
+      <form id="wasteForm" data-form-type="individual">
+      <div class="form-panel active" id="individualForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="individualPhone">Phone Number</label>
+            <input type="tel" id="individualPhone" placeholder="Enter your phone number" required />
+          </div>
+
+          <div class="field">
+            <label for="individualName">Full Name</label>
+            <input type="text" id="individualName" placeholder="Enter your full name" required />
+          </div>
+
+          <div class="field">
+            <label for="individualEmail">Email Address</label>
+            <input type="email" id="individualEmail" placeholder="Enter your email address" required />
+          </div>
+
+          <div class="field">
+            <label for="individualCity">City</label>
+            <input type="text" id="individualCity" placeholder="Enter your city" required />
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteCategory">Waste Category</label>
+            <select id="individualWasteCategory" required>
+              <option value="">Select waste category</option>
+              <option>Plastic Waste</option>
+              <option>Paper & Cardboard</option>
+              <option>Metal Scrap</option>
+              <option>Glass Waste</option>
+              <option>E-Waste</option>
+              <option>Organic Waste</option>
+              <option>Textile Waste</option>
+              <option>Construction Debris</option>
+              <option>Wood Waste</option>
+              <option>Battery Waste</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteImages">Waste Images</label>
+            <input type="file" id="individualWasteImages" accept="image/*" multiple />
+            <div class="form-note">You can upload up to 5 images of the waste materials.</div>
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteNotes">Additional Details</label>
+            <textarea id="individualWasteNotes" placeholder="Add notes such as quantity, pickup location, or special handling details..."></textarea>
+          </div>
+
+          <div class="field full otp-row">
+            <div class="otp-input-wrap">
+              <label for="individualOtp">OTP Verification by Phone Number</label>
+              <input type="text" id="individualOtp" placeholder="Enter OTP sent to your phone number" />
+            </div>
+            <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel" id="corporateForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="companyPhone">Phone Number</label>
+            <input type="tel" id="companyPhone" placeholder="Enter company phone number" />
+          </div>
+
+          <div class="field">
+            <label for="companyName">Company Name</label>
+            <input type="text" id="companyName" placeholder="Enter company name" />
+          </div>
+
+          <div class="field">
+            <label for="companyEmail">Email Address</label>
+            <input type="email" id="companyEmail" placeholder="Enter company email address" />
+          </div>
+
+          <div class="field">
+            <label for="companyCity">City</label>
+            <input type="text" id="companyCity" placeholder="Enter city" />
+          </div>
+
+          <div class="field">
+            <label for="contactPerson">Contact Person</label>
+            <input type="text" id="contactPerson" placeholder="Enter contact person name" />
+          </div>
+
+          <div class="field">
+            <label for="companyWasteCategory">Waste Category</label>
+            <select id="companyWasteCategory">
+              <option value="">Select waste category</option>
+              <option>Plastic Waste</option>
+              <option>Paper & Cardboard</option>
+              <option>Metal Scrap</option>
+              <option>Glass Waste</option>
+              <option>E-Waste</option>
+              <option>Organic Waste</option>
+              <option>Textile Waste</option>
+              <option>Construction Debris</option>
+              <option>Wood Waste</option>
+              <option>Battery Waste</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="companyWasteImages">Waste Images</label>
+            <input type="file" id="companyWasteImages" accept="image/*" multiple />
+            <div class="form-note">You can upload up to 5 images of the waste materials.</div>
+          </div>
+
+          <div class="field full">
+            <label for="companyWasteNotes">Additional Details</label>
+            <textarea id="companyWasteNotes" placeholder="Add quantity, pickup location, operating hours, or handling details..."></textarea>
+          </div>
+
+          <div class="field full otp-row">
+            <div class="otp-input-wrap">
+              <label for="companyOtp">OTP Verification by Phone Number</label>
+              <input type="text" id="companyOtp" placeholder="Enter OTP sent to company phone number" />
+            </div>
+            <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="terms-check">
+        <input type="checkbox" id="termsCheckbox" required />
+        <span>I agree to the terms and conditions.</span>
+      </label>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 8px;">Submit</button>
+      <div class="success-message" id="successMessage">Your waste material submission has been received successfully.</div>
+    </form>
+  </div>
+</div>
+</section>
+
+<section class="section" id="objectives">
+  <div class="section-title">
+    <h2>Our Objectives</h2>
+  </div>
+  <div class="objectives-grid">
+    <div class="objective-card">
+      <p>We create financial incentives to encourage the public to dispose of their waste properly. Consumers can receive various incentives when they dispose of their waste, either personally or through their businesses, via our platform, Green Cycle Platform.</p>
+    </div>
+    <div class="objective-card">
+      <p>We support leading companies in achieving their corporate social responsibility (CSR) ambitions. Our platform can enhance CSR through statistics and performance reports on waste sustainability management.</p>
+    </div>
+    <div class="objective-card">
+      <p>Over 20 million tons of waste are sent to landfills in Kuwait annually. With your participation, we can reduce the amount of waste in Kuwait's landfills by 20% in 2028 and by 100% in 2040.</p>
+    </div>
+    <div class="objective-card">
+      <p>To Enhance awareness of waste reduction in Kuwait's landfills by issuing an international certificate for preserving Kuwait's landfills to every individual and institution participating in the Green Cycle platform.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="sponsors">
+    <div class="section-title">
+      <h2>Our Sponsors</h2>
+      <p>Organizations that support environmental innovation, responsible waste handling, recycling infrastructure, and circular economy growth.</p>
+    </div>
+
+    <div class="sponsor-grid">
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=900&q=80" alt="EcoRenew Ltd.">
+        <h4>EcoRenew Ltd.</h4>
+        <p>Recycling and material recovery partner.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="GreenGrid">
+        <h4>GreenGrid</h4>
+        <p>Supports clean operations and sustainability networks.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=900&q=80" alt="Circular Works">
+        <h4>Circular Works</h4>
+        <p>Circular supply chain and reuse systems partner.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=900&q=80" alt="Clean Earth Co.">
+        <h4>Clean Earth Co.</h4>
+        <p>Environmental stewardship and waste safety sponsor.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="incentives" style="background: rgba(255,255,255,0.7);">
+    <div class="section-title">
+      <h2>Sectors Participating in Incentives</h2>
+      <p>Encourage users, businesses, and institutions to join the platform with benefits that create both environmental and commercial value.</p>
+    </div>
+
+    <div class="cards">
+      <div class="info-card">
+        <div class="benefit-icon">♻️</div>
+        <h3>Green Recognition</h3>
+        <p>Build a trusted sustainability profile with verified participation and environmental impact visibility.</p>
+      </div>
+      <div class="info-card">
+        <div class="benefit-icon">💰</div>
+        <h3>Cost Reduction</h3>
+        <p>Lower waste handling expenses by redirecting materials into more efficient reuse and recovery channels.</p>
+      </div>
+      <div class="info-card">
+        <div class="benefit-icon">📊</div>
+        <h3>Impact Analytics</h3>
+        <p>Track performance, diversion rates, and circular progress through simple digital dashboards.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="ads">
+    <div class="section-title">
+      <h2>Featured Advertisements</h2>
+      <p>Explore services and products supporting sustainability and circular economy.</p>
+    </div>
+
+    <div class="ads-grid" id="adsContainer"></div>
+  </section>
+
+  <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
+    <div class="section-title">
+      <h2>Latest News</h2>
+      <p>This section is ready for future dynamic news updates, announcements, and sustainability highlights.</p>
+    </div>
+
+    <div class="news-grid">
+      <div class="news-card">
+        <span>Update</span>
+        <h4>Community Recycling Drives</h4>
+        <p>Upcoming neighborhood drives and green initiatives can be highlighted here to improve participation.</p>
+      </div>
+      <div class="news-card">
+        <span>Announcement</span>
+        <h4>New Collection Partners</h4>
+        <p>Use this space to share new partnerships with recyclers, transporters, and sponsors.</p>
+      </div>
+      <div class="news-card">
+        <span>Insights</span>
+        <h4>Circular Economy Stories</h4>
+        <p>Feature success stories showing how waste is redirected into reuse, recovery, and responsible value chains.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="section-title">
+      <h2>Contact Us</h2>
+      <p>Make it easy for users, partners, and sponsors to reach Green Cycle Platform.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>General Contact</h3>
+        <strong>Email</strong>
+        <p>info@greencyclemanagement.com</p>
+      </div>
+      <div class="contact-card">
+        <h3>Support Line</h3>
+        <strong>Phone</strong>
+        <p>+965 6772 7786 </p>
+      </div>
+      <div class="contact-card">
+        <h3>Office Address</h3>
+        <strong>Location</strong>
+        <p>Green Cycle Platform, Kuwait City, Kuwait</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-wrap">
+      <p><strong>Green Cycle Platform</strong> — Circular waste solutions platform</p>
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#home">Submit Waste</a>
+        <a href="#sponsors">Sponsors</a>
+      </div>
+      <p>© 2026 All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="close-btn" id="closeLoginModal">×</button>
+      <h2 style="color: var(--green-900); margin-bottom: 8px;">Login</h2>
+      <p style="color:#5b7566; margin-bottom: 18px;">Access your Green Cycle account</p>
+
+      <form>
+        <div class="field">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email" />
+        </div>
+
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="signupModal">
+    <div class="modal">
+      <button class="close-btn" id="closeSignupModal">×</button>
+      <h2 style="color: var(--green-900); margin-bottom: 8px;">Sign Up</h2>
+      <p style="color:#5b7566; margin-bottom: 18px;">Create your Green Cycle account</p>
+
+      <form>
+        <div class="field">
+          <label for="signupEmailModal">Email Address</label>
+          <input type="email" id="signupEmailModal" placeholder="Enter your email" />
+        </div>
+
+        <div class="field">
+          <label for="signupPhoneModal">Phone Number</label>
+          <input type="tel" id="signupPhoneModal" placeholder="Enter your phone number" />
+        </div>
+
+        <div class="field">
+          <label for="signupPasswordModal">Password</label>
+          <input type="password" id="signupPasswordModal" placeholder="Create your password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const loginModal = document.getElementById('loginModal');
+    const signupModal = document.getElementById('signupModal');
+    const openLoginModal = document.getElementById('openLoginModal');
+    const openSignupModal = document.getElementById('openSignupModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const closeSignupModal = document.getElementById('closeSignupModal');
+    const wasteForm = document.getElementById('wasteForm');
+    const successMessage = document.getElementById('successMessage');
+    const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
+    const typeTabs = document.querySelectorAll('.type-tab');
+    const formPanels = document.querySelectorAll('.form-panel');
+
+    function showLoginModal() {
+      loginModal.classList.add('active');
+    }
+
+    function hideLoginModal() {
+      loginModal.classList.remove('active');
+    }
+
+    function showSignupModal() {
+      signupModal.classList.add('active');
+    }
+
+    function hideSignupModal() {
+      signupModal.classList.remove('active');
+    }
+
+    openLoginModal.addEventListener('click', showLoginModal);
+    openSignupModal.addEventListener('click', showSignupModal);
+    closeLoginModal.addEventListener('click', hideLoginModal);
+    closeSignupModal.addEventListener('click', hideSignupModal);
+
+    loginModal.addEventListener('click', function (e) {
+      if (e.target === loginModal) hideLoginModal();
+    });
+
+    signupModal.addEventListener('click', function (e) {
+      if (e.target === signupModal) hideSignupModal();
+    });
+
+    wasteImageInputs.forEach(input => {
+      input.addEventListener('change', function () {
+        if (this.files.length > 5) {
+          alert('You can upload a maximum of 5 images.');
+          this.value = '';
+        }
+      });
+    });
+
+    typeTabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+
+        typeTabs.forEach(btn => btn.classList.remove('active'));
+        formPanels.forEach(panel => panel.classList.remove('active'));
+
+        this.classList.add('active');
+        document.getElementById(targetId).classList.add('active');
+        wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
+      });
+    });
+
+    wasteForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      successMessage.style.display = 'block';
+      wasteForm.reset();
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 4000);
+    });
+
+    const ads = [
+      {
+        title: 'Plastic Recycling Solutions',
+        desc: 'Advanced plastic sorting and recycling technologies.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Waste Collection Services',
+        desc: 'Efficient and eco-friendly waste collection systems.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1574263867128-5cbe0f7dfaa3?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Recycling Plant Equipment',
+        desc: 'Industrial machines for waste processing and reuse.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1581093588401-22f3c4f92c95?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'E-Waste Management',
+        desc: 'Safe disposal and recycling of electronic waste.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Composting Systems',
+        desc: 'Turn organic waste into valuable compost.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Sustainable Packaging',
+        desc: 'Eco-friendly packaging solutions for businesses.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=900&q=80'
+      }
+    ];
+
+    function getRandomAds(count) {
+      return [...ads].sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+
+    function renderAds() {
+      const container = document.getElementById('adsContainer');
+      const selectedAds = getRandomAds(4);
+
+      container.innerHTML = selectedAds.map(ad => `
+        <a href="${ad.link}" class="ad-card" style="background-image:url('${ad.img}');">
+          <span class="ad-badge">Sponsored</span>
+          <h4>${ad.title}</h4>
+          <p>${ad.desc}</p>
+          <span class="ad-link">Learn More</span>
+        </a>
+      `).join('');
+    }
+
+    renderAds();
+  </script>
+</body>
+</html>

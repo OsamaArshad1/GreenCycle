@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منصة جرين سايكل</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-900: #0f3d2e;
+      --green-800: #165c3d;
+      --green-700: #1f7a4c;
+      --green-600: #2e8b57;
+      --green-500: #38a169;
+      --green-300: #86efac;
+      --green-200: #bbf7d0;
+      --green-100: #dcfce7;
+      --mint: #ecfdf5;
+      --white: #ffffff;
+      --shadow: 0 20px 50px rgba(15, 61, 46, 0.16);
+      --border: rgba(21, 128, 61, 0.16);
+      --muted: #587364;
+      --dark: #163020;
+      --footer: #0b2f22;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f6fff8 0%, #ecfdf5 100%);
+      color: var(--dark);
+      line-height: 1.5;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .navbar {
+      position: static;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0px 7%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(21, 128, 61, 0.08);
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.04);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--green-900);
+      flex-shrink: 0;
+    }
+
+    .logo-mark {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .logo-mark svg,
+    .logo-mark img {
+      display: block;
+      overflow: visible;
+      max-width: 170px;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .logo-ar {
+  margin-top:-14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f3d2e;
+  font-family: 'Cairo', sans-serif;
+  white-space: nowrap;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+    .logo-brand {
+      font-weight: 800;
+      font-size: 1.3rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #4ade80, #166534);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      box-shadow: 0 10px 24px rgba(22, 101, 52, 0.25);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      font-weight: 600;
+      color: #355943;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-links a:hover { color: var(--green-700); }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-actions .btn,
+    .nav-actions a.btn {
+      min-width: 102px;
+      padding: 11px 16px;
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s ease;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1px solid rgba(21, 128, 61, 0.18);
+      color: var(--green-800);
+    }
+
+    .btn-outline:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(21, 128, 61, 0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      color: white;
+      box-shadow: 0 15px 35px rgba(34, 139, 84, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 38px rgba(34, 139, 84, 0.3);
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: auto;
+      padding: 24px 7% 8px;
+      background: transparent;
+      border-bottom: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0;
+      width: 100%;
+    }
+
+    .hero-content p {
+      color: #163b28;
+      max-width: 980px;
+      font-family: 'Manrope', 'Inter', Arial, Helvetica, sans-serif;
+      font-size: 1.78rem;
+      font-weight: 800;
+      line-height: 1.45;
+      letter-spacing: -0.02em;
+      margin: 0 auto;
+    }
+
+    #submit-waste {
+      padding: 10px 7% 40px !important;
+      display: flex;
+      justify-content: center;
+    }
+
+    .submit-panel {
+      width: 100%;
+      max-width: 960px;
+    }
+
+    #submit-waste .hero-card {
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+      padding: 34px;
+    }
+
+    .hero-card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(21,128,61,0.1);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-top: 0;
+      align-self: start;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    .hero-card h2 {
+      color: var(--green-900);
+      font-size: 1.55rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-card p {
+      color: #52715f;
+      margin-bottom: 20px;
+      font-size: 0.96rem;
+    }
+
+    .hero-badges-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .badge-inline {
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--green-800);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      box-shadow: 0 8px 20px rgba(22, 101, 52, 0.06);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-type-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .type-tab {
+      border: 1px solid rgba(21, 128, 61, 0.16);
+      background: #f7fff9;
+      color: var(--green-800);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.25s ease;
+      font-family: inherit;
+    }
+
+    .type-tab.active {
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      color: white;
+      box-shadow: 0 15px 30px rgba(34, 139, 84, 0.18);
+      border-color: transparent;
+    }
+
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    .otp-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .otp-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .otp-btn {
+      min-width: 120px;
+      height: 49px;
+      align-self: end;
+    }
+
+    .terms-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      color: #355943;
+      font-size: 0.94rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .terms-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: #2e8b57;
+      flex-shrink: 0;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #214433;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(21, 128, 61, 0.16);
+      background: #fbfffc;
+      font-size: 0.96rem;
+      outline: none;
+      transition: 0.2s ease;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--green-500);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+      background: white;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+      background: var(--mint);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-note {
+      font-size: 0.88rem;
+      color: #5c7767;
+      margin-top: -4px;
+      margin-bottom: 16px;
+    }
+
+    .helper-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .section {
+      padding: 74px 7%;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 42px;
+    }
+
+    .section-title h2 {
+      font-size: 2rem;
+      color: var(--green-900);
+      margin-bottom: 10px;
+    }
+
+    .section-title p {
+      color: var(--muted);
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+      margin-top: 36px;
+    }
+
+    #objectives .section-title h2 {
+      font-size: 2.45rem;
+    }
+
+    #objectives .section-title p {
+      font-size: 1.1rem;
+    }
+
+    .objective-card {
+      background: white;
+      border-radius: 24px;
+      padding: 34px;
+      border: 1px solid rgba(21, 128, 61, 0.12);
+      box-shadow: 0 18px 45px rgba(15, 61, 46, 0.08);
+      min-height: 255px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .objective-card p {
+      margin: 0;
+      color: #223227;
+      line-height: 1.9;
+      font-size: 1.12rem;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .cards, .sponsor-grid, .ads-grid, .news-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .cards { grid-template-columns: repeat(3, 1fr); }
+    .sponsor-grid { grid-template-columns: repeat(4, 1fr); }
+    .ads-grid { grid-template-columns: repeat(4, 1fr); }
+    .news-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .info-card,
+    .sponsor-card,
+    .ad-card,
+    .news-card,
+    .contact-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid rgba(21, 128, 61, 0.08);
+      box-shadow: 0 12px 30px rgba(15, 61, 46, 0.07);
+    }
+
+    .info-card h3,
+    .contact-card h3 {
+      color: var(--green-800);
+      margin-bottom: 12px;
+    }
+
+    .info-card p,
+    .contact-card p,
+    .news-card p {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .benefit-icon {
+      width: 66px;
+      height: 66px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      background: var(--green-100);
+      margin-bottom: 18px;
+    }
+
+    .sponsor-card {
+      text-align: center;
+    }
+
+    .sponsor-card img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 18px;
+      margin-bottom: 16px;
+    }
+
+    .sponsor-card h4,
+    .ad-card h4,
+    .news-card h4 {
+      color: var(--green-900);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .sponsor-card p,
+    .ad-card p {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .ad-card {
+      min-height: 270px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background-size: cover;
+      background-position: center;
+      padding: 22px;
+    }
+
+    .ad-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.68), rgba(0,0,0,0.18), transparent);
+      z-index: 1;
+    }
+
+    .ad-card > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .ad-badge {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.9);
+      color: #0f172a;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .ad-card h4,
+    .ad-card p {
+      color: white;
+    }
+
+    .ad-link {
+      margin-top: 12px;
+      color: #dcfce7;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .news-card span {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--green-700);
+      font-weight: 700;
+      font-size: 0.84rem;
+      background: var(--green-100);
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 22px;
+      margin-top: 28px;
+    }
+
+    .contact-card strong {
+      display: block;
+      color: var(--green-900);
+      margin-bottom: 6px;
+    }
+
+    footer {
+      background: var(--footer);
+      color: white;
+      padding: 30px 7%;
+    }
+
+    .footer-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: rgba(255,255,255,0.84);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 24, 15, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 26px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      position: relative;
+      animation: popUp 0.22s ease;
+    }
+
+    @keyframes popUp {
+      from { transform: translateY(12px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: #f2fdf5;
+      color: var(--green-800);
+      font-size: 1.3rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 16px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+
+    body {
+      font-family: 'Cairo', 'Inter', Arial, Helvetica, sans-serif;
+      direction: rtl;
+      text-align: right;
+    }
+
+    .navbar,
+    .footer-wrap,
+    .terms-check,
+    .helper-row,
+    .hero-badges-inline,
+    .nav-actions,
+    .nav-links,
+    .logo,
+    .form-grid,
+    .otp-row,
+    .contact-grid,
+    .cards,
+    .sponsor-grid,
+    .ads-grid,
+    .news-grid {
+      direction: rtl;
+    }
+
+    .navbar {
+      flex-direction: row-reverse;
+    }
+
+    .nav-links,
+    .nav-actions,
+    .footer-links,
+    .footer-wrap {
+      flex-direction: row-reverse;
+    }
+
+    .hero-content,
+    .section-title,
+    .objective-card p,
+    .info-card,
+    .sponsor-card,
+    .news-card,
+    .contact-card,
+    .hero-card,
+    .modal,
+    .field,
+    .form-note,
+    .ad-card,
+    .ad-link {
+      text-align: right;
+    }
+
+    .hero-content p,
+    .section-title p {
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .objective-card p,
+    .info-card p,
+    .contact-card p,
+    .news-card p,
+    .sponsor-card p {
+      text-align: right;
+    }
+
+    .terms-check {
+      justify-content: flex-start;
+    }
+
+    .ad-badge {
+      align-self: flex-end;
+    }
+
+    .close-btn {
+      right: auto;
+      left: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      text-align: right;
+    }
+
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"] {
+      direction: rtl;
+    }
+
+    .lang-switch-en {
+      font-family: 'Inter', Arial, sans-serif;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 1200px) {
+      .sponsor-grid, .ads-grid { grid-template-columns: repeat(2, 1fr); }
+      .news-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .form-grid,
+      .cards,
+      .sponsor-grid,
+      .ads-grid,
+      .news-grid,
+      .form-type-switcher {
+        grid-template-columns: 1fr;
+      }
+
+      .otp-row {
+        grid-template-columns: 1fr;
+      }
+
+      .otp-btn {
+        width: 100%;
+      }
+
+      .hero-card, .modal { padding: 22px; }
+      .hero-showcase { min-height: 500px; }
+      .hero {
+        padding: 18px 5% 4px;
+      }
+      .hero-content {
+        min-height: auto;
+        padding: 0;
+      }
+      .hero-content p {
+        font-size: 1.38rem;
+        line-height: 1.5;
+      }
+      #objectives .section-title h2 {
+        font-size: 2rem;
+      }
+      #objectives .section-title p,
+      .objective-card p {
+        font-size: 1rem;
+      }
+      .objective-card {
+        min-height: auto;
+        padding: 26px;
+      }
+      #submit-waste {
+        padding: 8px 5% 34px !important;
+      }
+      .section { padding: 60px 5%; }
+      .navbar { padding: 16px 5%; }
+      footer { padding: 26px 5%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <div class="logo-mark">
+      <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
+    </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#objectives">أهدافنا</a>
+      <a href="#sponsors">الرعاة</a>
+      <a href="#incentives">الجهات المقدمة للحوافز</a>
+      <a href="#incentives">قوائم لشركات التدوير والمعالجة</a>
+      <a href="#contact">تواصل معنا</a>
+      <a href="green_cycle_main_with_arabic_link.html" class="lang-switch-en" lang="en">English</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="btn btn-outline" id="openLoginModal">تسجيل الدخول</button>
+      <button class="btn btn-primary" id="openSignupModal">إنشاء حساب</button>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <p>
+        تعتبر منصة "جرين سايكل" حلقة وصل تربط كل من أصحاب المنازل والشركات المؤسسية مع شركات إعادة التدوير والجهات الراعية والمجتمعات في منصة رقمية واحدة لتوجيه النفايات بأمان إلى أنظمة إعادة الاستخدام وإعادة التدوير والأنظمة الدائرية القائمة على القيمة وحفظ البيئة.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="submit-waste">
+    <div class="submit-panel">
+      <div class="hero-card">
+        <h2>خطوات تسليم النفايات</h2>
+      <p>اختر نوع التسليم أدناه وأدخل تفاصيل النفايات المطلوبة ليتم توجيهها إلى الجهة المناسبة للجمع أو إعادة التدوير.</p>
+
+      <div class="form-type-switcher" id="formTypeSwitcher">
+        <button type="button" class="type-tab active" data-target="individualForm">تسليم النفايات عبر الأشخاص والمنازل</button>
+        <button type="button" class="type-tab" data-target="corporateForm">تسليم النفايات عبر الشركات والمؤسسات والمحلات</button>
+      </div>
+
+      <form id="wasteForm" data-form-type="individual">
+      <div class="form-panel active" id="individualForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="individualالهاتف">رقم الهاتف</label>
+            <input type="tel" id="individualالهاتف" placeholder="أدخل رقم الهاتف" required />
+          </div>
+
+          <div class="field">
+            <label for="individualName">الاسم الكامل</label>
+            <input type="text" id="individualName" placeholder="أدخل الاسم الكامل" required />
+          </div>
+
+          <div class="field">
+            <label for="individualالبريد الالكتروني">البريد الالكتروني</label>
+            <input type="email" id="individualالبريد الالكتروني" placeholder="أدخل البريد الالكتروني" required />
+          </div>
+
+          <div class="field">
+            <label for="individualالمدينة">المدينة</label>
+            <input type="text" id="individualالمدينة" placeholder="أدخل المدينة" required />
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteCategory">نوع النفايات</label>
+            <select id="individualWasteCategory" required>
+              <option value="">اختر نوع النفايات</option>
+              <option>نفايات بلاستيكية</option>
+              <option>ورق وكرتون</option>
+              <option>خردة معدنية</option>
+              <option>نفايات زجاجية</option>
+              <option>نفايات إلكترونية</option>
+              <option>نفايات عضوية</option>
+              <option>نفايات نسيجية</option>
+              <option>مخلفات بناء</option>
+              <option>نفايات خشبية</option>
+              <option>نفايات البطاريات</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteImages">ارفاق الصور للنفايات</label>
+            <input type="file" id="individualWasteImages" accept="image/*" multiple />
+            <div class="form-note">يمكنك ارفاق حتى 5 صور للنفايات.</div>
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteNotes">تفاصيل إضافية (اختياري)</label>
+            <textarea id="individualWasteNotes" placeholder="أدخل أي تفاصيل إضافية مثل الكمية أو موقع الاستلام أو متطلبات خاصة..."></textarea>
+          </div>
+
+          <div class="field full otp-row">
+            <div class="otp-input-wrap">
+              <label for="individualOtp">التحقق عبر رمز OTP للهاتف</label>
+              <input type="text" id="individualOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتفك" />
+            </div>
+            <button type="button" class="btn btn-outline otp-btn">إرسال رمز OTP</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel" id="corporateForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="companyالهاتف">رقم الهاتف</label>
+            <input type="tel" id="companyالهاتف" placeholder="أدخل رقم هاتف الشركة" />
+          </div>
+
+          <div class="field">
+            <label for="companyName">اسم الشركة / المؤسسة</label>
+            <input type="text" id="companyName" placeholder="أدخل اسم الشركة / المؤسسة" />
+          </div>
+
+          <div class="field">
+            <label for="companyالبريد الالكتروني">البريد الالكتروني</label>
+            <input type="email" id="companyالبريد الالكتروني" placeholder="أدخل البريد الالكتروني للشركة" />
+          </div>
+
+          <div class="field">
+            <label for="companyالمدينة">المدينة</label>
+            <input type="text" id="companyالمدينة" placeholder="أدخل المدينة" />
+          </div>
+
+          <div class="field">
+            <label for="contactPerson">الشخص المسؤول</label>
+            <input type="text" id="contactPerson" placeholder="أدخل اسم الشخص المسؤول" />
+          </div>
+
+          <div class="field">
+            <label for="companyWasteCategory">نوع النفايات</label>
+            <select id="companyWasteCategory">
+              <option value="">اختر نوع النفايات</option>
+              <option>نفايات بلاستيكية</option>
+              <option>ورق وكرتون</option>
+              <option>خردة معدنية</option>
+              <option>نفايات زجاجية</option>
+              <option>نفايات إلكترونية</option>
+              <option>نفايات عضوية</option>
+              <option>نفايات نسيجية</option>
+              <option>مخلفات بناء</option>
+              <option>نفايات خشبية</option>
+              <option>نفايات البطاريات</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="companyWasteImages">ارفاق الصور للنفايات</label>
+            <input type="file" id="companyWasteImages" accept="image/*" multiple />
+            <div class="form-note">يمكنك ارفاق حتى 5 صور للنفايات.</div>
+          </div>
+
+          <div class="field full">
+            <label for="companyWasteNotes">تفاصيل إضافية (اختياري)</label>
+            <textarea id="companyWasteNotes" placeholder="أدخل الكمية أو موقع الاستلام أو ساعات العمل أو أي تفاصيل إضافية..."></textarea>
+          </div>
+
+          <div class="field full otp-row">
+            <div class="otp-input-wrap">
+              <label for="companyOtp">التحقق عبر رمز OTP للهاتف</label>
+              <input type="text" id="companyOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتف الشركة" />
+            </div>
+            <button type="button" class="btn btn-outline otp-btn">إرسال رمز OTP</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="terms-check">
+        <input type="checkbox" id="termsCheckbox" required />
+        <span>الموافقة على القواعد والشروط</span>
+      </label>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 8px;">ارسال</button>
+      <div class="success-message" id="successMessage">تم استلام طلب تسليم النفايات بنجاح.</div>
+    </form>
+  </div>
+</div>
+</section>
+
+<section class="section" id="objectives">
+  <div class="section-title">
+    <h2>أهدافنا</h2>
+  </div>
+  <div class="objectives-grid">
+    <div class="objective-card">
+      <p>المنصة تخلق فرص تمويلية حديثة في تقديم حوافز مالية متنوعة لتشجيع الجمهور على التخلص السليم من النفايات. يمكن للمشتركين الحصول على حوافز متنوعة عند التخلص من نفاياتهم، سواءً بشكل شخصي أو من خلال شركاتهم، عبر منصتنا "منصة جرين سايكل".</p>
+    </div>
+    <div class="objective-card">
+      <p>المساهمة في دعم الشركات الرائدة في تحقيق أهدافها المتعلقة بالمسؤولية الاجتماعية للشركات CSR. حيث تُساهم منصتنا في تعزيز هذه المسؤولية من خلال الإحصاءات وتقارير الأداء الخاصة بإدارة الاستدامة النفايات.</p>
+    </div>
+    <div class="objective-card">
+      <p>سنويا يتم إرسال أكثر من 20 مليون طن من النفايات إلى مكبات النفايات في الكويت. بمشاركتكم، يُمكننا خفض كمية النفايات في مكبات الكويت بنسبة 20% بحلول عام 2028 وبنسبة 100% بحلول عام 2040.</p>
+    </div>
+    <div class="objective-card">
+      <p>المساهمة في تعزيز الوعي بأهمية الحد من النفايات في مكبات الكويت من خلال إصدار شهادة دولية للحفاظ على مكبات النفايات في الكويت لكل فرد ولكل مؤسسة مشاركة في منصتنا "جرين سايكل".</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="sponsors">
+    <div class="section-title">
+      <h2>الرعاة شركاء النجاح</h2>
+      <p>جهات ومؤسسات تدعم الابتكار البيئي والإدارة المسؤولة للنفايات وتطوير البنية التحتية لإعادة التدوير ونمو الاقتصاد الدائري.</p>
+    </div>
+
+    <div class="sponsor-grid">
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=900&q=80" alt="EcoRenew Ltd.">
+        <h4 >EcoRenew Ltd.</h4>
+        <p>شريك في إعادة التدوير واسترداد المواد.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="GreenGrid">
+        <h4>GreenGrid</h4>
+        <p>يدعم العمليات النظيفة وشبكات الاستدامة.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=900&q=80" alt="Circular Works">
+        <h4>Circular Works</h4>
+        <p>شريك في سلاسل الإمداد الدائرية وأنظمة إعادة الاستخدام.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=900&q=80" alt="Clean Earth Co.">
+        <h4>Clean Earth Co.</h4>
+        <p>راعٍ للسلامة البيئية والإدارة الآمنة للنفايات.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="incentives" style="background: rgba(255,255,255,0.7);">
+    <div class="section-title">
+      <h2>الجهات والقطاعات المقدمة للحوافز وشركاء النجاح معنا</h2>
+      <p>جهات وقطاعات تشجع الأفراد والشركات والمؤسسات على الانضمام للمنصة من خلال حوافز تحقق قيمة بيئية وتجارية.</p>
+    </div>
+
+    <div class="cards">
+      <div class="info-card">
+        <div class="benefit-icon">♻️</div>
+        <h3>التميز الأخضر</h3>
+        <p>بناء صورة موثوقة في الاستدامة من خلال المشاركة المعتمدة وإبراز الأثر البيئي.</p>
+      </div>
+      <div class="info-card">
+        <div class="benefit-icon">💰</div>
+        <h3>خفض التكاليف</h3>
+        <p>تقليل تكاليف التعامل مع النفايات من خلال توجيه المواد إلى قنوات أكثر كفاءة لإعادة الاستخدام والاسترداد.</p>
+      </div>
+      <div class="info-card">
+        <div class="benefit-icon">📊</div>
+        <h3>تحليلات الأثر</h3>
+        <p>متابعة الأداء ومعدلات التحويل والتقدم في الاقتصاد الدائري عبر لوحات رقمية بسيطة.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="ads">
+    <div class="section-title">
+      <h2>الإعلانات المميزة والمشاركة معنا</h2>
+      <p>استكشف الخدمات والمنتجات الداعمة للاستدامة والاقتصاد الدائري.</p>
+    </div>
+
+    <div class="ads-grid" id="adsContainer"></div>
+  </section>
+
+  <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
+    <div class="section-title">
+      <h2>أحدث الاخبار المتعلقة في الاقتصاد الدائري وإدارة النفايات</h2>
+      <p>هذا القسم جاهز لإضافة الأخبار والتحديثات والإعلانات المتعلقة بإدارة النفايات والاقتصاد الدائري.</p>
+    </div>
+
+    <div class="news-grid">
+      <div class="news-card">
+        <span>تحديث</span>
+        <h4>حملات إعادة التدوير المجتمعية</h4>
+        <p>يمكن عرض الحملات المجتمعية والمبادرات البيئية هنا لتعزيز المشاركة.</p>
+      </div>
+      <div class="news-card">
+        <span>إعلان</span>
+        <h4>شركاء جمع جدد</h4>
+        <p>يمكن استخدام هذا القسم للإعلان عن الشراكات الجديدة مع شركات التدوير والنقل والرعاة.</p>
+      </div>
+      <div class="news-card">
+        <span>مستجدات</span>
+        <h4>قصص نجاح الاقتصاد الدائري</h4>
+        <p>اعرض قصص النجاح التي توضح كيف يتم تحويل النفايات إلى مسارات إعادة استخدام واسترداد وقيمة مسؤولة.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="section-title">
+      <h2>تواصل معنا</h2>
+      <p>نجعل التواصل مع منصة جرين سايكل سهلاً للمستخدمين والشركاء والرعاة.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>التواصل العام</h3>
+        <strong>البريد الالكتروني</strong>
+        <p>info@greencyclemanagement.com</p>
+      </div>
+      <div class="contact-card">
+        <h3>خط الدعم</h3>
+        <strong>الهاتف</strong>
+        <p>+965 6772 7786 </p>
+      </div>
+      <div class="contact-card">
+        <h3>عنوان المكتب</h3>
+        <strong>الموقع</strong>
+        <p>منصة جرين سايكل، مدينة الكويت، الكويت</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-wrap">
+      <p><strong>منصة جرين سايكل</strong> — منصة للحلول الدائرية للنفايات</p>
+      <div class="footer-links">
+        <a href="#home">الرئيسية</a>
+        <a href="#home">تسليم النفايات</a>
+        <a href="#sponsors">الرعاة</a>
+      </div>
+      <p>© 2026 جميع الحقوق محفوظة.</p>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="close-btn" id="closeLoginModal">×</button>
+      <h2 style="color: var(--green-900); margin-bottom: 8px;">تسجيل الدخول</h2>
+      <p style="color:#5b7566; margin-bottom: 18px;">الوصول إلى حسابك في منصة جرين سايكل</p>
+
+      <form>
+        <div class="field">
+          <label for="loginالبريد الالكتروني">البريد الالكتروني</label>
+          <input type="email" id="loginالبريد الالكتروني" placeholder="أدخل البريد الالكتروني" />
+        </div>
+
+        <div class="field">
+          <label for="loginPassword">كلمة المرور</label>
+          <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">تسجيل الدخول</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="signupModal">
+    <div class="modal">
+      <button class="close-btn" id="closeSignupModal">×</button>
+      <h2 style="color: var(--green-900); margin-bottom: 8px;">إنشاء حساب</h2>
+      <p style="color:#5b7566; margin-bottom: 18px;">إنشاء حساب في منصة جرين سايكل</p>
+
+      <form>
+        <div class="field">
+          <label for="signupالبريد الالكترونيModal">البريد الالكتروني</label>
+          <input type="email" id="signupالبريد الالكترونيModal" placeholder="أدخل البريد الالكتروني" />
+        </div>
+
+        <div class="field">
+          <label for="signupالهاتفModal">رقم الهاتف</label>
+          <input type="tel" id="signupالهاتفModal" placeholder="أدخل رقم الهاتف" />
+        </div>
+
+        <div class="field">
+          <label for="signupPasswordModal">كلمة المرور</label>
+          <input type="password" id="signupPasswordModal" placeholder="أنشئ كلمة المرور" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">إنشاء حساب</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const loginModal = document.getElementById('loginModal');
+    const signupModal = document.getElementById('signupModal');
+    const openLoginModal = document.getElementById('openLoginModal');
+    const openSignupModal = document.getElementById('openSignupModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const closeSignupModal = document.getElementById('closeSignupModal');
+    const wasteForm = document.getElementById('wasteForm');
+    const successMessage = document.getElementById('successMessage');
+    const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
+    const typeTabs = document.querySelectorAll('.type-tab');
+    const formPanels = document.querySelectorAll('.form-panel');
+
+    function showLoginModal() {
+      loginModal.classList.add('active');
+    }
+
+    function hideLoginModal() {
+      loginModal.classList.remove('active');
+    }
+
+    function showSignupModal() {
+      signupModal.classList.add('active');
+    }
+
+    function hideSignupModal() {
+      signupModal.classList.remove('active');
+    }
+
+    openLoginModal.addEventListener('click', showLoginModal);
+    openSignupModal.addEventListener('click', showSignupModal);
+    closeLoginModal.addEventListener('click', hideLoginModal);
+    closeSignupModal.addEventListener('click', hideSignupModal);
+
+    loginModal.addEventListener('click', function (e) {
+      if (e.target === loginModal) hideLoginModal();
+    });
+
+    signupModal.addEventListener('click', function (e) {
+      if (e.target === signupModal) hideSignupModal();
+    });
+
+    wasteImageInputs.forEach(input => {
+      input.addEventListener('change', function () {
+        if (this.files.length > 5) {
+          alert('يمكنك ارفاق 5 صور كحد أقصى.');
+          this.value = '';
+        }
+      });
+    });
+
+    typeTabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+
+        typeTabs.forEach(btn => btn.classList.remove('active'));
+        formPanels.forEach(panel => panel.classList.remove('active'));
+
+        this.classList.add('active');
+        document.getElementById(targetId).classList.add('active');
+        wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
+      });
+    });
+
+    wasteForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      successMessage.style.display = 'block';
+      wasteForm.reset();
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 4000);
+    });
+
+    const ads = [
+      {
+        title: 'حلول إعادة تدوير البلاستيك',
+        desc: 'تقنيات متقدمة لفرز وإعادة تدوير البلاستيك.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'خدمات جمع النفايات',
+        desc: 'أنظمة فعالة وصديقة للبيئة لجمع النفايات.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1574263867128-5cbe0f7dfaa3?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'معدات مصانع إعادة التدوير',
+        desc: 'معدات صناعية لمعالجة النفايات وإعادة استخدامها.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1581093588401-22f3c4f92c95?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'إدارة النفايات الإلكترونية',
+        desc: 'التخلص الآمن من النفايات الإلكترونية وإعادة تدويرها.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'أنظمة التسميد العضوي',
+        desc: 'تحويل النفايات العضوية إلى سماد ذي قيمة.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'تغليف مستدام',
+        desc: 'حلول تغليف صديقة للبيئة للشركات.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=900&q=80'
+      }
+    ];
+
+    function getRandomAds(count) {
+      return [...ads].sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+
+    function renderAds() {
+      const container = document.getElementById('adsContainer');
+      const selectedAds = getRandomAds(4);
+
+      container.innerHTML = selectedAds.map(ad => `
+        <a href="${ad.link}" class="ad-card" style="background-image:url('${ad.img}');">
+          <span class="ad-badge">إعلان</span>
+          <h4>${ad.title}</h4>
+          <p>${ad.desc}</p>
+          <span class="ad-link">اعرف المزيد</span>
+        </a>
+      `).join('');
+    }
+
+    renderAds();
+  </script>
+</body>
+</html>
