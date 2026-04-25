@@ -15,12 +15,18 @@
       <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
       <div class="brand-copy">
         <small>Green Cycle Platform</small>
-        <strong>Recycling Companies Directory</strong>
       </div>
     </a>
-    <div class="top-actions">
-      <a class="btn btn-outline" href="index.html">Back to Home</a>
-      <a class="btn btn-primary" href="green_cycle_main_with_arabic_link.html">الصفحة العربية</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="nav-menu">
+      <div class="top-actions">
+        <a class="btn btn-outline" href="index.html">Home</a>
+        <a class="btn btn-primary" href="green_cycle_main_with_arabic_link.html">الصفحة العربية</a>
+      </div>
     </div>
   </header>
 
@@ -598,6 +604,16 @@
       </div>
     </section>
   </main>
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const topbar = document.querySelector('.topbar');
+
+    if (menuToggle && topbar) {
+      menuToggle.addEventListener('click', function () {
+        const isOpen = topbar.classList.toggle('nav-open');
+        menuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+  </script>
 </body>
 </html>
-

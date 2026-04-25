@@ -141,6 +141,67 @@ body.landing-page {
   font-size: 0.92rem;
 }
 
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(21, 128, 61, 0.18);
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: var(--green-900);
+  transform-origin: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.navbar-home {
+  gap: 18px;
+}
+
+.nav-links-home {
+  flex: 1;
+  min-width: 0;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+.nav-links-home a {
+  padding: 8px 6px;
+  white-space: nowrap;
+  font-size: 0.92rem;
+}
+
+.navbar-home .nav-actions {
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.navbar-home .nav-actions .btn,
+.navbar-home .nav-actions a.btn {
+  min-width: 88px;
+  padding: 10px 14px;
+}
+
 .btn {
   border: none;
   border-radius: 14px;
@@ -712,8 +773,11 @@ html[dir="rtl"] .footer-wrap {
   flex-direction: row-reverse;
 }
 
+html[dir="rtl"] .nav-links {
+  flex-direction: row;
+}
+
 html[dir="rtl"] .hero-content,
-html[dir="rtl"] .section-title,
 html[dir="rtl"] .objective-card p,
 html[dir="rtl"] .info-card,
 html[dir="rtl"] .sponsor-card,
@@ -736,6 +800,10 @@ html[dir="rtl"] .hero-content p,
 html[dir="rtl"] .section-title p {
   margin-right: auto;
   margin-left: auto;
+}
+
+html[dir="rtl"] .section-title {
+  text-align: center;
 }
 
 html[dir="rtl"] .terms-check { justify-content: flex-start; }
@@ -822,12 +890,14 @@ body.directory-page {
 }
 
 .directory-page .hero {
+  display: block;
   padding: 56px 6% 28px;
 }
 
 .directory-page .hero-panel {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0 0 24px;
   padding: 34px;
   border-radius: 28px;
   background:
@@ -863,8 +933,9 @@ body.directory-page {
 }
 
 .directory-page .chips {
-  max-width: 1200px;
-  margin: 24px auto 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -996,18 +1067,69 @@ body.directory-page {
 
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: column;
-    align-items: stretch;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     gap: 14px;
   }
 
+  .topbar {
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .logo {
-    justify-content: center;
-    width: 100%;
+    justify-content: flex-start;
+    width: auto;
   }
 
   .logo-mark img { max-width: 140px; }
+
+  .menu-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
+  .nav-menu {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding-top: 8px;
+  }
+
+  .navbar.nav-open .nav-menu,
+  .topbar.nav-open .nav-menu {
+    display: flex;
+    position: relative;
+    padding-top: 56px;
+  }
+
+  .navbar.nav-open .menu-toggle,
+  .topbar.nav-open .menu-toggle {
+    position: absolute;
+    top: 76px;
+    right: 5%;
+    z-index: 3;
+  }
+
+  .navbar.nav-open .menu-toggle span:nth-child(1),
+  .topbar.nav-open .menu-toggle span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .navbar.nav-open .menu-toggle span:nth-child(2),
+  .topbar.nav-open .menu-toggle span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .navbar.nav-open .menu-toggle span:nth-child(3),
+  .topbar.nav-open .menu-toggle span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
 
   .nav-links {
     width: 100%;
@@ -1090,6 +1212,19 @@ body.directory-page {
     padding-right: 4%;
   }
 
+  .directory-page .topbar {
+    flex-wrap: wrap;
+  }
+
+  .directory-page .top-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .directory-page .top-actions .btn {
+    width: 100%;
+  }
+
   .directory-page .hero,
   .directory-page .page {
     padding-left: 4%;
@@ -1107,6 +1242,11 @@ body.directory-page {
 @media (max-width: 560px) {
   .navbar { padding: 14px 4%; }
 
+  .navbar.nav-open .menu-toggle,
+  .topbar.nav-open .menu-toggle {
+    right: 4%;
+  }
+
   .nav-links {
     flex-direction: column;
     align-items: stretch;
@@ -1118,6 +1258,11 @@ body.directory-page {
     padding: 10px 12px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.7);
+  }
+
+  .menu-toggle {
+    width: 44px;
+    height: 44px;
   }
 
   .hero { padding: 14px 4% 0; }

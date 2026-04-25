@@ -11,25 +11,33 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="landing-page">
-  <header class="navbar">
+  <header class="navbar navbar-home">
     <div class="logo">
       <div class="logo-mark">
       <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
     </div>
     </div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <nav class="nav-links">
-      <a href="#objectives">Objectives</a>
-      <a href="#sponsors">Sponsors</a>
-      <a href="#incentives">Incentives Providers</a>
-      <a href="recycling-companies.html">Recycling Companies List</a>
-      <a href="#contact">Contact</a>
-      <a href="green_cycle_main_with_arabic_link.html" class="lang-switch" lang="ar">العربية</a>
-    </nav>
+    <div class="nav-menu">
+      <nav class="nav-links nav-links-home">
+        <a href="index.html">Home</a>
+        <a href="#objectives">Objectives</a>
+        <a href="#sponsors">Sponsors</a>
+        <a href="#incentives">Incentives Providers</a>
+        <a href="recycling-companies.html">Recycling Companies List</a>
+        <a href="#contact">Contact</a>
+        <a href="green_cycle_main_with_arabic_link.html" class="lang-switch" lang="ar">العربية</a>
+      </nav>
 
-    <div class="nav-actions">
-      <button class="btn btn-outline" id="openLoginModal">Login</button>
-      <button class="btn btn-primary" id="openSignupModal">Sign Up</button>
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="openLoginModal">Login</button>
+        <button class="btn btn-primary" id="openSignupModal">Sign Up</button>
+      </div>
     </div>
   </header>
 
@@ -104,7 +112,7 @@
           </div>
 
           <div class="field full otp-row">
-            <div class="otp-input-wrap">
+            <div class="otp-input-wrap" hidden>
               <label for="individualOtp">OTP Verification by Phone Number</label>
               <input type="text" id="individualOtp" placeholder="Enter OTP sent to your phone number" />
             </div>
@@ -169,7 +177,7 @@
           </div>
 
           <div class="field full otp-row">
-            <div class="otp-input-wrap">
+            <div class="otp-input-wrap" hidden>
               <label for="companyOtp">OTP Verification by Phone Number</label>
               <input type="text" id="companyOtp" placeholder="Enter OTP sent to company phone number" />
             </div>
@@ -196,10 +204,10 @@
   </div>
   <div class="objectives-grid">
     <div class="objective-card">
-      <p>We create financial incentives to encourage the public to dispose of their waste properly. Consumers can receive various incentives when they dispose of their waste, either personally or through their businesses, via our platform, Green Cycle Platform.</p>
+      <p>To create financial incentives to encourage the public to dispose of their waste properly. Consumers can receive various incentives when they dispose of their waste, either personally or through their businesses, via our platform, Green Cycle Platform.</p>
     </div>
     <div class="objective-card">
-      <p>We support leading companies in achieving their corporate social responsibility (CSR) ambitions. Our platform can enhance CSR through statistics and performance reports on waste sustainability management.</p>
+      <p>To support leading companies in achieving their corporate social responsibility (CSR) ambitions. Our platform can enhance CSR through statistics and performance reports on waste sustainability management.</p>
     </div>
     <div class="objective-card">
       <p>Over 20 million tons of waste are sent to landfills in Kuwait annually. With your participation, we can reduce the amount of waste in Kuwait's landfills by 20% in 2028 and by 100% in 2040.</p>
@@ -397,6 +405,10 @@
     const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
     const typeTabs = document.querySelectorAll('.type-tab');
     const formPanels = document.querySelectorAll('.form-panel');
+    const otpButtons = document.querySelectorAll('.otp-btn');
+    const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navbar = document.querySelector('.navbar');
 
     function showLoginModal() {
       loginModal.classList.add('active');
@@ -418,6 +430,13 @@
     openSignupModal.addEventListener('click', showSignupModal);
     closeLoginModal.addEventListener('click', hideLoginModal);
     closeSignupModal.addEventListener('click', hideSignupModal);
+
+    if (menuToggle && navbar) {
+      menuToggle.addEventListener('click', function () {
+        const isOpen = navbar.classList.toggle('nav-open');
+        menuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
 
     loginModal.addEventListener('click', function (e) {
       if (e.target === loginModal) hideLoginModal();
@@ -449,10 +468,24 @@
       });
     });
 
+    otpButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const otpRow = this.closest('.otp-row');
+        const otpInputWrap = otpRow.querySelector('.otp-input-wrap');
+        const otpInput = otpInputWrap.querySelector('input');
+
+        otpInputWrap.hidden = false;
+        otpInput.focus();
+      });
+    });
+
     wasteForm.addEventListener('submit', function (e) {
       e.preventDefault();
       successMessage.style.display = 'block';
       wasteForm.reset();
+      otpInputWraps.forEach(wrap => {
+        wrap.hidden = true;
+      });
       setTimeout(() => {
         successMessage.style.display = 'none';
       }, 4000);

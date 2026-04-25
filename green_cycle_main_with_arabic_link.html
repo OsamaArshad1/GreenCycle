@@ -17,19 +17,27 @@
       <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
     </div>
     </div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="فتح قائمة التنقل">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <nav class="nav-links">
-      <a href="#objectives">أهدافنا</a>
-      <a href="#sponsors">الرعاة</a>
-      <a href="#incentives">الجهات المقدمة للحوافز</a>
-      <a href="recycling-companies.html">قوائم لشركات التدوير والمعالجة</a>
-      <a href="#contact">تواصل معنا</a>
-      <a href="index.html" class="lang-switch-en" lang="en">English</a>
-    </nav>
+    <div class="nav-menu">
+      <nav class="nav-links">
+        <a href="green_cycle_main_with_arabic_link.html">الرئيسية</a>
+        <a href="#objectives">أهدافنا</a>
+        <a href="#sponsors">الرعاة</a>
+        <a href="#incentives">الجهات المقدمة للحوافز</a>
+        <a href="recycling-companies.html">قوائم لشركات التدوير والمعالجة</a>
+        <a href="#contact">تواصل معنا</a>
+        <a href="index.html" class="lang-switch-en" lang="en">English</a>
+      </nav>
 
-    <div class="nav-actions">
-      <button class="btn btn-outline" id="openLoginModal">تسجيل الدخول</button>
-      <button class="btn btn-primary" id="openSignupModal">إنشاء حساب</button>
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="openLoginModal">تسجيل الدخول</button>
+        <button class="btn btn-primary" id="openSignupModal">إنشاء حساب</button>
+      </div>
     </div>
   </header>
 
@@ -104,7 +112,7 @@
           </div>
 
           <div class="field full otp-row">
-            <div class="otp-input-wrap">
+            <div class="otp-input-wrap" hidden>
               <label for="individualOtp">التحقق عبر رمز OTP للهاتف</label>
               <input type="text" id="individualOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتفك" />
             </div>
@@ -169,7 +177,7 @@
           </div>
 
           <div class="field full otp-row">
-            <div class="otp-input-wrap">
+            <div class="otp-input-wrap" hidden>
               <label for="companyOtp">التحقق عبر رمز OTP للهاتف</label>
               <input type="text" id="companyOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتف الشركة" />
             </div>
@@ -397,6 +405,10 @@
     const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
     const typeTabs = document.querySelectorAll('.type-tab');
     const formPanels = document.querySelectorAll('.form-panel');
+    const otpButtons = document.querySelectorAll('.otp-btn');
+    const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navbar = document.querySelector('.navbar');
 
     function showLoginModal() {
       loginModal.classList.add('active');
@@ -418,6 +430,13 @@
     openSignupModal.addEventListener('click', showSignupModal);
     closeLoginModal.addEventListener('click', hideLoginModal);
     closeSignupModal.addEventListener('click', hideSignupModal);
+
+    if (menuToggle && navbar) {
+      menuToggle.addEventListener('click', function () {
+        const isOpen = navbar.classList.toggle('nav-open');
+        menuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
 
     loginModal.addEventListener('click', function (e) {
       if (e.target === loginModal) hideLoginModal();
@@ -449,10 +468,24 @@
       });
     });
 
+    otpButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const otpRow = this.closest('.otp-row');
+        const otpInputWrap = otpRow.querySelector('.otp-input-wrap');
+        const otpInput = otpInputWrap.querySelector('input');
+
+        otpInputWrap.hidden = false;
+        otpInput.focus();
+      });
+    });
+
     wasteForm.addEventListener('submit', function (e) {
       e.preventDefault();
       successMessage.style.display = 'block';
       wasteForm.reset();
+      otpInputWraps.forEach(wrap => {
+        wrap.hidden = true;
+      });
       setTimeout(() => {
         successMessage.style.display = 'none';
       }, 4000);
