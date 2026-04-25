@@ -1068,28 +1068,41 @@ body.directory-page {
 @media (max-width: 768px) {
   .navbar {
     position: relative;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
     flex-wrap: wrap;
     gap: 14px;
   }
 
   .topbar {
     position: relative;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
   }
 
   .logo {
+    justify-content: center;
+    width: 100%;
+    padding-left: 30px;
+    padding-right: 60px;
+  }
+
+  .directory-page .brand {
+    width: 100%;
     justify-content: flex-start;
-    width: auto;
+    padding-left: 30px;
+    padding-right: 60px;
   }
 
   .logo-mark img { max-width: 140px; }
 
   .menu-toggle {
     display: inline-flex;
-    margin-left: auto;
+    position: absolute;
+    top: 16px;
+    right: 5%;
+    margin-left: 0;
+    z-index: 3;
   }
 
   .nav-menu {
@@ -1106,14 +1119,6 @@ body.directory-page {
     display: flex;
     position: relative;
     padding-top: 56px;
-  }
-
-  .navbar.nav-open .menu-toggle,
-  .topbar.nav-open .menu-toggle {
-    position: absolute;
-    top: 76px;
-    right: 5%;
-    z-index: 3;
   }
 
   .navbar.nav-open .menu-toggle span:nth-child(1),
@@ -1133,8 +1138,18 @@ body.directory-page {
 
   .nav-links {
     width: 100%;
-    gap: 12px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
     font-size: 0.95rem;
+    text-align: center;
+  }
+
+  .nav-links a {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.7);
   }
 
   .nav-actions {
@@ -1242,22 +1257,16 @@ body.directory-page {
 @media (max-width: 560px) {
   .navbar { padding: 14px 4%; }
 
+  .menu-toggle,
   .navbar.nav-open .menu-toggle,
   .topbar.nav-open .menu-toggle {
     right: 4%;
   }
 
-  .nav-links {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-  }
-
-  .nav-links a {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.7);
+  .logo,
+  .directory-page .brand {
+    padding-left: 24px;
+    padding-right: 56px;
   }
 
   .menu-toggle {
