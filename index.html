@@ -59,32 +59,33 @@
         <button type="button" class="type-tab active" data-target="individualForm">Wastes By Individuals / Homes / etc</button>
         <button type="button" class="type-tab" data-target="corporateForm">Wastes By Corporates / Shops / etc</button>
       </div>
+      <div class="form-note">Fields marked with * are mandatory.</div>
 
       <form id="wasteForm" data-form-type="individual">
       <div class="form-panel active" id="individualForm">
         <div class="form-grid">
           <div class="field">
-            <label for="individualPhone">Phone Number</label>
+            <label for="individualPhone">Phone Number *</label>
             <input type="tel" id="individualPhone" placeholder="Enter your phone number" required />
           </div>
 
           <div class="field">
-            <label for="individualName">Full Name</label>
+            <label for="individualName">Full Name *</label>
             <input type="text" id="individualName" placeholder="Enter your full name" required />
           </div>
 
           <div class="field">
-            <label for="individualEmail">Email Address</label>
+            <label for="individualEmail">Email Address *</label>
             <input type="email" id="individualEmail" placeholder="Enter your email address" required />
           </div>
 
           <div class="field">
-            <label for="individualCity">City</label>
+            <label for="individualCity">City *</label>
             <input type="text" id="individualCity" placeholder="Enter your city" required />
           </div>
 
           <div class="field full">
-            <label for="individualWasteCategory">Waste Category</label>
+            <label for="individualWasteCategory">Waste Category *</label>
             <select id="individualWasteCategory" required>
               <option value="">Select waste category</option>
               <option>Plastic Waste</option>
@@ -101,19 +102,19 @@
           </div>
 
           <div class="field full">
-            <label for="individualWasteImages">Waste Images</label>
+            <label for="individualWasteImages">Waste Images *</label>
             <input type="file" id="individualWasteImages" accept="image/*" multiple />
             <div class="form-note">You can upload up to 5 images of the waste materials.</div>
           </div>
 
           <div class="field full">
-            <label for="individualWasteNotes">Additional Details</label>
+            <label for="individualWasteNotes">Additional Details (Optional)</label>
             <textarea id="individualWasteNotes" placeholder="Add notes such as quantity, pickup location, or special handling details..."></textarea>
           </div>
 
           <div class="field full otp-row">
             <div class="otp-input-wrap" hidden>
-              <label for="individualOtp">OTP Verification by Phone Number</label>
+              <label for="individualOtp">OTP Verification by Phone Number *</label>
               <input type="text" id="individualOtp" placeholder="Enter OTP sent to your phone number" />
             </div>
             <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
@@ -124,32 +125,32 @@
       <div class="form-panel" id="corporateForm">
         <div class="form-grid">
           <div class="field">
-            <label for="companyPhone">Phone Number</label>
+            <label for="companyPhone">Phone Number *</label>
             <input type="tel" id="companyPhone" placeholder="Enter company phone number" />
           </div>
 
           <div class="field">
-            <label for="companyName">Company Name</label>
+            <label for="companyName">Company Name *</label>
             <input type="text" id="companyName" placeholder="Enter company name" />
           </div>
 
           <div class="field">
-            <label for="companyEmail">Email Address</label>
+            <label for="companyEmail">Email Address *</label>
             <input type="email" id="companyEmail" placeholder="Enter company email address" />
           </div>
 
           <div class="field">
-            <label for="companyCity">City</label>
+            <label for="companyCity">City *</label>
             <input type="text" id="companyCity" placeholder="Enter city" />
           </div>
 
           <div class="field">
-            <label for="contactPerson">Contact Person</label>
+            <label for="contactPerson">Contact Person *</label>
             <input type="text" id="contactPerson" placeholder="Enter contact person name" />
           </div>
 
           <div class="field">
-            <label for="companyWasteCategory">Waste Category</label>
+            <label for="companyWasteCategory">Waste Category *</label>
             <select id="companyWasteCategory">
               <option value="">Select waste category</option>
               <option>Plastic Waste</option>
@@ -166,19 +167,19 @@
           </div>
 
           <div class="field full">
-            <label for="companyWasteImages">Waste Images</label>
+            <label for="companyWasteImages">Waste Images *</label>
             <input type="file" id="companyWasteImages" accept="image/*" multiple />
             <div class="form-note">You can upload up to 5 images of the waste materials.</div>
           </div>
 
           <div class="field full">
-            <label for="companyWasteNotes">Additional Details</label>
+            <label for="companyWasteNotes">Additional Details (Optional)</label>
             <textarea id="companyWasteNotes" placeholder="Add quantity, pickup location, operating hours, or handling details..."></textarea>
           </div>
 
           <div class="field full otp-row">
             <div class="otp-input-wrap" hidden>
-              <label for="companyOtp">OTP Verification by Phone Number</label>
+              <label for="companyOtp">OTP Verification by Phone Number *</label>
               <input type="text" id="companyOtp" placeholder="Enter OTP sent to company phone number" />
             </div>
             <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>

@@ -59,32 +59,33 @@
         <button type="button" class="type-tab active" data-target="individualForm">تسليم النفايات عبر الأشخاص والمنازل</button>
         <button type="button" class="type-tab" data-target="corporateForm">تسليم النفايات عبر الشركات والمؤسسات والمحلات</button>
       </div>
+      <div class="form-note">الحقول التي تحمل * إلزامية.</div>
 
       <form id="wasteForm" data-form-type="individual">
       <div class="form-panel active" id="individualForm">
         <div class="form-grid">
           <div class="field">
-            <label for="individualالهاتف">رقم الهاتف</label>
+            <label for="individualالهاتف">رقم الهاتف *</label>
             <input type="tel" id="individualالهاتف" placeholder="أدخل رقم الهاتف" required />
           </div>
 
           <div class="field">
-            <label for="individualName">الاسم الكامل</label>
+            <label for="individualName">الاسم الكامل *</label>
             <input type="text" id="individualName" placeholder="أدخل الاسم الكامل" required />
           </div>
 
           <div class="field">
-            <label for="individualالبريد الالكتروني">البريد الالكتروني</label>
+            <label for="individualالبريد الالكتروني">البريد الالكتروني *</label>
             <input type="email" id="individualالبريد الالكتروني" placeholder="أدخل البريد الالكتروني" required />
           </div>
 
           <div class="field">
-            <label for="individualالمدينة">المدينة</label>
+            <label for="individualالمدينة">المدينة *</label>
             <input type="text" id="individualالمدينة" placeholder="أدخل المدينة" required />
           </div>
 
           <div class="field full">
-            <label for="individualWasteCategory">نوع النفايات</label>
+            <label for="individualWasteCategory">نوع النفايات *</label>
             <select id="individualWasteCategory" required>
               <option value="">اختر نوع النفايات</option>
               <option>نفايات بلاستيكية</option>
@@ -101,7 +102,7 @@
           </div>
 
           <div class="field full">
-            <label for="individualWasteImages">ارفاق الصور للنفايات</label>
+            <label for="individualWasteImages">ارفاق الصور للنفايات *</label>
             <input type="file" id="individualWasteImages" accept="image/*" multiple />
             <div class="form-note">يمكنك ارفاق حتى 5 صور للنفايات.</div>
           </div>
@@ -113,7 +114,7 @@
 
           <div class="field full otp-row">
             <div class="otp-input-wrap" hidden>
-              <label for="individualOtp">التحقق عبر رمز OTP للهاتف</label>
+              <label for="individualOtp">التحقق عبر رمز OTP للهاتف *</label>
               <input type="text" id="individualOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتفك" />
             </div>
             <button type="button" class="btn btn-outline otp-btn">إرسال رمز OTP</button>
@@ -124,32 +125,32 @@
       <div class="form-panel" id="corporateForm">
         <div class="form-grid">
           <div class="field">
-            <label for="companyالهاتف">رقم الهاتف</label>
+            <label for="companyالهاتف">رقم الهاتف *</label>
             <input type="tel" id="companyالهاتف" placeholder="أدخل رقم هاتف الشركة" />
           </div>
 
           <div class="field">
-            <label for="companyName">اسم الشركة / المؤسسة</label>
+            <label for="companyName">اسم الشركة / المؤسسة *</label>
             <input type="text" id="companyName" placeholder="أدخل اسم الشركة / المؤسسة" />
           </div>
 
           <div class="field">
-            <label for="companyالبريد الالكتروني">البريد الالكتروني</label>
+            <label for="companyالبريد الالكتروني">البريد الالكتروني *</label>
             <input type="email" id="companyالبريد الالكتروني" placeholder="أدخل البريد الالكتروني للشركة" />
           </div>
 
           <div class="field">
-            <label for="companyالمدينة">المدينة</label>
+            <label for="companyالمدينة">المدينة *</label>
             <input type="text" id="companyالمدينة" placeholder="أدخل المدينة" />
           </div>
 
           <div class="field">
-            <label for="contactPerson">الشخص المسؤول</label>
+            <label for="contactPerson">الشخص المسؤول *</label>
             <input type="text" id="contactPerson" placeholder="أدخل اسم الشخص المسؤول" />
           </div>
 
           <div class="field">
-            <label for="companyWasteCategory">نوع النفايات</label>
+            <label for="companyWasteCategory">نوع النفايات *</label>
             <select id="companyWasteCategory">
               <option value="">اختر نوع النفايات</option>
               <option>نفايات بلاستيكية</option>
@@ -166,7 +167,7 @@
           </div>
 
           <div class="field full">
-            <label for="companyWasteImages">ارفاق الصور للنفايات</label>
+            <label for="companyWasteImages">ارفاق الصور للنفايات *</label>
             <input type="file" id="companyWasteImages" accept="image/*" multiple />
             <div class="form-note">يمكنك ارفاق حتى 5 صور للنفايات.</div>
           </div>
@@ -178,7 +179,7 @@
 
           <div class="field full otp-row">
             <div class="otp-input-wrap" hidden>
-              <label for="companyOtp">التحقق عبر رمز OTP للهاتف</label>
+              <label for="companyOtp">التحقق عبر رمز OTP للهاتف *</label>
               <input type="text" id="companyOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتف الشركة" />
             </div>
             <button type="button" class="btn btn-outline otp-btn">إرسال رمز OTP</button>

@@ -118,7 +118,18 @@ body.landing-page {
   justify-content: center;
 }
 
-.nav-links a:hover { color: var(--green-700); }
+.nav-links a {
+  padding: 8px 10px;
+  border-radius: 999px;
+  transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: var(--green-700);
+  background: rgba(56, 161, 105, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(21, 128, 61, 0.12);
+}
 
 .lang-switch {
   font-family: 'Cairo', sans-serif;
@@ -126,7 +137,8 @@ body.landing-page {
   white-space: nowrap;
 }
 
-.lang-switch:hover { color: var(--green-700); }
+.lang-switch:hover,
+.lang-switch-en:hover { color: var(--green-700); }
 
 .nav-actions {
   display: flex;
@@ -764,7 +776,27 @@ html[dir="rtl"] .news-grid {
   direction: rtl;
 }
 
-html[dir="rtl"] .navbar { flex-direction: row-reverse; }
+html[dir="rtl"] .navbar {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+html[dir="rtl"] .navbar .logo {
+  order: 1;
+  margin-left: 0;
+  margin-right: 0;
+  justify-content: flex-start;
+}
+
+html[dir="rtl"] .navbar .menu-toggle {
+  order: 3;
+}
+
+html[dir="rtl"] .navbar .nav-menu {
+  order: 2;
+  justify-content: space-between;
+  flex: 1;
+}
 
 html[dir="rtl"] .nav-links,
 html[dir="rtl"] .nav-actions,
@@ -775,6 +807,20 @@ html[dir="rtl"] .footer-wrap {
 
 html[dir="rtl"] .nav-links {
   flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  flex: 1;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+html[dir="rtl"] .nav-actions {
+  flex-shrink: 0;
+}
+
+html[dir="rtl"] .nav-links a {
+  white-space: nowrap;
+  padding: 8px 8px;
 }
 
 html[dir="rtl"] .hero-content,
@@ -883,10 +929,20 @@ body.directory-page {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
 }
 
 .directory-page .btn {
   border: 1px solid transparent;
+}
+
+.directory-page .top-actions .btn-outline {
+  margin-left: clamp(16px, 3vw, 36px);
+}
+
+.directory-page .top-actions .btn-primary {
+  margin-left: auto;
 }
 
 .directory-page .hero {
@@ -1238,6 +1294,11 @@ body.directory-page {
 
   .directory-page .top-actions .btn {
     width: 100%;
+  }
+
+  .directory-page .top-actions .btn-outline,
+  .directory-page .top-actions .btn-primary {
+    margin-left: 0;
   }
 
   .directory-page .hero,
