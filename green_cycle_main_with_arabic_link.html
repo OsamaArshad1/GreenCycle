@@ -218,7 +218,7 @@
         <span>الموافقة على القواعد والشروط</span>
       </label>
 
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 8px;">ارسال</button>
+      <button type="submit" class="btn btn-primary" id="wasteSubmitButton" style="width:100%; margin-top: 8px;" disabled>ارسال</button>
       <div class="success-message" id="successMessage">تم استلام طلب تسليم النفايات بنجاح.</div>
     </form>
   </div>
@@ -428,6 +428,7 @@
     const closeLoginModal = document.getElementById('closeLoginModal');
     const closeSignupModal = document.getElementById('closeSignupModal');
     const wasteForm = document.getElementById('wasteForm');
+    const wasteSubmitButton = document.getElementById('wasteSubmitButton');
     const successMessage = document.getElementById('successMessage');
     const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
     const typeTabs = document.querySelectorAll('.type-tab');
@@ -451,6 +452,16 @@
 
     function hideSignupModal() {
       signupModal.classList.remove('active');
+    }
+
+    function getActiveOtpInput() {
+      const activePanel = document.querySelector('.form-panel.active');
+      return activePanel ? activePanel.querySelector('.otp-input-wrap input') : null;
+    }
+
+    function updateWasteSubmitState() {
+      const activeOtpInput = getActiveOtpInput();
+      wasteSubmitButton.disabled = !activeOtpInput || activeOtpInput.value.trim() === '';
     }
 
     openLoginModal.addEventListener('click', showLoginModal);
@@ -492,6 +503,7 @@
         this.classList.add('active');
         document.getElementById(targetId).classList.add('active');
         wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
+        updateWasteSubmitState();
       });
     });
 
@@ -503,20 +515,30 @@
 
         otpInputWrap.hidden = false;
         otpInput.focus();
+        updateWasteSubmitState();
       });
+    });
+
+    otpInputWraps.forEach(wrap => {
+      const otpInput = wrap.querySelector('input');
+      otpInput.addEventListener('input', updateWasteSubmitState);
     });
 
     wasteForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (wasteSubmitButton.disabled) return;
       successMessage.style.display = 'block';
       wasteForm.reset();
       otpInputWraps.forEach(wrap => {
         wrap.hidden = true;
       });
+      updateWasteSubmitState();
       setTimeout(() => {
         successMessage.style.display = 'none';
       }, 4000);
     });
+
+    updateWasteSubmitState();
 
     const ads = [
       {
