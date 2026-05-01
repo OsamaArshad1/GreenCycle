@@ -40,7 +40,8 @@ body.landing-page {
 }
 
 .navbar {
-  position: static;
+  position: relative;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -129,6 +130,54 @@ body.landing-page {
   background: rgba(56, 161, 105, 0.1);
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(21, 128, 61, 0.12);
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 60;
+  display: grid;
+  min-width: 245px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(21, 128, 61, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 18px 42px rgba(15, 61, 46, 0.14);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.nav-links .nav-dropdown-menu a {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: #355943;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.nav-links .nav-dropdown-menu a:hover,
+.nav-links .nav-dropdown-menu a:focus {
+  color: var(--green-800);
+  background: rgba(56, 161, 105, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .lang-switch {
@@ -831,6 +880,10 @@ html[dir="rtl"] .nav-links a {
   padding: 8px 8px;
 }
 
+html[dir="rtl"] .nav-links .nav-dropdown-menu a {
+  text-align: right;
+}
+
 html[dir="rtl"] .hero-content,
 html[dir="rtl"] .objective-card p,
 html[dir="rtl"] .info-card,
@@ -1214,6 +1267,31 @@ body.directory-page {
     padding: 10px 12px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.7);
+  }
+
+  .nav-dropdown {
+    width: 100%;
+  }
+
+  .nav-dropdown-menu {
+    position: static;
+    display: none;
+    width: 100%;
+    min-width: 0;
+    margin-top: 6px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .nav-dropdown:hover .nav-dropdown-menu,
+  .nav-dropdown:focus-within .nav-dropdown-menu {
+    display: grid;
+    transform: none;
+  }
+
+  .nav-links .nav-dropdown-menu a {
+    white-space: normal;
   }
 
   .nav-actions {
