@@ -405,25 +405,111 @@
   </div>
 
   <div class="modal-overlay" id="signupModal">
-    <div class="modal">
+    <div class="modal signup-modal">
       <button class="close-btn" id="closeSignupModal">×</button>
       <h2 style="color: var(--green-900); margin-bottom: 8px;">إنشاء حساب</h2>
-      <p style="color:#5b7566; margin-bottom: 18px;">إنشاء حساب في منصة جرين سايكل</p>
+      <p style="color:#5b7566; margin-bottom: 18px;">اختر نوع الحساب وأدخل البيانات الأساسية.</p>
 
-      <form>
-        <div class="field">
-          <label for="signupالبريد الالكترونيModal">البريد الالكتروني</label>
-          <input type="email" id="signupالبريد الالكترونيModal" placeholder="أدخل البريد الالكتروني" />
+      <form id="signupForm">
+        <div class="form-type-switcher signup-type-switcher" id="signupTypeSwitcher">
+          <button type="button" class="type-tab active" data-target="companySignupPanel">شركة</button>
+          <button type="button" class="type-tab" data-target="userSignupPanel">مستخدم</button>
         </div>
 
-        <div class="field">
-          <label for="signupالهاتفModal">رقم الهاتف</label>
-          <input type="tel" id="signupالهاتفModal" placeholder="أدخل رقم الهاتف" />
+        <div class="form-panel active" id="companySignupPanel">
+          <div class="form-grid signup-form-grid">
+            <div class="field">
+              <label for="signupCompanyName">اسم الشركة *</label>
+              <input type="text" id="signupCompanyName" placeholder="أدخل اسم الشركة" required />
+            </div>
+
+            <div class="field">
+              <label for="signupMobile">رقم الموبايل *</label>
+              <input type="tel" id="signupMobile" placeholder="أدخل رقم الموبايل" required />
+            </div>
+
+            <div class="field">
+              <label for="signupEmailModal">البريد الإلكتروني *</label>
+              <input type="email" id="signupEmailModal" placeholder="أدخل البريد الإلكتروني للشركة" required />
+            </div>
+
+            <div class="field">
+              <label for="signupAddress">العنوان (اختياري)</label>
+              <input type="text" id="signupAddress" placeholder="أدخل عنوان الشركة" />
+            </div>
+
+            <div class="field">
+              <label for="signupLogo">الشعار (اختياري)</label>
+              <input type="file" id="signupLogo" accept="image/*" />
+            </div>
+
+            <div class="field">
+              <label for="signupWebsite">موقع الشركة الإلكتروني (اختياري)</label>
+              <input type="url" id="signupWebsite" placeholder="https://example.com" />
+            </div>
+
+            <div class="field full">
+              <label for="signupWasteCategory1">نوع النفايات *</label>
+              <div class="signup-category-list" id="signupCategoryList">
+                <select id="signupWasteCategory1" name="signupWasteCategory[]" required>
+                  <option value="">اختر نوع النفايات</option>
+                  <option>نفايات بلاستيكية</option>
+                  <option>ورق وكرتون</option>
+                  <option>خردة معدنية</option>
+                  <option>نفايات زجاجية</option>
+                  <option>نفايات إلكترونية</option>
+                  <option>نفايات عضوية</option>
+                  <option>نفايات نسيجية</option>
+                  <option>مخلفات بناء</option>
+                  <option>نفايات خشبية</option>
+                  <option>نفايات البطاريات</option>
+                  <option>الإطارات المستعملة (نفايات التواير)</option>
+                  <option>نفايات زراعية</option>
+                  <option>زيوت الطبخ المستعملة</option>
+                  <option>زيت المحرك المستعمل</option>
+                  <option>نفايات الأجهزة الكهربائية</option>
+                  <option>نفايات الهواتف والأجهزة الإلكترونية</option>
+                  <option>نفايات الكيبلات والوايرات</option>
+                  <option>نفايات ألعاب الأطفال</option>
+                  <option>فلاتر الهواء المستعملة</option>
+                  <option>فلاتر الزيت المستعملة</option>
+                  <option>فلاتر المياه المستعملة</option>
+                  <option>نفايات مختلطة ومتنوعة</option>
+                  <option>نفايات أخرى</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-outline add-category-btn" id="addSignupCategory">إضافة نوع نفايات</button>
+            </div>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="signupPasswordModal">كلمة المرور</label>
-          <input type="password" id="signupPasswordModal" placeholder="أنشئ كلمة المرور" />
+        <div class="form-panel" id="userSignupPanel">
+          <div class="form-grid signup-form-grid">
+            <div class="field">
+              <label for="signupUserName">الاسم الكامل *</label>
+              <input type="text" id="signupUserName" placeholder="أدخل الاسم الكامل" required disabled />
+            </div>
+
+            <div class="field">
+              <label for="signupUserMobile">رقم الموبايل *</label>
+              <input type="tel" id="signupUserMobile" placeholder="أدخل رقم الموبايل" required disabled />
+            </div>
+
+            <div class="field">
+              <label for="signupUserEmail">البريد الإلكتروني *</label>
+              <input type="email" id="signupUserEmail" placeholder="أدخل البريد الإلكتروني" required disabled />
+            </div>
+
+            <div class="field">
+              <label for="signupUserCity">المدينة *</label>
+              <input type="text" id="signupUserCity" placeholder="أدخل المدينة" required disabled />
+            </div>
+
+            <div class="field full">
+              <label for="signupUserAddress">العنوان (اختياري)</label>
+              <input type="text" id="signupUserAddress" placeholder="أدخل العنوان" disabled />
+            </div>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width:100%;">إنشاء حساب</button>
@@ -438,12 +524,16 @@
     const openSignupModal = document.getElementById('openSignupModal');
     const closeLoginModal = document.getElementById('closeLoginModal');
     const closeSignupModal = document.getElementById('closeSignupModal');
+    const signupCategoryList = document.getElementById('signupCategoryList');
+    const addSignupCategory = document.getElementById('addSignupCategory');
     const wasteForm = document.getElementById('wasteForm');
     const wasteSubmitButton = document.getElementById('wasteSubmitButton');
     const successMessage = document.getElementById('successMessage');
     const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
-    const typeTabs = document.querySelectorAll('.type-tab');
-    const formPanels = document.querySelectorAll('.form-panel');
+    const typeTabs = document.querySelectorAll('#formTypeSwitcher .type-tab');
+    const formPanels = document.querySelectorAll('#individualForm, #corporateForm');
+    const signupTypeTabs = document.querySelectorAll('#signupTypeSwitcher .type-tab');
+    const signupPanels = document.querySelectorAll('#companySignupPanel, #userSignupPanel');
     const otpButtons = document.querySelectorAll('.otp-btn');
     const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
     const menuToggle = document.querySelector('.menu-toggle');
@@ -466,7 +556,7 @@
     }
 
     function getActiveOtpInput() {
-      const activePanel = document.querySelector('.form-panel.active');
+      const activePanel = wasteForm.querySelector('.form-panel.active');
       return activePanel ? activePanel.querySelector('.otp-input-wrap input') : null;
     }
 
@@ -475,10 +565,41 @@
       wasteSubmitButton.disabled = !activeOtpInput || activeOtpInput.value.trim() === '';
     }
 
+    function addSignupWasteCategory() {
+      const firstCategory = signupCategoryList.querySelector('select');
+      const newCategory = firstCategory.cloneNode(true);
+      const categoryCount = signupCategoryList.querySelectorAll('select').length + 1;
+
+      newCategory.id = `signupWasteCategory${categoryCount}`;
+      newCategory.value = '';
+      newCategory.required = false;
+      signupCategoryList.appendChild(newCategory);
+      newCategory.focus();
+    }
+
+    function setPanelInputsEnabled(panel, isEnabled) {
+      panel.querySelectorAll('input, select, textarea, button').forEach(control => {
+        control.disabled = !isEnabled;
+      });
+    }
+
+    function activateSignupPanel(targetId) {
+      signupTypeTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-target') === targetId);
+      });
+
+      signupPanels.forEach(panel => {
+        const isActive = panel.id === targetId;
+        panel.classList.toggle('active', isActive);
+        setPanelInputsEnabled(panel, isActive);
+      });
+    }
+
     openLoginModal.addEventListener('click', showLoginModal);
     openSignupModal.addEventListener('click', showSignupModal);
     closeLoginModal.addEventListener('click', hideLoginModal);
     closeSignupModal.addEventListener('click', hideSignupModal);
+    addSignupCategory.addEventListener('click', addSignupWasteCategory);
 
     if (menuToggle && navbar) {
       menuToggle.addEventListener('click', function () {
@@ -518,6 +639,12 @@
       });
     });
 
+    signupTypeTabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        activateSignupPanel(this.getAttribute('data-target'));
+      });
+    });
+
     otpButtons.forEach(button => {
       button.addEventListener('click', function () {
         const otpRow = this.closest('.otp-row');
@@ -550,6 +677,7 @@
     });
 
     updateWasteSubmitState();
+    activateSignupPanel('companySignupPanel');
 
     const ads = [
       {

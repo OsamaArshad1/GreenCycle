@@ -769,12 +769,18 @@ footer {
 .modal {
   width: 100%;
   max-width: 480px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   background: white;
   border-radius: 26px;
   padding: 28px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   position: relative;
   animation: popUp 0.22s ease;
+}
+
+.signup-modal {
+  max-width: 760px;
 }
 
 @keyframes popUp {
@@ -795,6 +801,16 @@ footer {
   font-size: 1.3rem;
   cursor: pointer;
   font-weight: 700;
+}
+
+.signup-category-list {
+  display: grid;
+  gap: 10px;
+}
+
+.add-category-btn {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .success-message {
