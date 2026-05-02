@@ -783,6 +783,14 @@ footer {
   max-width: 760px;
 }
 
+.signup-modal .form-type-switcher {
+  margin-bottom: 18px;
+}
+
+.signup-modal .form-grid {
+  gap: 14px;
+}
+
 @keyframes popUp {
   from { transform: translateY(12px) scale(0.98); opacity: 0; }
   to { transform: translateY(0) scale(1); opacity: 1; }
@@ -1199,6 +1207,43 @@ body.directory-page {
 }
 
 @media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  .modal {
+    max-height: none;
+  }
+
+  .signup-modal {
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .signup-modal h2 {
+    padding-right: 44px;
+  }
+
+  .signup-modal .form-type-switcher {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .signup-modal .type-tab {
+    padding: 12px;
+  }
+
+  .signup-modal .form-grid {
+    gap: 12px;
+  }
+
+  .signup-category-list {
+    gap: 8px;
+  }
+
   .navbar {
     position: relative;
     justify-content: flex-start;
@@ -1418,6 +1463,44 @@ body.directory-page {
 }
 
 @media (max-width: 560px) {
+  .modal-overlay {
+    padding: 8px;
+  }
+
+  .signup-modal {
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .signup-modal h2 {
+    font-size: 1.35rem;
+    margin-bottom: 6px !important;
+  }
+
+  .signup-modal p {
+    font-size: 0.9rem;
+    margin-bottom: 14px !important;
+    padding-right: 38px;
+  }
+
+  .signup-modal .form-type-switcher {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .signup-modal .type-tab {
+    min-height: 44px;
+    padding: 10px 8px;
+  }
+
+  .signup-modal .btn {
+    width: 100%;
+  }
+
+  .signup-modal input,
+  .signup-modal select {
+    min-width: 0;
+  }
+
   .navbar { padding: 14px 4%; }
 
   .menu-toggle,
