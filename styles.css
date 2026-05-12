@@ -860,6 +860,7 @@ html[dir="rtl"] .news-grid {
 html[dir="rtl"] .navbar {
   flex-direction: row;
   justify-content: space-between;
+  gap: 16px;
 }
 
 html[dir="rtl"] .navbar .logo {
@@ -877,6 +878,7 @@ html[dir="rtl"] .navbar .nav-menu {
   order: 2;
   justify-content: space-between;
   flex: 1;
+  min-width: 0;
 }
 
 html[dir="rtl"] .nav-links,
@@ -1198,6 +1200,27 @@ body.directory-page {
   .ads-grid { grid-template-columns: repeat(2, 1fr); }
 
   .news-grid { grid-template-columns: 1fr 1fr; }
+
+  html[dir="rtl"] .navbar {
+    padding-left: 4%;
+    padding-right: 4%;
+    gap: 12px;
+  }
+
+  html[dir="rtl"] .logo-mark img {
+    max-width: 145px;
+  }
+
+  html[dir="rtl"] .nav-links {
+    gap: 8px;
+    font-size: 0.84rem;
+  }
+
+  html[dir="rtl"] .nav-actions .btn,
+  html[dir="rtl"] .nav-actions a.btn {
+    min-width: 84px;
+    padding: 10px 12px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1364,6 +1387,41 @@ body.directory-page {
   .nav-actions a.btn {
     width: 100%;
     min-width: 0;
+  }
+
+  html[dir="rtl"] .navbar {
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  html[dir="rtl"] .navbar .logo {
+    justify-content: center;
+    padding-left: 56px;
+    padding-right: 56px;
+  }
+
+  html[dir="rtl"] .navbar .nav-menu {
+    order: 4;
+    align-items: stretch;
+  }
+
+  html[dir="rtl"] .nav-links,
+  html[dir="rtl"] .nav-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  html[dir="rtl"] .nav-links {
+    flex-wrap: nowrap;
+    gap: 10px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  html[dir="rtl"] .nav-links a,
+  html[dir="rtl"] .nav-links .nav-dropdown-menu a {
+    text-align: center;
+    white-space: normal;
   }
 
   .form-grid,
