@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Green Cycle Platform</title>
+  <title>منصة جرين سايكل</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -11,43 +11,43 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="landing-page">
-  <header class="navbar navbar-home">
+  <header class="navbar">
     <div class="logo">
       <div class="logo-mark">
       <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
     </div>
     </div>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="فتح قائمة التنقل">
       <span></span>
       <span></span>
       <span></span>
     </button>
 
     <div class="nav-menu">
-      <nav class="nav-links nav-links-home">
-        <a href="index.html">Home</a>
-        <a href="#objectives">Objectives</a>
-        <a href="#sponsors">Sponsors</a>
-        <a href="#incentives">Incentives Providers</a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="#objectives">أهدافنا</a>
+        <a href="#sponsors">الرعاة</a>
+        <a href="#incentives">الجهات المقدمة للحوافز</a>
         <div class="nav-dropdown">
-          <a class="nav-dropdown-toggle" href="recycling-companies.html">Recycling Companies List</a>
+          <a class="nav-dropdown-toggle" href="recycling-companies.html">قوائم لشركات التدوير والمعالجة</a>
           <div class="nav-dropdown-menu">
-            <a href="recycling-companies.html#plastic">Plastic Waste</a>
-            <a href="recycling-companies.html#metals">Metal Waste</a>
-            <a href="recycling-companies.html#paper">Paper & Cardboard</a>
-            <a href="recycling-companies.html">Glass Waste</a>
-            <a href="recycling-companies.html#electronics">Electrical & Electronic waste</a>
-            <a href="recycling-companies.html">Textile Waste</a>
-            <a href="recycling-companies.html#construction">Construction Waste</a>
+            <a href="recycling-companies.html#plastic">النفايات البلاستيكية</a>
+            <a href="recycling-companies.html#metals">النفايات المعدنية</a>
+            <a href="recycling-companies.html#paper">الورق والكرتون</a>
+            <a href="recycling-companies.html">النفايات الزجاجية</a>
+            <a href="recycling-companies.html#electronics">النفايات الكهربائية والإلكترونية</a>
+            <a href="recycling-companies.html">نفايات المنسوجات</a>
+            <a href="recycling-companies.html#construction">مخلفات البناء</a>
           </div>
         </div>
-        <a href="#contact">Contact</a>
-        <a href="green_cycle_main_with_arabic_link.html" class="lang-switch" lang="ar">العربية</a>
+        <a href="#contact">تواصل معنا</a>
+        <a href="green_cycle_main_with_arabic_link.html" class="lang-switch-en" lang="en">English</a>
       </nav>
 
       <div class="nav-actions">
-        <button class="btn btn-outline" id="openLoginModal">Login</button>
-        <button class="btn btn-primary" id="openSignupModal">Sign Up</button>
+        <button class="btn btn-outline" id="openLoginModal">تسجيل الدخول</button>
+        <button class="btn btn-primary" id="openSignupModal">إنشاء حساب</button>
       </div>
     </div>
   </header>
@@ -55,7 +55,7 @@
   <section class="hero" id="home">
     <div class="hero-content">
       <p>
-        Green Cycle Platform connects homes, businesses, recyclers, sponsors, and communities in one digital platform to safely route waste into reuse, recycling, and value-driven circular systems.
+        تعتبر منصة "جرين سايكل" حلقة وصل تربط كل من أصحاب المنازل والشركات المؤسسية مع شركات إعادة التدوير والجهات الراعية والمجتمعات في منصة رقمية واحدة لتوجيه النفايات بأمان إلى أنظمة إعادة الاستخدام وإعادة التدوير والأنظمة الدائرية القائمة على القيمة وحفظ البيئة.
       </p>
     </div>
   </section>
@@ -63,85 +63,85 @@
   <section class="section" id="submit-waste">
     <div class="submit-panel">
       <div class="hero-card">
-        <h2>Waste Material Submission</h2>
-      <p>Select the type of submission below and provide the required waste details so the right collection or recycling process can be assigned.</p>
+        <h2>خطوات تسليم النفايات</h2>
+      <p>اختر نوع التسليم أدناه وأدخل تفاصيل النفايات المطلوبة ليتم توجيهها إلى الجهة المناسبة للجمع أو إعادة التدوير.</p>
 
       <div class="form-type-switcher" id="formTypeSwitcher">
-        <button type="button" class="type-tab active" data-target="individualForm">Wastes By Individuals / Homes / etc</button>
-        <button type="button" class="type-tab" data-target="corporateForm">Wastes By Corporates / Shops / etc</button>
+        <button type="button" class="type-tab active" data-target="individualForm">تسليم النفايات عبر الأشخاص والمنازل</button>
+        <button type="button" class="type-tab" data-target="corporateForm">تسليم النفايات عبر الشركات والمؤسسات والمحلات</button>
       </div>
-      <div class="form-note">Fields marked with * are mandatory.</div>
+      <div class="form-note">الحقول التي تحمل * إلزامية.</div>
 
       <form id="wasteForm" data-form-type="individual">
       <div class="form-panel active" id="individualForm">
         <div class="form-grid">
           <div class="field">
-            <label for="individualPhone">Phone Number *</label>
-            <input type="tel" id="individualPhone" placeholder="Enter your phone number" required />
+            <label for="individualالهاتف">رقم الهاتف *</label>
+            <input type="tel" id="individualالهاتف" placeholder="أدخل رقم الهاتف" required />
           </div>
 
           <div class="field">
-            <label for="individualName">Full Name *</label>
-            <input type="text" id="individualName" placeholder="Enter your full name" required />
+            <label for="individualName">الاسم الكامل *</label>
+            <input type="text" id="individualName" placeholder="أدخل الاسم الكامل" required />
           </div>
 
           <div class="field">
-            <label for="individualEmail">Email Address *</label>
-            <input type="email" id="individualEmail" placeholder="Enter your email address" required />
+            <label for="individualالبريد الالكتروني">البريد الالكتروني *</label>
+            <input type="email" id="individualالبريد الالكتروني" placeholder="أدخل البريد الالكتروني" required />
           </div>
 
           <div class="field">
-            <label for="individualCity">City *</label>
-            <input type="text" id="individualCity" placeholder="Enter your city" required />
+            <label for="individualالمدينة">المدينة *</label>
+            <input type="text" id="individualالمدينة" placeholder="أدخل المدينة" required />
           </div>
 
           <div class="field full">
-            <label for="individualWasteCategory">Waste Category *</label>
+            <label for="individualWasteCategory">نوع النفايات *</label>
             <select id="individualWasteCategory" required>
-              <option value="">Select waste category</option>
-              <option>Plastic Waste</option>
-              <option>Paper & Cardboard</option>
-              <option>Metal Scrap</option>
-              <option>Glass Waste</option>
-              <option>Electronic Waste</option>
-              <option>Organic Waste</option>
-              <option>Textile Waste</option>
-              <option>Construction Debris</option>
-              <option>Wood Waste</option>
-              <option>Battery Waste</option>
-              <option>Used Tires</option>
-              <option>Agricultural Waste</option>
-              <option>Used Cooking Oil</option>
-              <option>Used Engine Oil</option>
-              <option>Electrical Devices Waste</option>
-              <option>Mobile and Electronic Waste</option>
-              <option>Cables and Wires Waste</option>
-              <option>Toys Waste</option>
-              <option>Used Air Filters</option>
-              <option>Used Oil Filters</option>
-              <option>Used Water Filters</option>
-              <option>Mixed and Multiple Waste</option>
-              <option>Other Waste</option>
+              <option value="">اختر نوع النفايات</option>
+              <option>نفايات بلاستيكية</option>
+              <option>ورق وكرتون</option>
+              <option>خردة معدنية</option>
+              <option>نفايات زجاجية</option>
+              <option>نفايات إلكترونية</option>
+              <option>نفايات عضوية</option>
+              <option>نفايات نسيجية</option>
+              <option>مخلفات بناء</option>
+              <option>نفايات خشبية</option>
+              <option>نفايات البطاريات</option>
+              <option>الإطارات المستعملة (نفايات التواير)</option>
+              <option>نفايات زراعية</option>
+              <option>زيوت الطبخ المستعملة</option>
+              <option>زيت المحرك المستعمل</option>
+              <option>نفايات الأجهزة الكهربائية</option>
+              <option>نفايات الهواتف والأجهزة الإلكترونية</option>
+              <option>نفايات الكيبلات والوايرات</option>
+              <option>نفايات ألعاب الأطفال</option>
+              <option>فلاتر الهواء المستعملة</option>
+              <option>فلاتر الزيت المستعملة</option>
+              <option>فلاتر المياه المستعملة</option>
+              <option>نفايات مختلطة ومتنوعة</option>
+              <option>نفايات أخرى</option>
             </select>
           </div>
 
           <div class="field full">
-            <label for="individualWasteImages">Waste Images *</label>
+            <label for="individualWasteImages">ارفاق الصور للنفايات *</label>
             <input type="file" id="individualWasteImages" accept="image/*" multiple />
-            <div class="form-note">You can upload up to 5 images of the waste materials.</div>
+            <div class="form-note">يمكنك ارفاق حتى 5 صور للنفايات.</div>
           </div>
 
           <div class="field full">
-            <label for="individualWasteNotes">Additional Details (Optional)</label>
-            <textarea id="individualWasteNotes" placeholder="Add notes such as quantity, pickup location, or special handling details..."></textarea>
+            <label for="individualWasteNotes">تفاصيل إضافية (اختياري)</label>
+            <textarea id="individualWasteNotes" placeholder="أدخل أي تفاصيل إضافية مثل الكمية أو موقع الاستلام أو متطلبات خاصة..."></textarea>
           </div>
 
           <div class="field full otp-row">
+            <button type="button" class="btn btn-outline otp-btn">إرسال رمز OTP</button>
             <div class="otp-input-wrap" hidden>
-              <label for="individualOtp">OTP Verification by Phone Number *</label>
-              <input type="text" id="individualOtp" placeholder="Enter OTP sent to your phone number" />
+              <label for="individualOtp">التحقق عبر رمز OTP للهاتف *</label>
+              <input type="text" id="individualOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتفك" />
             </div>
-            <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
           </div>
         </div>
       </div>
@@ -149,88 +149,88 @@
       <div class="form-panel" id="corporateForm">
         <div class="form-grid">
           <div class="field">
-            <label for="companyPhone">Phone Number *</label>
-            <input type="tel" id="companyPhone" placeholder="Enter company phone number" />
+            <label for="companyالهاتف">رقم الهاتف *</label>
+            <input type="tel" id="companyالهاتف" placeholder="أدخل رقم هاتف الشركة" />
           </div>
 
           <div class="field">
-            <label for="companyName">Company Name *</label>
-            <input type="text" id="companyName" placeholder="Enter company name" />
+            <label for="companyName">اسم الشركة / المؤسسة *</label>
+            <input type="text" id="companyName" placeholder="أدخل اسم الشركة / المؤسسة" />
           </div>
 
           <div class="field">
-            <label for="companyEmail">Email Address *</label>
-            <input type="email" id="companyEmail" placeholder="Enter company email address" />
+            <label for="companyالبريد الالكتروني">البريد الالكتروني *</label>
+            <input type="email" id="companyالبريد الالكتروني" placeholder="أدخل البريد الالكتروني للشركة" />
           </div>
 
           <div class="field">
-            <label for="companyCity">City *</label>
-            <input type="text" id="companyCity" placeholder="Enter city" />
+            <label for="companyالمدينة">المدينة *</label>
+            <input type="text" id="companyالمدينة" placeholder="أدخل المدينة" />
           </div>
 
           <div class="field">
-            <label for="contactPerson">Contact Person *</label>
-            <input type="text" id="contactPerson" placeholder="Enter contact person name" />
+            <label for="contactPerson">الشخص المسؤول *</label>
+            <input type="text" id="contactPerson" placeholder="أدخل اسم الشخص المسؤول" />
           </div>
 
           <div class="field">
-            <label for="companyWasteCategory">Waste Category *</label>
+            <label for="companyWasteCategory">نوع النفايات *</label>
             <select id="companyWasteCategory">
-              <option value="">Select waste category</option>
-              <option>Plastic Waste</option>
-              <option>Paper & Cardboard</option>
-              <option>Metal Scrap</option>
-              <option>Glass Waste</option>
-              <option>E-Waste</option>
-              <option>Organic Waste</option>
-              <option>Textile Waste</option>
-              <option>Construction Debris</option>
-              <option>Wood Waste</option>
-              <option>Battery Waste</option>
-              <option>Used Tires</option>
-              <option>Agricultural Waste</option>
-              <option>Used Cooking Oil</option>
-              <option>Used Engine Oil</option>
-              <option>Electrical Devices Waste</option>
-              <option>Mobile and Electronic Waste</option>
-              <option>Cables and Wires Waste</option>
-              <option>Toys Waste</option>
-              <option>Used Air Filters</option>
-              <option>Used Oil Filters</option>
-              <option>Used Water Filters</option>
-              <option>Mixed and Multiple Waste</option>
-              <option>Other Waste</option>
+              <option value="">اختر نوع النفايات</option>
+              <option>نفايات بلاستيكية</option>
+              <option>ورق وكرتون</option>
+              <option>خردة معدنية</option>
+              <option>نفايات زجاجية</option>
+              <option>نفايات إلكترونية</option>
+              <option>نفايات عضوية</option>
+              <option>نفايات نسيجية</option>
+              <option>مخلفات بناء</option>
+              <option>نفايات خشبية</option>
+              <option>نفايات البطاريات</option>
+              <option>الإطارات المستعملة (نفايات التواير)</option>
+              <option>نفايات زراعية</option>
+              <option>زيوت الطبخ المستعملة</option>
+              <option>زيت المحرك المستعمل</option>
+              <option>نفايات الأجهزة الكهربائية</option>
+              <option>نفايات الهواتف والأجهزة الإلكترونية</option>
+              <option>نفايات الكيبلات والوايرات</option>
+              <option>نفايات ألعاب الأطفال</option>
+              <option>فلاتر الهواء المستعملة</option>
+              <option>فلاتر الزيت المستعملة</option>
+              <option>فلاتر المياه المستعملة</option>
+              <option>نفايات مختلطة ومتنوعة</option>
+              <option>نفايات أخرى</option>
             </select>
           </div>
 
           <div class="field full">
-            <label for="companyWasteImages">Waste Images *</label>
+            <label for="companyWasteImages">ارفاق الصور للنفايات *</label>
             <input type="file" id="companyWasteImages" accept="image/*" multiple />
-            <div class="form-note">You can upload up to 5 images of the waste materials.</div>
+            <div class="form-note">يمكنك ارفاق حتى 5 صور للنفايات.</div>
           </div>
 
           <div class="field full">
-            <label for="companyWasteNotes">Additional Details (Optional)</label>
-            <textarea id="companyWasteNotes" placeholder="Add quantity, pickup location, operating hours, or handling details..."></textarea>
+            <label for="companyWasteNotes">تفاصيل إضافية (اختياري)</label>
+            <textarea id="companyWasteNotes" placeholder="أدخل الكمية أو موقع الاستلام أو ساعات العمل أو أي تفاصيل إضافية..."></textarea>
           </div>
 
           <div class="field full otp-row">
+            <button type="button" class="btn btn-outline otp-btn">إرسال رمز OTP</button>
             <div class="otp-input-wrap" hidden>
-              <label for="companyOtp">OTP Verification by Phone Number *</label>
-              <input type="text" id="companyOtp" placeholder="Enter OTP sent to company phone number" />
+              <label for="companyOtp">التحقق عبر رمز OTP للهاتف *</label>
+              <input type="text" id="companyOtp" placeholder="أدخل رمز OTP الذي وصل إلى هاتف الشركة" />
             </div>
-            <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
           </div>
         </div>
       </div>
 
       <label class="terms-check">
         <input type="checkbox" id="termsCheckbox" required />
-        <span>I agree to the terms and conditions.</span>
+        <span>الموافقة على القواعد والشروط</span>
       </label>
 
-      <button type="submit" class="btn btn-primary" id="wasteSubmitButton" style="width:100%; margin-top: 8px;" disabled>Submit</button>
-      <div class="success-message" id="successMessage">Your waste material submission has been received successfully.</div>
+      <button type="submit" class="btn btn-primary" id="wasteSubmitButton" style="width:100%; margin-top: 8px;" disabled>ارسال</button>
+      <div class="success-message" id="successMessage">تم استلام طلب تسليم النفايات بنجاح.</div>
     </form>
   </div>
 </div>
@@ -238,168 +238,168 @@
 
 <section class="section" id="objectives">
   <div class="section-title">
-    <h2>Our Objectives</h2>
+    <h2>أهدافنا</h2>
   </div>
   <div class="objectives-grid">
     <div class="objective-card">
-      <p>To create financial incentives to encourage the public to dispose of their waste properly. Consumers can receive various incentives when they dispose of their waste, either personally or through their businesses, via our platform, Green Cycle Platform.</p>
+      <p>المنصة تخلق فرص تمويلية حديثة في تقديم حوافز مالية متنوعة لتشجيع الجمهور على التخلص السليم من النفايات. يمكن للمشتركين الحصول على حوافز متنوعة عند التخلص من نفاياتهم، سواءً بشكل شخصي أو من خلال شركاتهم، عبر منصتنا "منصة جرين سايكل".</p>
     </div>
     <div class="objective-card">
-      <p>To support leading companies in achieving their corporate social responsibility (CSR) ambitions. Our platform can enhance CSR through statistics and performance reports on waste sustainability management.</p>
+      <p>المساهمة في دعم الشركات الرائدة في تحقيق أهدافها المتعلقة بالمسؤولية الاجتماعية للشركات CSR. حيث تُساهم منصتنا في تعزيز هذه المسؤولية من خلال الإحصاءات وتقارير الأداء الخاصة بإدارة الاستدامة النفايات.</p>
     </div>
     <div class="objective-card">
-      <p>Over 20 million tons of waste are sent to landfills in Kuwait annually. With your participation, we can reduce the amount of waste in Kuwait's landfills by 20% in 2028 and by 100% in 2040.</p>
+      <p>سنويا يتم إرسال أكثر من 20 مليون طن من النفايات إلى مكبات النفايات في الكويت. بمشاركتكم، يُمكننا خفض كمية النفايات في مكبات الكويت بنسبة 20% بحلول عام 2028 وبنسبة 100% بحلول عام 2040.</p>
     </div>
     <div class="objective-card">
-      <p>To Enhance awareness of waste reduction in Kuwait's landfills by issuing an international certificate for preserving Kuwait's landfills to every individual and institution participating in the Green Cycle platform.</p>
+      <p>المساهمة في تعزيز الوعي بأهمية الحد من النفايات في مكبات الكويت من خلال إصدار شهادة دولية للحفاظ على مكبات النفايات في الكويت لكل فرد ولكل مؤسسة مشاركة في منصتنا "جرين سايكل".</p>
     </div>
   </div>
 </section>
 
 <section class="section" id="sponsors">
     <div class="section-title">
-      <h2>Our Sponsors</h2>
-      <p>Organizations that support environmental innovation, responsible waste handling, recycling infrastructure, and circular economy growth.</p>
+      <h2>الرعاة شركاء النجاح</h2>
+      <p>جهات ومؤسسات تدعم الابتكار البيئي والإدارة المسؤولة للنفايات وتطوير البنية التحتية لإعادة التدوير ونمو الاقتصاد الدائري.</p>
     </div>
 
     <div class="sponsor-grid">
       <div class="sponsor-card">
         <img src="https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=900&q=80" alt="EcoRenew Ltd.">
-        <h4>EcoRenew Ltd.</h4>
-        <p>Recycling and material recovery partner.</p>
+        <h4 >EcoRenew Ltd.</h4>
+        <p>شريك في إعادة التدوير واسترداد المواد.</p>
       </div>
       <div class="sponsor-card">
         <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="GreenGrid">
         <h4>GreenGrid</h4>
-        <p>Supports clean operations and sustainability networks.</p>
+        <p>يدعم العمليات النظيفة وشبكات الاستدامة.</p>
       </div>
       <div class="sponsor-card">
         <img src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=900&q=80" alt="Circular Works">
         <h4>Circular Works</h4>
-        <p>Circular supply chain and reuse systems partner.</p>
+        <p>شريك في سلاسل الإمداد الدائرية وأنظمة إعادة الاستخدام.</p>
       </div>
       <div class="sponsor-card">
         <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=900&q=80" alt="Clean Earth Co.">
         <h4>Clean Earth Co.</h4>
-        <p>Environmental stewardship and waste safety sponsor.</p>
+        <p>راعٍ للسلامة البيئية والإدارة الآمنة للنفايات.</p>
       </div>
     </div>
   </section>
 
   <section class="section" id="incentives" style="background: rgba(255,255,255,0.7);">
     <div class="section-title">
-      <h2>Sectors Participating in Incentives</h2>
-      <p>Encourage users, businesses, and institutions to join the platform with benefits that create both environmental and commercial value.</p>
+      <h2>الجهات والقطاعات المقدمة للحوافز وشركاء النجاح معنا</h2>
+      <p>جهات وقطاعات تشجع الأفراد والشركات والمؤسسات على الانضمام للمنصة من خلال حوافز تحقق قيمة بيئية وتجارية.</p>
     </div>
 
     <div class="cards">
       <div class="info-card">
         <div class="benefit-icon">♻️</div>
-        <h3>Green Recognition</h3>
-        <p>Build a trusted sustainability profile with verified participation and environmental impact visibility.</p>
+        <h3>التميز الأخضر</h3>
+        <p>بناء صورة موثوقة في الاستدامة من خلال المشاركة المعتمدة وإبراز الأثر البيئي.</p>
       </div>
       <div class="info-card">
         <div class="benefit-icon">💰</div>
-        <h3>Cost Reduction</h3>
-        <p>Lower waste handling expenses by redirecting materials into more efficient reuse and recovery channels.</p>
+        <h3>خفض التكاليف</h3>
+        <p>تقليل تكاليف التعامل مع النفايات من خلال توجيه المواد إلى قنوات أكثر كفاءة لإعادة الاستخدام والاسترداد.</p>
       </div>
       <div class="info-card">
         <div class="benefit-icon">📊</div>
-        <h3>Impact Analytics</h3>
-        <p>Track performance, diversion rates, and circular progress through simple digital dashboards.</p>
+        <h3>تحليلات الأثر</h3>
+        <p>متابعة الأداء ومعدلات التحويل والتقدم في الاقتصاد الدائري عبر لوحات رقمية بسيطة.</p>
       </div>
     </div>
   </section>
 
   <section class="section" id="ads">
     <div class="section-title">
-      <h2>Featured Advertisements</h2>
-      <p>Explore services and products supporting sustainability and circular economy.</p>
+      <h2>الإعلانات المميزة والمشاركة معنا</h2>
+      <p>استكشف الخدمات والمنتجات الداعمة للاستدامة والاقتصاد الدائري.</p>
     </div>
 
     <div class="ads-grid" id="adsContainer"></div>
   </section>
 
-  <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
+  <!-- <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
     <div class="section-title">
-      <h2>Latest News</h2>
-      <p>This section is ready for future dynamic news updates, announcements, and sustainability highlights.</p>
+      <h2>أحدث الاخبار المتعلقة في الاقتصاد الدائري وإدارة النفايات</h2>
+      <p>هذا القسم جاهز لإضافة الأخبار والتحديثات والإعلانات المتعلقة بإدارة النفايات والاقتصاد الدائري.</p>
     </div>
 
     <div class="news-grid">
       <div class="news-card">
-        <span>Update</span>
-        <h4>Community Recycling Drives</h4>
-        <p>Upcoming neighborhood drives and green initiatives can be highlighted here to improve participation.</p>
+        <span>تحديث</span>
+        <h4>حملات إعادة التدوير المجتمعية</h4>
+        <p>يمكن عرض الحملات المجتمعية والمبادرات البيئية هنا لتعزيز المشاركة.</p>
       </div>
       <div class="news-card">
-        <span>Announcement</span>
-        <h4>New Collection Partners</h4>
-        <p>Use this space to share new partnerships with recyclers, transporters, and sponsors.</p>
+        <span>إعلان</span>
+        <h4>شركاء جمع جدد</h4>
+        <p>يمكن استخدام هذا القسم للإعلان عن الشراكات الجديدة مع شركات التدوير والنقل والرعاة.</p>
       </div>
       <div class="news-card">
-        <span>Insights</span>
-        <h4>Circular Economy Stories</h4>
-        <p>Feature success stories showing how waste is redirected into reuse, recovery, and responsible value chains.</p>
+        <span>مستجدات</span>
+        <h4>قصص نجاح الاقتصاد الدائري</h4>
+        <p>اعرض قصص النجاح التي توضح كيف يتم تحويل النفايات إلى مسارات إعادة استخدام واسترداد وقيمة مسؤولة.</p>
       </div>
     </div>
-  </section>
+  </section> -->
 
   <section class="section" id="contact">
     <div class="section-title">
-      <h2>Contact Us</h2>
-      <p>Make it easy for users, partners, and sponsors to reach Green Cycle Platform.</p>
+      <h2>تواصل معنا</h2>
+      <p>نجعل التواصل مع منصة جرين سايكل سهلاً للمستخدمين والشركاء والرعاة.</p>
     </div>
 
     <div class="contact-grid">
       <div class="contact-card">
-        <h3>General Contact</h3>
-        <strong>Email</strong>
+        <h3>التواصل العام</h3>
+        <strong>البريد الالكتروني</strong>
         <p>info@greencyclemanagement.com</p>
       </div>
       <div class="contact-card">
-        <h3>Support Line</h3>
-        <strong>Phone</strong>
+        <h3>خط الدعم</h3>
+        <strong>الهاتف</strong>
         <p>+965 6772 7786 </p>
       </div>
       <div class="contact-card">
-        <h3>Office Address</h3>
-        <strong>Location</strong>
-        <p>Green Cycle Platform, Kuwait City, Kuwait</p>
+        <h3>عنوان المكتب</h3>
+        <strong>الموقع</strong>
+        <p>منصة جرين سايكل، مدينة الكويت، الكويت</p>
       </div>
     </div>
   </section>
 
   <footer>
     <div class="footer-wrap">
-      <p><strong>Green Cycle Platform</strong> — Circular waste solutions platform</p>
+      <p><strong>منصة جرين سايكل</strong> — منصة للحلول الدائرية للنفايات</p>
       <div class="footer-links">
-        <a href="#home">Home</a>
-        <a href="#home">Submit Waste</a>
-        <a href="#sponsors">Sponsors</a>
+        <a href="#home">الرئيسية</a>
+        <a href="#home">تسليم النفايات</a>
+        <a href="#sponsors">الرعاة</a>
       </div>
-      <p>© 2026 All rights reserved.</p>
+      <p>© 2026 جميع الحقوق محفوظة.</p>
     </div>
   </footer>
 
   <div class="modal-overlay" id="loginModal">
     <div class="modal">
       <button class="close-btn" id="closeLoginModal">×</button>
-      <h2 style="color: var(--green-900); margin-bottom: 8px;">Login</h2>
-      <p style="color:#5b7566; margin-bottom: 18px;">Access your Green Cycle account</p>
+      <h2 style="color: var(--green-900); margin-bottom: 8px;">تسجيل الدخول</h2>
+      <p style="color:#5b7566; margin-bottom: 18px;">الوصول إلى حسابك في منصة جرين سايكل</p>
 
       <form>
         <div class="field">
-          <label for="loginEmail">Email Address</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" />
+          <label for="loginالبريد الالكتروني">البريد الالكتروني</label>
+          <input type="email" id="loginالبريد الالكتروني" placeholder="أدخل البريد الالكتروني" />
         </div>
 
         <div class="field">
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter your password" />
+          <label for="loginPassword">كلمة المرور</label>
+          <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" />
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+        <button type="submit" class="btn btn-primary" style="width:100%;">تسجيل الدخول</button>
       </form>
     </div>
   </div>
@@ -407,112 +407,77 @@
   <div class="modal-overlay" id="signupModal">
     <div class="modal signup-modal">
       <button class="close-btn" id="closeSignupModal">×</button>
-      <h2 style="color: var(--green-900); margin-bottom: 8px;">Sign Up</h2>
-      <p style="color:#5b7566; margin-bottom: 18px;">Choose an account type and add the basic information.</p>
+      <h2 style="color: var(--green-900); margin-bottom: 18px;">تسجيل شركات إعادة التدوير</h2>
 
       <form id="signupForm">
-        <div class="form-type-switcher signup-type-switcher" id="signupTypeSwitcher">
-          <button type="button" class="type-tab active" data-target="companySignupPanel">Company</button>
-          <button type="button" class="type-tab" data-target="userSignupPanel">User</button>
-        </div>
-
         <div class="form-panel active" id="companySignupPanel">
           <div class="form-grid signup-form-grid">
             <div class="field">
-              <label for="signupCompanyName">Company Name *</label>
-              <input type="text" id="signupCompanyName" placeholder="Enter company name" required />
+              <label for="signupCompanyName">اسم الشركة *</label>
+              <input type="text" id="signupCompanyName" placeholder="أدخل اسم الشركة" required />
             </div>
 
             <div class="field">
-              <label for="signupMobile">Mobile *</label>
-              <input type="tel" id="signupMobile" placeholder="Enter mobile number" required />
+              <label for="signupMobile">رقم الموبايل *</label>
+              <input type="tel" id="signupMobile" placeholder="أدخل رقم الموبايل" required />
             </div>
 
             <div class="field">
-              <label for="signupEmailModal">Email *</label>
-              <input type="email" id="signupEmailModal" placeholder="Enter company email" required />
+              <label for="signupEmailModal">البريد الإلكتروني *</label>
+              <input type="email" id="signupEmailModal" placeholder="أدخل البريد الإلكتروني للشركة" required />
             </div>
 
             <div class="field">
-              <label for="signupAddress">Address (Optional)</label>
-              <input type="text" id="signupAddress" placeholder="Enter company address" />
+              <label for="signupAddress">العنوان (اختياري)</label>
+              <input type="text" id="signupAddress" placeholder="أدخل عنوان الشركة" />
             </div>
 
             <div class="field">
-              <label for="signupLogo">Logo (Optional)</label>
+              <label for="signupLogo">الشعار (اختياري)</label>
               <input type="file" id="signupLogo" accept="image/*" />
             </div>
 
             <div class="field">
-              <label for="signupWebsite">Company Website (Optional)</label>
+              <label for="signupWebsite">موقع الشركة الإلكتروني (اختياري)</label>
               <input type="url" id="signupWebsite" placeholder="https://example.com" />
             </div>
 
             <div class="field full">
-              <label for="signupWasteCategory1">Waste Category *</label>
+              <label for="signupWasteCategory1">نوع النفايات *</label>
               <div class="signup-category-list" id="signupCategoryList">
                 <select id="signupWasteCategory1" name="signupWasteCategory[]" required>
-                  <option value="">Select waste category</option>
-                  <option>Plastic Waste</option>
-                  <option>Paper & Cardboard</option>
-                  <option>Metal Scrap</option>
-                  <option>Glass Waste</option>
-                  <option>Electronic Waste</option>
-                  <option>Organic Waste</option>
-                  <option>Textile Waste</option>
-                  <option>Construction Debris</option>
-                  <option>Wood Waste</option>
-                  <option>Battery Waste</option>
-                  <option>Used Tires</option>
-                  <option>Agricultural Waste</option>
-                  <option>Used Cooking Oil</option>
-                  <option>Used Engine Oil</option>
-                  <option>Electrical Devices Waste</option>
-                  <option>Mobile and Electronic Waste</option>
-                  <option>Cables and Wires Waste</option>
-                  <option>Toys Waste</option>
-                  <option>Used Air Filters</option>
-                  <option>Used Oil Filters</option>
-                  <option>Used Water Filters</option>
-                  <option>Mixed and Multiple Waste</option>
-                  <option>Other Waste</option>
+                  <option value="">اختر نوع النفايات</option>
+                  <option>نفايات بلاستيكية</option>
+                  <option>ورق وكرتون</option>
+                  <option>خردة معدنية</option>
+                  <option>نفايات زجاجية</option>
+                  <option>نفايات إلكترونية</option>
+                  <option>نفايات عضوية</option>
+                  <option>نفايات نسيجية</option>
+                  <option>مخلفات بناء</option>
+                  <option>نفايات خشبية</option>
+                  <option>نفايات البطاريات</option>
+                  <option>الإطارات المستعملة (نفايات التواير)</option>
+                  <option>نفايات زراعية</option>
+                  <option>زيوت الطبخ المستعملة</option>
+                  <option>زيت المحرك المستعمل</option>
+                  <option>نفايات الأجهزة الكهربائية</option>
+                  <option>نفايات الهواتف والأجهزة الإلكترونية</option>
+                  <option>نفايات الكيبلات والوايرات</option>
+                  <option>نفايات ألعاب الأطفال</option>
+                  <option>فلاتر الهواء المستعملة</option>
+                  <option>فلاتر الزيت المستعملة</option>
+                  <option>فلاتر المياه المستعملة</option>
+                  <option>نفايات مختلطة ومتنوعة</option>
+                  <option>نفايات أخرى</option>
                 </select>
               </div>
-              <button type="button" class="btn btn-outline add-category-btn" id="addSignupCategory">Add waste category</button>
+              <button type="button" class="btn btn-outline add-category-btn" id="addSignupCategory">إضافة نوع نفايات</button>
             </div>
           </div>
         </div>
 
-        <div class="form-panel" id="userSignupPanel">
-          <div class="form-grid signup-form-grid">
-            <div class="field">
-              <label for="signupUserName">Full Name *</label>
-              <input type="text" id="signupUserName" placeholder="Enter full name" required disabled />
-            </div>
-
-            <div class="field">
-              <label for="signupUserMobile">Mobile *</label>
-              <input type="tel" id="signupUserMobile" placeholder="Enter mobile number" required disabled />
-            </div>
-
-            <div class="field">
-              <label for="signupUserEmail">Email *</label>
-              <input type="email" id="signupUserEmail" placeholder="Enter email address" required disabled />
-            </div>
-
-            <div class="field">
-              <label for="signupUserCity">City *</label>
-              <input type="text" id="signupUserCity" placeholder="Enter city" required disabled />
-            </div>
-
-            <div class="field full">
-              <label for="signupUserAddress">Address (Optional)</label>
-              <input type="text" id="signupUserAddress" placeholder="Enter address" disabled />
-            </div>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
+        <button type="submit" class="btn btn-primary" style="width:100%;">إنشاء حساب</button>
       </form>
     </div>
   </div>
@@ -532,8 +497,6 @@
     const wasteImageInputs = document.querySelectorAll('#individualWasteImages, #companyWasteImages');
     const typeTabs = document.querySelectorAll('#formTypeSwitcher .type-tab');
     const formPanels = document.querySelectorAll('#individualForm, #corporateForm');
-    const signupTypeTabs = document.querySelectorAll('#signupTypeSwitcher .type-tab');
-    const signupPanels = document.querySelectorAll('#companySignupPanel, #userSignupPanel');
     const otpButtons = document.querySelectorAll('.otp-btn');
     const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
     const menuToggle = document.querySelector('.menu-toggle');
@@ -577,24 +540,6 @@
       newCategory.focus();
     }
 
-    function setPanelInputsEnabled(panel, isEnabled) {
-      panel.querySelectorAll('input, select, textarea, button').forEach(control => {
-        control.disabled = !isEnabled;
-      });
-    }
-
-    function activateSignupPanel(targetId) {
-      signupTypeTabs.forEach(tab => {
-        tab.classList.toggle('active', tab.getAttribute('data-target') === targetId);
-      });
-
-      signupPanels.forEach(panel => {
-        const isActive = panel.id === targetId;
-        panel.classList.toggle('active', isActive);
-        setPanelInputsEnabled(panel, isActive);
-      });
-    }
-
     openLoginModal.addEventListener('click', showLoginModal);
     openSignupModal.addEventListener('click', showSignupModal);
     closeLoginModal.addEventListener('click', hideLoginModal);
@@ -619,7 +564,7 @@
     wasteImageInputs.forEach(input => {
       input.addEventListener('change', function () {
         if (this.files.length > 5) {
-          alert('You can upload a maximum of 5 images.');
+          alert('يمكنك ارفاق 5 صور كحد أقصى.');
           this.value = '';
         }
       });
@@ -636,12 +581,6 @@
         document.getElementById(targetId).classList.add('active');
         wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
         updateWasteSubmitState();
-      });
-    });
-
-    signupTypeTabs.forEach(tab => {
-      tab.addEventListener('click', function () {
-        activateSignupPanel(this.getAttribute('data-target'));
       });
     });
 
@@ -677,44 +616,67 @@
     });
 
     updateWasteSubmitState();
-    activateSignupPanel('companySignupPanel');
 
     const ads = [
       {
-        title: 'Plastic Recycling Solutions',
-        desc: 'Advanced plastic sorting and recycling technologies.',
+        title: 'حلول إعادة تدوير البلاستيك',
+        desc: 'تقنيات متقدمة لفرز وإعادة تدوير البلاستيك.',
         link: '#contact',
         img: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=900&q=80'
       },
       {
-        title: 'Waste Collection Services',
-        desc: 'Efficient and eco-friendly waste collection systems.',
+        title: 'خدمات جمع النفايات',
+        desc: 'أنظمة فعالة وصديقة للبيئة لجمع النفايات.',
         link: '#contact',
         img: 'https://images.unsplash.com/photo-1574263867128-5cbe0f7dfaa3?auto=format&fit=crop&w=900&q=80'
       },
       {
-        title: 'Recycling Plant Equipment',
-        desc: 'Industrial machines for waste processing and reuse.',
+        title: 'معدات مصانع إعادة التدوير',
+        desc: 'معدات صناعية لمعالجة النفايات وإعادة استخدامها.',
         link: '#contact',
         img: 'https://images.unsplash.com/photo-1581093588401-22f3c4f92c95?auto=format&fit=crop&w=900&q=80'
       },
       {
-        title: 'E-Waste Management',
-        desc: 'Safe disposal and recycling of electronic waste.',
+        title: 'إدارة النفايات الإلكترونية',
+        desc: 'التخلص الآمن من النفايات الإلكترونية وإعادة تدويرها.',
         link: '#contact',
         img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'
       },
       {
-        title: 'Composting Systems',
-        desc: 'Turn organic waste into valuable compost.',
+        title: 'أنظمة التسميد العضوي',
+        desc: 'تحويل النفايات العضوية إلى سماد ذي قيمة.',
         link: '#contact',
         img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80'
       },
       {
-        title: 'Sustainable Packaging',
-        desc: 'Eco-friendly packaging solutions for businesses.',
+        title: 'تغليف مستدام',
+        desc: 'حلول تغليف صديقة للبيئة للشركات.',
         link: '#contact',
         img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'حلول إعادة تدوير المعادن',
+        desc: 'خدمات متخصصة لاسترداد وفرز الخردة المعدنية.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'إعادة تدوير الورق والكرتون',
+        desc: 'حلول فعالة لجمع ومعالجة الورق والكرتون.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1604187351574-c75ca79f5807?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'خدمات نقل النفايات',
+        desc: 'نقل منظم وآمن للنفايات إلى مراكز المعالجة.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1590496793929-36417d3117de?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'استشارات الاستدامة',
+        desc: 'خطط عملية لتحسين إدارة النفايات وتقليل الهدر.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80'
       }
     ];
 
@@ -724,14 +686,14 @@
 
     function renderAds() {
       const container = document.getElementById('adsContainer');
-      const selectedAds = getRandomAds(4);
+      const selectedAds = getRandomAds(8);
 
       container.innerHTML = selectedAds.map(ad => `
         <a href="${ad.link}" class="ad-card" style="background-image:url('${ad.img}');">
-          <span class="ad-badge">Sponsored</span>
+          <span class="ad-badge">إعلان</span>
           <h4>${ad.title}</h4>
           <p>${ad.desc}</p>
-          <span class="ad-link">Learn More</span>
+          <span class="ad-link">اعرف المزيد</span>
         </a>
       `).join('');
     }
