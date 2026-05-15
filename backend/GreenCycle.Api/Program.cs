@@ -10,6 +10,9 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 var apiRoot = FindApiRoot();
+var allowedCorsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
 
 builder.Services.AddSingleton(new UserStore(apiRoot));
 builder.Services.AddSingleton<OtpStore>();
@@ -23,6 +26,12 @@ builder.Services.AddCors(options =>
             .SetIsOriginAllowed(origin =>
             {
                 if (string.Equals(origin, "null", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (allowedCorsOrigins.Any(allowedOrigin =>
+                    string.Equals(allowedOrigin.TrimEnd('/'), origin.TrimEnd('/'), StringComparison.OrdinalIgnoreCase)))
                 {
                     return true;
                 }

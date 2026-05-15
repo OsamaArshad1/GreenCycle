@@ -50,3 +50,15 @@ dotnet user-secrets set "Smtp:FromEmail" "no-reply@example.com" --project backen
 The OTP is emailed only. It is not returned to the browser or displayed on screen.
 
 For local `appsettings.json` setup, copy `backend/GreenCycle.Api/appsettings.example.json` to `backend/GreenCycle.Api/appsettings.json` and replace the placeholder SMTP values. The real `appsettings.json` file is ignored by Git so private SMTP passwords stay local.
+
+## Published Website API Setup
+
+GitHub Pages only hosts the static website. OTP email requires the .NET backend to be deployed separately to a public HTTPS URL. After deploying the backend, set that URL in `site-config.js`:
+
+```js
+window.GreenCycleConfig = {
+  apiBaseUrl: "https://your-greencycle-api.example.com"
+};
+```
+
+Also allow the GitHub Pages origin in the backend `Cors:AllowedOrigins` setting.

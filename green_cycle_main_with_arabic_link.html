@@ -488,6 +488,7 @@
     </div>
   </div>
 
+  <script src="site-config.js"></script>
   <script>
     const loginModal = document.getElementById('loginModal');
     const signupModal = document.getElementById('signupModal');
@@ -520,11 +521,19 @@
       individual: { phone: '', token: '' },
       corporate: { phone: '', token: '' }
     };
-    const apiOrigin = window.location.protocol === 'file:' || window.location.port !== '5294'
-      ? 'http://localhost:5294'
-      : '';
+    const configuredApiOrigin = (window.GreenCycleConfig?.apiBaseUrl || '').replace(/\/$/, '');
+    const isBackendHost = window.location.port === '5294';
+    const isLocalPage = window.location.protocol === 'file:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+    const apiOrigin = configuredApiOrigin || (isBackendHost ? '' : 'http://localhost:5294');
+    const apiIsMissing = !configuredApiOrigin && !isBackendHost && !isLocalPage;
 
     function apiUrl(path) {
+      if (apiIsMissing) {
+        throw new Error('The live website needs a hosted backend API URL before OTP can be sent.');
+      }
+
       return `${apiOrigin}${path}`;
     }
 
