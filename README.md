@@ -53,7 +53,7 @@ For local `appsettings.json` setup, copy `backend/GreenCycle.Api/appsettings.exa
 
 ## Published Website API Setup
 
-GitHub Pages only hosts the static website. OTP email requires the .NET backend to be deployed separately to a public HTTPS URL. After deploying the backend, set that URL in `site-config.js`:
+GitHub Pages only hosts the static website at `https://osamaarshad1.github.io/GreenCycle/index.html`. OTP email requires the .NET backend to be deployed separately to a public HTTPS URL. After deploying the backend, set that URL in `site-config.js`:
 
 ```js
 window.GreenCycleConfig = {
@@ -61,4 +61,4 @@ window.GreenCycleConfig = {
 };
 ```
 
-Also allow the GitHub Pages origin in the backend `Cors:AllowedOrigins` setting.
+Also allow the GitHub Pages origin in the backend `Cors:AllowedOrigins` setting. The origin should be `https://osamaarshad1.github.io`; browsers do not include `/GreenCycle/index.html` in the CORS origin.
