@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Green Cycle Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: #f5f8f2;
+    }
+
+    .dashboard-shell {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+      padding: 34px 0 48px;
+    }
+
+    .dashboard-topbar,
+    .dashboard-actions,
+    .dashboard-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .dashboard-topbar {
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .dashboard-brand {
+      color: var(--green-900);
+      font-weight: 800;
+    }
+
+    .dashboard-brand img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+    }
+
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .dashboard-panel,
+    .dashboard-side,
+    .dashboard-section {
+      background: #fff;
+      border: 1px solid rgba(29, 86, 45, 0.12);
+      border-radius: 8px;
+      box-shadow: 0 18px 45px rgba(23, 69, 42, 0.08);
+      padding: 26px;
+    }
+
+    .dashboard-panel h1,
+    .dashboard-section h2,
+    .dashboard-side h2 {
+      color: var(--green-900);
+      margin-bottom: 10px;
+    }
+
+    .dashboard-panel h1 {
+      font-size: 34px;
+    }
+
+    .dashboard-section {
+      margin-top: 22px;
+    }
+
+    .dashboard-panel p,
+    .dashboard-section p,
+    .dashboard-side p {
+      color: #5b7566;
+      line-height: 1.7;
+    }
+
+    .dashboard-grid,
+    .dashboard-form-grid,
+    .submission-meta {
+      display: grid;
+      gap: 14px;
+    }
+
+    .dashboard-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 24px;
+    }
+
+    .dashboard-form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .submission-meta {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      color: #5b7566;
+      font-size: 14px;
+    }
+
+    .metric {
+      background: #eef6eb;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--green-900);
+      font-size: 22px;
+    }
+
+    .metric span,
+    .account-list span {
+      color: #5b7566;
+      font-size: 14px;
+    }
+
+    .account-list,
+    .dashboard-form,
+    .submission-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .account-list div {
+      border-bottom: 1px solid rgba(29, 86, 45, 0.12);
+      padding-bottom: 12px;
+    }
+
+    .account-list strong {
+      display: block;
+      color: var(--green-900);
+      word-break: break-word;
+      margin-top: 4px;
+    }
+
+    .dashboard-form .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .dashboard-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-feedback {
+      display: none;
+      border-radius: 8px;
+      padding: 13px 14px;
+      font-weight: 700;
+    }
+
+    .form-feedback.success {
+      background: #e6f6e8;
+      color: #1d6f32;
+      border: 1px solid #bbf7d0;
+    }
+
+    .form-feedback.error {
+      background: #fdecec;
+      color: #a32121;
+      border: 1px solid #f8c9c9;
+    }
+
+    .submission-card {
+      border: 1px solid rgba(29, 86, 45, 0.14);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfdf9;
+    }
+
+    .submission-card header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .submission-card strong {
+      color: var(--green-900);
+    }
+
+    @media (max-width: 780px) {
+      .dashboard-topbar,
+      .dashboard-hero,
+      .dashboard-grid,
+      .dashboard-form-grid,
+      .submission-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .dashboard-panel h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard-shell">
+    <div class="dashboard-topbar">
+      <a class="dashboard-brand" href="green_cycle_main_with_arabic_link.html">
+        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo">
+        <span>Green Cycle Platform</span>
+      </a>
+      <div class="dashboard-actions">
+        <a class="btn btn-outline" href="dashboard.html">العربية</a>
+        <a class="btn btn-primary" href="#submitWasteRequest">Submit Waste Request</a>
+        <a class="btn btn-outline" href="#submissionHistory">View Requests</a>
+        <button class="btn btn-outline" id="logoutButton">Logout</button>
+      </div>
+    </div>
+
+    <section class="dashboard-hero">
+      <div class="dashboard-panel">
+        <h1 id="welcomeTitle">Welcome</h1>
+        <p>Your login was verified with OTP. Use this dashboard to submit waste requests and view previous requests for this company account.</p>
+
+        <div class="dashboard-grid">
+          <div class="metric">
+            <strong id="totalRequestsMetric">0</strong>
+            <span>Total requests</span>
+          </div>
+          <div class="metric">
+            <strong id="pendingRequestsMetric">0</strong>
+            <span>Received requests</span>
+          </div>
+          <div class="metric">
+            <strong id="lastRequestMetric">-</strong>
+            <span>Last request</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="dashboard-side">
+        <h2>Account</h2>
+        <p>Verified session details from the login response.</p>
+        <div class="account-list">
+          <div>
+            <span>Company</span>
+            <strong id="companyName">-</strong>
+          </div>
+          <div>
+            <span>Email</span>
+            <strong id="companyEmail">-</strong>
+          </div>
+          <div>
+            <span>Session</span>
+            <strong>OTP verified</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="dashboard-section" id="submitWasteRequest">
+      <h2>Submit Waste Request</h2>
+      <p>An OTP will be sent to the company email. After verification, you can submit multiple requests without the OTP being consumed after the first submission.</p>
+
+      <form class="dashboard-form" id="dashboardWasteForm">
+        <div class="dashboard-form-grid">
+          <div class="field">
+            <label for="dashboardPhone">Phone Number *</label>
+            <input type="tel" id="dashboardPhone" placeholder="Enter company phone number" required>
+          </div>
+
+          <div class="field">
+            <label for="dashboardContactPerson">Contact Person *</label>
+            <input type="text" id="dashboardContactPerson" placeholder="Enter contact person name" required>
+          </div>
+
+          <div class="field">
+            <label for="dashboardCity">City *</label>
+            <input type="text" id="dashboardCity" placeholder="Enter city" required>
+          </div>
+
+          <div class="field">
+            <label for="dashboardWasteCategory">Waste Category *</label>
+            <select id="dashboardWasteCategory" required>
+              <option value="">Select waste category</option>
+              <option>Plastic Waste</option>
+              <option>Paper & Cardboard</option>
+              <option>Metal Scrap</option>
+              <option>Glass Waste</option>
+              <option>Electronic Waste</option>
+              <option>Organic Waste</option>
+              <option>Textile Waste</option>
+              <option>Construction Debris</option>
+              <option>Wood Waste</option>
+              <option>Battery Waste</option>
+              <option>Used Tires</option>
+              <option>Agricultural Waste</option>
+              <option>Used Cooking Oil</option>
+              <option>Used Engine Oil</option>
+              <option>Electrical Devices Waste</option>
+              <option>Mobile and Electronic Waste</option>
+              <option>Cables and Wires Waste</option>
+              <option>Toys Waste</option>
+              <option>Used Air Filters</option>
+              <option>Used Oil Filters</option>
+              <option>Used Water Filters</option>
+              <option>Mixed and Multiple Waste</option>
+              <option>Other Waste</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="dashboardWasteImages">Waste Images</label>
+            <input type="file" id="dashboardWasteImages" accept="image/*" multiple>
+            <div class="form-note">You can upload up to 5 images.</div>
+          </div>
+
+          <div class="field full">
+            <label for="dashboardWasteNotes">Additional Details</label>
+            <textarea id="dashboardWasteNotes" placeholder="Add quantity, pickup location, operating hours, or handling details..."></textarea>
+          </div>
+
+          <div class="field full">
+            <button type="button" class="btn btn-outline" id="dashboardSendOtpButton">Send OTP to Email</button>
+            <div class="form-feedback success" id="dashboardOtpStatus" style="margin-top: 12px;"></div>
+            <div id="dashboardOtpWrap" style="margin-top: 12px;" hidden>
+              <label for="dashboardOtp">OTP Code *</label>
+              <input type="text" id="dashboardOtp" inputmode="numeric" maxlength="6" placeholder="Enter OTP sent to email">
+              <small id="dashboardOtpHint" style="color:#5b7566;"></small>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="dashboardSubmitButton" disabled>Submit Waste Request</button>
+        <div class="form-feedback success" id="dashboardSuccess">Waste request submitted successfully.</div>
+        <div class="form-feedback error" id="dashboardError"></div>
+      </form>
+    </section>
+
+    <section class="dashboard-section" id="submissionHistory">
+      <h2>Previous Waste Requests</h2>
+      <p>These are the waste requests submitted from this account.</p>
+      <div class="submission-list" id="submissionList">
+        <div class="form-feedback success" style="display:block;">Loading requests...</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem('greenCycleAuth') || 'null');
+    const apiOrigin = window.location.protocol === 'file:' || window.location.port !== '5294'
+      ? 'http://localhost:5294'
+      : '';
+    const wasteOtpState = { phone: '', token: '', otp: '' };
+
+    function apiUrl(path) {
+      return `${apiOrigin}${path}`;
+    }
+
+    async function readApiResponse(response) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || data.detail || data.title || 'The request could not be completed.');
+      }
+      return data;
+    }
+
+    async function postJson(url, body) {
+      const response = await fetch(apiUrl(url), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return readApiResponse(response);
+    }
+
+    function showDashboardError(message) {
+      const error = document.getElementById('dashboardError');
+      error.textContent = message;
+      error.style.display = 'block';
+      document.getElementById('dashboardSuccess').style.display = 'none';
+    }
+
+    function clearDashboardMessages() {
+      document.getElementById('dashboardError').style.display = 'none';
+      document.getElementById('dashboardSuccess').style.display = 'none';
+    }
+
+    function showOtpStatus(message) {
+      const status = document.getElementById('dashboardOtpStatus');
+      status.textContent = message;
+      status.style.display = 'block';
+    }
+
+    function updateDashboardSubmitState() {
+      document.getElementById('dashboardSubmitButton').disabled = !wasteOtpState.token;
+    }
+
+    function formatDate(value) {
+      return new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(value));
+    }
+
+    function buildDashboardWasteData() {
+      const data = new FormData();
+      const images = document.getElementById('dashboardWasteImages');
+
+      data.append('submitterType', 'corporate');
+      data.append('phone', wasteOtpState.phone);
+      data.append('companyName', session.companyName);
+      data.append('submitterName', document.getElementById('dashboardContactPerson').value.trim());
+      data.append('email', session.email);
+      data.append('address', document.getElementById('dashboardCity').value.trim());
+      data.append('wasteCategory', document.getElementById('dashboardWasteCategory').value);
+      data.append('notes', document.getElementById('dashboardWasteNotes').value.trim());
+      data.append('verificationToken', wasteOtpState.token);
+
+      Array.from(images.files || []).forEach(file => {
+        data.append('images', file);
+      });
+
+      return data;
+    }
+
+    async function loadSubmissions() {
+      const list = document.getElementById('submissionList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/waste/submissions?email=${encodeURIComponent(session.email)}`));
+        const submissions = await readApiResponse(response);
+        document.getElementById('totalRequestsMetric').textContent = submissions.length;
+        document.getElementById('pendingRequestsMetric').textContent = submissions.filter(item => item.status === 'received').length;
+        document.getElementById('lastRequestMetric').textContent = submissions[0] ? formatDate(submissions[0].createdAtUtc) : '-';
+
+        if (submissions.length === 0) {
+          list.innerHTML = '<div class="form-feedback success" style="display:block;">No requests yet.</div>';
+          return;
+        }
+
+        list.innerHTML = submissions.map(item => `
+          <article class="submission-card">
+            <header>
+              <strong>${item.wasteCategory}</strong>
+              <span>${formatDate(item.createdAtUtc)}</span>
+            </header>
+            <div class="submission-meta">
+              <span>Status: ${item.status}</span>
+              <span>Phone: ${item.phone}</span>
+              <span>Images: ${item.imageCount}</span>
+            </div>
+            ${item.notes ? `<p>${item.notes}</p>` : ''}
+          </article>
+        `).join('');
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${error.message}</div>`;
+      }
+    }
+
+    if (!session || !session.token) {
+      window.location.href = 'green_cycle_main_with_arabic_link.html';
+    } else {
+      document.getElementById('welcomeTitle').textContent = `Welcome, ${session.companyName}`;
+      document.getElementById('companyName').textContent = session.companyName;
+      document.getElementById('companyEmail').textContent = session.email;
+      loadSubmissions();
+    }
+
+    document.getElementById('dashboardWasteImages').addEventListener('change', function () {
+      if (this.files.length > 5) {
+        showDashboardError('You can upload a maximum of 5 images.');
+        this.value = '';
+      }
+    });
+
+    document.getElementById('dashboardSendOtpButton').addEventListener('click', async function () {
+      const phoneInput = document.getElementById('dashboardPhone');
+      const phone = phoneInput.value.trim();
+      const otpWrap = document.getElementById('dashboardOtpWrap');
+      const otpInput = document.getElementById('dashboardOtp');
+      const otpHint = document.getElementById('dashboardOtpHint');
+      const sendButton = document.getElementById('dashboardSendOtpButton');
+
+      clearDashboardMessages();
+      document.getElementById('dashboardOtpStatus').style.display = 'none';
+
+      if (!phone) {
+        showDashboardError('Please enter the phone number first.');
+        phoneInput.focus();
+        return;
+      }
+
+      try {
+        sendButton.disabled = true;
+        sendButton.textContent = 'Sending OTP...';
+        otpHint.textContent = 'Sending OTP to email...';
+        await postJson('/api/waste/request-otp', { phone, email: session.email });
+        wasteOtpState.phone = phone;
+        wasteOtpState.token = '';
+        wasteOtpState.otp = '';
+        otpInput.value = '';
+        otpWrap.hidden = false;
+        otpInput.required = true;
+        otpInput.focus();
+        showOtpStatus(`OTP sent to ${session.email}.`);
+        otpHint.textContent = 'Enter the code from your email.';
+        updateDashboardSubmitState();
+      } catch (error) {
+        showDashboardError(error.message);
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = 'Send OTP to Email';
+      }
+    });
+
+    document.getElementById('dashboardOtp').addEventListener('input', async function () {
+      const otp = this.value.trim();
+      const hint = document.getElementById('dashboardOtpHint');
+
+      if (otp.length !== 6 || !wasteOtpState.phone) {
+        return;
+      }
+
+      try {
+        const result = await postJson('/api/waste/verify-otp', {
+          phone: wasteOtpState.phone,
+          otp
+        });
+        wasteOtpState.otp = otp;
+        wasteOtpState.token = result.verificationToken;
+        hint.textContent = 'OTP verified. You can submit the request now.';
+        showOtpStatus('OTP verified.');
+        updateDashboardSubmitState();
+      } catch (error) {
+        hint.textContent = error.message;
+      }
+    });
+
+    document.getElementById('dashboardWasteForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      clearDashboardMessages();
+
+      if (!wasteOtpState.token) {
+        showDashboardError('Please verify the OTP before submitting.');
+        return;
+      }
+
+      try {
+        const response = await fetch(apiUrl('/api/waste/submissions'), {
+          method: 'POST',
+          body: buildDashboardWasteData()
+        });
+        await readApiResponse(response);
+
+        const keepPhone = wasteOtpState.phone;
+        const keepOtp = wasteOtpState.otp;
+        this.reset();
+        document.getElementById('dashboardPhone').value = keepPhone;
+        document.getElementById('dashboardOtp').value = keepOtp;
+        document.getElementById('dashboardOtpWrap').hidden = false;
+        document.getElementById('dashboardOtpHint').textContent = 'The OTP is still valid for another request.';
+        showOtpStatus('Request submitted. You can submit another request with the same OTP.');
+        document.getElementById('dashboardSuccess').style.display = 'block';
+        updateDashboardSubmitState();
+        await loadSubmissions();
+      } catch (error) {
+        showDashboardError(error.message);
+      }
+    });
+
+    document.getElementById('logoutButton').addEventListener('click', function () {
+      localStorage.removeItem('greenCycleAuth');
+      window.location.href = 'green_cycle_main_with_arabic_link.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم | منصة جرين سايكل</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: #f5f8f2;
+      direction: rtl;
+      text-align: right;
+      font-family: 'Cairo', 'Inter', Arial, Helvetica, sans-serif;
+    }
+
+    .dashboard-shell {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+      padding: 34px 0 48px;
+    }
+
+    .dashboard-topbar,
+    .dashboard-actions,
+    .dashboard-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .dashboard-topbar {
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .dashboard-brand {
+      color: var(--green-900);
+      font-weight: 800;
+    }
+
+    .dashboard-brand img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+    }
+
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .dashboard-panel,
+    .dashboard-side,
+    .dashboard-section {
+      background: #fff;
+      border: 1px solid rgba(29, 86, 45, 0.12);
+      border-radius: 8px;
+      box-shadow: 0 18px 45px rgba(23, 69, 42, 0.08);
+      padding: 26px;
+    }
+
+    .dashboard-panel h1,
+    .dashboard-section h2,
+    .dashboard-side h2 {
+      color: var(--green-900);
+      margin-bottom: 10px;
+    }
+
+    .dashboard-panel h1 {
+      font-size: 34px;
+    }
+
+    .dashboard-section {
+      margin-top: 22px;
+    }
+
+    .dashboard-panel p,
+    .dashboard-section p,
+    .dashboard-side p {
+      color: #5b7566;
+      line-height: 1.7;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .metric {
+      background: #eef6eb;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--green-900);
+      font-size: 22px;
+    }
+
+    .metric span,
+    .account-list span {
+      color: #5b7566;
+      font-size: 14px;
+    }
+
+    .account-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .account-list div {
+      border-bottom: 1px solid rgba(29, 86, 45, 0.12);
+      padding-bottom: 12px;
+    }
+
+    .account-list strong {
+      display: block;
+      color: var(--green-900);
+      word-break: break-word;
+      margin-top: 4px;
+    }
+
+    .dashboard-form {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .dashboard-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .dashboard-form .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .dashboard-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-feedback {
+      display: none;
+      border-radius: 8px;
+      padding: 13px 14px;
+      font-weight: 700;
+    }
+
+    .form-feedback.success {
+      background: #e6f6e8;
+      color: #1d6f32;
+      border: 1px solid #bbf7d0;
+    }
+
+    .form-feedback.error {
+      background: #fdecec;
+      color: #a32121;
+      border: 1px solid #f8c9c9;
+    }
+
+    .submission-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .submission-card {
+      border: 1px solid rgba(29, 86, 45, 0.14);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfdf9;
+    }
+
+    .submission-card header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .submission-card strong {
+      color: var(--green-900);
+    }
+
+    .submission-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      color: #5b7566;
+      font-size: 14px;
+    }
+
+    @media (max-width: 780px) {
+      .dashboard-topbar,
+      .dashboard-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .dashboard-grid,
+      .dashboard-form-grid,
+      .submission-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-panel h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard-shell">
+    <div class="dashboard-topbar">
+      <a class="dashboard-brand" href="index.html">
+        <img src="Green_logo-removebg-preview.png" alt="شعار جرين سايكل">
+        <span>منصة جرين سايكل</span>
+      </a>
+      <div class="dashboard-actions">
+        <a class="btn btn-outline" href="dashboard-en.html">English</a>
+        <a class="btn btn-primary" href="#submitWasteRequest">تقديم طلب نفايات</a>
+        <a class="btn btn-outline" href="#submissionHistory">عرض الطلبات</a>
+        <button class="btn btn-outline" id="logoutButton">تسجيل الخروج</button>
+      </div>
+    </div>
+
+    <section class="dashboard-hero">
+      <div class="dashboard-panel">
+        <h1 id="welcomeTitle">مرحباً</h1>
+        <p>تم تسجيل الدخول بنجاح باستخدام رمز OTP. يمكنك من هذه اللوحة تقديم طلبات النفايات ومتابعة الطلبات السابقة الخاصة بحساب الشركة.</p>
+
+        <div class="dashboard-grid">
+          <div class="metric">
+            <strong id="totalRequestsMetric">0</strong>
+            <span>إجمالي الطلبات</span>
+          </div>
+          <div class="metric">
+            <strong id="pendingRequestsMetric">0</strong>
+            <span>طلبات قيد الاستلام</span>
+          </div>
+          <div class="metric">
+            <strong id="lastRequestMetric">-</strong>
+            <span>آخر طلب</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="dashboard-side">
+        <h2>الحساب</h2>
+        <p>بيانات الجلسة المؤكدة بعد تسجيل الدخول.</p>
+        <div class="account-list">
+          <div>
+            <span>الشركة</span>
+            <strong id="companyName">-</strong>
+          </div>
+          <div>
+            <span>البريد الإلكتروني</span>
+            <strong id="companyEmail">-</strong>
+          </div>
+          <div>
+            <span>الجلسة</span>
+            <strong>تم التحقق عبر OTP</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="dashboard-section" id="submitWasteRequest">
+      <h2>تقديم طلب نفايات</h2>
+      <p>سيتم إرسال رمز OTP إلى بريد الشركة الإلكتروني. بعد التحقق يمكنك إرسال أكثر من طلب بدون انتهاء الرمز بعد أول محاولة.</p>
+
+      <form class="dashboard-form" id="dashboardWasteForm">
+        <div class="dashboard-form-grid">
+          <div class="field">
+            <label for="dashboardPhone">رقم الهاتف *</label>
+            <input type="tel" id="dashboardPhone" placeholder="أدخل رقم هاتف الشركة" required>
+          </div>
+
+          <div class="field">
+            <label for="dashboardContactPerson">الشخص المسؤول *</label>
+            <input type="text" id="dashboardContactPerson" placeholder="أدخل اسم الشخص المسؤول" required>
+          </div>
+
+          <div class="field">
+            <label for="dashboardCity">المدينة *</label>
+            <input type="text" id="dashboardCity" placeholder="أدخل المدينة" required>
+          </div>
+
+          <div class="field">
+            <label for="dashboardWasteCategory">نوع النفايات *</label>
+            <select id="dashboardWasteCategory" required>
+              <option value="">اختر نوع النفايات</option>
+              <option>نفايات بلاستيكية</option>
+              <option>ورق وكرتون</option>
+              <option>خردة معدنية</option>
+              <option>نفايات زجاجية</option>
+              <option>نفايات إلكترونية</option>
+              <option>نفايات عضوية</option>
+              <option>نفايات نسيجية</option>
+              <option>مخلفات بناء</option>
+              <option>نفايات خشبية</option>
+              <option>نفايات البطاريات</option>
+              <option>الإطارات المستعملة</option>
+              <option>نفايات زراعية</option>
+              <option>زيوت الطبخ المستعملة</option>
+              <option>زيت المحرك المستعمل</option>
+              <option>نفايات الأجهزة الكهربائية</option>
+              <option>نفايات الهواتف والأجهزة الإلكترونية</option>
+              <option>نفايات الكيبلات والوايرات</option>
+              <option>نفايات ألعاب الأطفال</option>
+              <option>فلاتر الهواء المستعملة</option>
+              <option>فلاتر الزيت المستعملة</option>
+              <option>فلاتر المياه المستعملة</option>
+              <option>نفايات مختلطة ومتنوعة</option>
+              <option>نفايات أخرى</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="dashboardWasteImages">صور النفايات</label>
+            <input type="file" id="dashboardWasteImages" accept="image/*" multiple>
+            <div class="form-note">يمكنك إرفاق حتى 5 صور.</div>
+          </div>
+
+          <div class="field full">
+            <label for="dashboardWasteNotes">تفاصيل إضافية</label>
+            <textarea id="dashboardWasteNotes" placeholder="أدخل الكمية أو موقع الاستلام أو ساعات العمل أو أي تفاصيل إضافية..."></textarea>
+          </div>
+
+          <div class="field full">
+            <button type="button" class="btn btn-outline" id="dashboardSendOtpButton">إرسال رمز OTP إلى البريد الإلكتروني</button>
+            <div class="form-feedback success" id="dashboardOtpStatus" style="margin-top: 12px;"></div>
+            <div id="dashboardOtpWrap" style="margin-top: 12px;" hidden>
+              <label for="dashboardOtp">رمز OTP *</label>
+              <input type="text" id="dashboardOtp" inputmode="numeric" maxlength="6" placeholder="أدخل الرمز المرسل إلى البريد الإلكتروني">
+              <small id="dashboardOtpHint" style="color:#5b7566;"></small>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="dashboardSubmitButton" disabled>إرسال طلب النفايات</button>
+        <div class="form-feedback success" id="dashboardSuccess">تم إرسال طلب النفايات بنجاح.</div>
+        <div class="form-feedback error" id="dashboardError"></div>
+      </form>
+    </section>
+
+    <section class="dashboard-section" id="submissionHistory">
+      <h2>طلبات النفايات السابقة</h2>
+      <p>هنا يمكنك رؤية الطلبات التي تم إرسالها من هذا الحساب.</p>
+      <div class="submission-list" id="submissionList">
+        <div class="form-feedback success" style="display:block;">جاري تحميل الطلبات...</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem('greenCycleAuth') || 'null');
+    const apiOrigin = window.location.protocol === 'file:' || window.location.port !== '5294'
+      ? 'http://localhost:5294'
+      : '';
+    const wasteOtpState = { phone: '', token: '', otp: '' };
+
+    function apiUrl(path) {
+      return `${apiOrigin}${path}`;
+    }
+
+    async function readApiResponse(response) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || data.detail || data.title || 'تعذر إكمال الطلب.');
+      }
+      return data;
+    }
+
+    async function postJson(url, body) {
+      const response = await fetch(apiUrl(url), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return readApiResponse(response);
+    }
+
+    function showDashboardError(message) {
+      const error = document.getElementById('dashboardError');
+      error.textContent = message;
+      error.style.display = 'block';
+      document.getElementById('dashboardSuccess').style.display = 'none';
+    }
+
+    function clearDashboardMessages() {
+      document.getElementById('dashboardError').style.display = 'none';
+      document.getElementById('dashboardSuccess').style.display = 'none';
+    }
+
+    function showOtpStatus(message) {
+      const status = document.getElementById('dashboardOtpStatus');
+      status.textContent = message;
+      status.style.display = 'block';
+    }
+
+    function updateDashboardSubmitState() {
+      document.getElementById('dashboardSubmitButton').disabled = !wasteOtpState.token;
+    }
+
+    function formatDate(value) {
+      return new Intl.DateTimeFormat('ar-KW', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(value));
+    }
+
+    function buildDashboardWasteData() {
+      const data = new FormData();
+      const images = document.getElementById('dashboardWasteImages');
+
+      data.append('submitterType', 'corporate');
+      data.append('phone', wasteOtpState.phone);
+      data.append('companyName', session.companyName);
+      data.append('submitterName', document.getElementById('dashboardContactPerson').value.trim());
+      data.append('email', session.email);
+      data.append('address', document.getElementById('dashboardCity').value.trim());
+      data.append('wasteCategory', document.getElementById('dashboardWasteCategory').value);
+      data.append('notes', document.getElementById('dashboardWasteNotes').value.trim());
+      data.append('verificationToken', wasteOtpState.token);
+
+      Array.from(images.files || []).forEach(file => {
+        data.append('images', file);
+      });
+
+      return data;
+    }
+
+    async function loadSubmissions() {
+      const list = document.getElementById('submissionList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/waste/submissions?email=${encodeURIComponent(session.email)}`));
+        const submissions = await readApiResponse(response);
+        document.getElementById('totalRequestsMetric').textContent = submissions.length;
+        document.getElementById('pendingRequestsMetric').textContent = submissions.filter(item => item.status === 'received').length;
+        document.getElementById('lastRequestMetric').textContent = submissions[0] ? formatDate(submissions[0].createdAtUtc) : '-';
+
+        if (submissions.length === 0) {
+          list.innerHTML = '<div class="form-feedback success" style="display:block;">لا توجد طلبات حتى الآن.</div>';
+          return;
+        }
+
+        list.innerHTML = submissions.map(item => `
+          <article class="submission-card">
+            <header>
+              <strong>${item.wasteCategory}</strong>
+              <span>${formatDate(item.createdAtUtc)}</span>
+            </header>
+            <div class="submission-meta">
+              <span>الحالة: ${item.status}</span>
+              <span>الهاتف: ${item.phone}</span>
+              <span>الصور: ${item.imageCount}</span>
+            </div>
+            ${item.notes ? `<p>${item.notes}</p>` : ''}
+          </article>
+        `).join('');
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${error.message}</div>`;
+      }
+    }
+
+    if (!session || !session.token) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('welcomeTitle').textContent = `مرحباً، ${session.companyName}`;
+      document.getElementById('companyName').textContent = session.companyName;
+      document.getElementById('companyEmail').textContent = session.email;
+      loadSubmissions();
+    }
+
+    document.getElementById('dashboardWasteImages').addEventListener('change', function () {
+      if (this.files.length > 5) {
+        showDashboardError('يمكنك إرفاق 5 صور كحد أقصى.');
+        this.value = '';
+      }
+    });
+
+    document.getElementById('dashboardSendOtpButton').addEventListener('click', async function () {
+      const phoneInput = document.getElementById('dashboardPhone');
+      const phone = phoneInput.value.trim();
+      const otpWrap = document.getElementById('dashboardOtpWrap');
+      const otpInput = document.getElementById('dashboardOtp');
+      const otpHint = document.getElementById('dashboardOtpHint');
+      const sendButton = document.getElementById('dashboardSendOtpButton');
+
+      clearDashboardMessages();
+      document.getElementById('dashboardOtpStatus').style.display = 'none';
+
+      if (!phone) {
+        showDashboardError('يرجى إدخال رقم الهاتف أولاً.');
+        phoneInput.focus();
+        return;
+      }
+
+      try {
+        sendButton.disabled = true;
+        sendButton.textContent = 'جاري إرسال رمز OTP...';
+        otpHint.textContent = 'جاري إرسال رمز OTP إلى البريد الإلكتروني...';
+        await postJson('/api/waste/request-otp', { phone, email: session.email });
+        wasteOtpState.phone = phone;
+        wasteOtpState.token = '';
+        wasteOtpState.otp = '';
+        otpInput.value = '';
+        otpWrap.hidden = false;
+        otpInput.required = true;
+        otpInput.focus();
+        showOtpStatus(`تم إرسال رمز OTP إلى ${session.email}.`);
+        otpHint.textContent = 'أدخل الرمز الذي وصلك إلى البريد الإلكتروني.';
+        updateDashboardSubmitState();
+      } catch (error) {
+        showDashboardError(error.message);
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = 'إرسال رمز OTP إلى البريد الإلكتروني';
+      }
+    });
+
+    document.getElementById('dashboardOtp').addEventListener('input', async function () {
+      const otp = this.value.trim();
+      const hint = document.getElementById('dashboardOtpHint');
+
+      if (otp.length !== 6 || !wasteOtpState.phone) {
+        return;
+      }
+
+      try {
+        const result = await postJson('/api/waste/verify-otp', {
+          phone: wasteOtpState.phone,
+          otp
+        });
+        wasteOtpState.otp = otp;
+        wasteOtpState.token = result.verificationToken;
+        hint.textContent = 'تم التحقق من رمز OTP. يمكنك إرسال الطلب الآن.';
+        showOtpStatus('تم التحقق من رمز OTP.');
+        updateDashboardSubmitState();
+      } catch (error) {
+        hint.textContent = error.message;
+      }
+    });
+
+    document.getElementById('dashboardWasteForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      clearDashboardMessages();
+
+      if (!wasteOtpState.token) {
+        showDashboardError('يرجى التحقق من رمز OTP قبل الإرسال.');
+        return;
+      }
+
+      try {
+        const response = await fetch(apiUrl('/api/waste/submissions'), {
+          method: 'POST',
+          body: buildDashboardWasteData()
+        });
+        await readApiResponse(response);
+
+        const keepPhone = wasteOtpState.phone;
+        const keepOtp = wasteOtpState.otp;
+        this.reset();
+        document.getElementById('dashboardPhone').value = keepPhone;
+        document.getElementById('dashboardOtp').value = keepOtp;
+        document.getElementById('dashboardOtpWrap').hidden = false;
+        document.getElementById('dashboardOtpHint').textContent = 'رمز OTP لا يزال صالحاً لإرسال طلب آخر.';
+        showOtpStatus('تم إرسال الطلب. يمكنك إرسال طلب آخر بنفس رمز OTP.');
+        document.getElementById('dashboardSuccess').style.display = 'block';
+        updateDashboardSubmitState();
+        await loadSubmissions();
+      } catch (error) {
+        showDashboardError(error.message);
+      }
+    });
+
+    document.getElementById('logoutButton').addEventListener('click', function () {
+      localStorage.removeItem('greenCycleAuth');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

@@ -137,10 +137,11 @@
           </div>
 
           <div class="field full otp-row">
-            <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
+            <button type="button" class="btn btn-outline otp-btn">Send OTP to Email</button>
             <div class="otp-input-wrap" hidden>
-              <label for="individualOtp">OTP Verification by Phone Number *</label>
-              <input type="text" id="individualOtp" placeholder="Enter OTP sent to your phone number" />
+              <label for="individualOtp">OTP Verification by Email *</label>
+              <input type="text" id="individualOtp" placeholder="Enter OTP sent to your email" />
+              <small class="otp-hint" style="color:#5b7566;"></small>
             </div>
           </div>
         </div>
@@ -215,10 +216,11 @@
           </div>
 
           <div class="field full otp-row">
-            <button type="button" class="btn btn-outline otp-btn">Send OTP to Phone</button>
+            <button type="button" class="btn btn-outline otp-btn">Send OTP to Email</button>
             <div class="otp-input-wrap" hidden>
-              <label for="companyOtp">OTP Verification by Phone Number *</label>
-              <input type="text" id="companyOtp" placeholder="Enter OTP sent to company phone number" />
+              <label for="companyOtp">OTP Verification by Email *</label>
+              <input type="text" id="companyOtp" placeholder="Enter OTP sent to company email" />
+              <small class="otp-hint" style="color:#5b7566;"></small>
             </div>
           </div>
         </div>
@@ -388,13 +390,22 @@
       <h2 style="color: var(--green-900); margin-bottom: 8px;">Login</h2>
       <p style="color:#5b7566; margin-bottom: 18px;">Access your Green Cycle account</p>
 
-      <form>
+      <form id="loginForm">
         <div class="field">
           <label for="loginEmail">Email Address</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" />
+          <input type="email" id="loginEmail" placeholder="Enter your email" required />
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+        <button type="button" class="btn btn-outline" id="loginSendOtpButton" style="width:100%; margin-bottom: 12px;">Send OTP</button>
+        <div class="login-feedback success" id="loginOtpStatus"></div>
+
+        <div class="field" id="loginOtpField" hidden>
+          <label for="loginOtp">OTP Code</label>
+          <input type="text" id="loginOtp" inputmode="numeric" maxlength="6" placeholder="Enter OTP code" />
+          <small id="loginOtpHint" style="color:#5b7566;"></small>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginVerifyButton" style="width:100%;" disabled>Verify and Login</button>
       </form>
     </div>
   </div>
@@ -484,6 +495,14 @@
     const openSignupModal = document.getElementById('openSignupModal');
     const closeLoginModal = document.getElementById('closeLoginModal');
     const closeSignupModal = document.getElementById('closeSignupModal');
+    const loginForm = document.getElementById('loginForm');
+    const loginSendOtpButton = document.getElementById('loginSendOtpButton');
+    const loginVerifyButton = document.getElementById('loginVerifyButton');
+    const loginOtpField = document.getElementById('loginOtpField');
+    const loginOtpInput = document.getElementById('loginOtp');
+    const loginOtpHint = document.getElementById('loginOtpHint');
+    const loginOtpStatus = document.getElementById('loginOtpStatus');
+    const signupForm = document.getElementById('signupForm');
     const signupCategoryList = document.getElementById('signupCategoryList');
     const addSignupCategory = document.getElementById('addSignupCategory');
     const wasteForm = document.getElementById('wasteForm');
@@ -496,6 +515,18 @@
     const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
     const menuToggle = document.querySelector('.menu-toggle');
     const navbar = document.querySelector('.navbar');
+    let pendingLoginEmail = '';
+    const wasteOtpState = {
+      individual: { phone: '', token: '' },
+      corporate: { phone: '', token: '' }
+    };
+    const apiOrigin = window.location.protocol === 'file:' || window.location.port !== '5294'
+      ? 'http://localhost:5294'
+      : '';
+
+    function apiUrl(path) {
+      return `${apiOrigin}${path}`;
+    }
 
     function showLoginModal() {
       loginModal.classList.add('active');
@@ -503,6 +534,15 @@
 
     function hideLoginModal() {
       loginModal.classList.remove('active');
+      loginForm.reset();
+      pendingLoginEmail = '';
+      loginOtpField.hidden = true;
+      loginOtpInput.required = false;
+      loginVerifyButton.disabled = true;
+      loginOtpHint.textContent = '';
+      loginOtpStatus.textContent = '';
+      loginOtpStatus.className = 'login-feedback success';
+      loginOtpStatus.style.display = 'none';
     }
 
     function showSignupModal() {
@@ -518,9 +558,98 @@
       return activePanel ? activePanel.querySelector('.otp-input-wrap input') : null;
     }
 
+    function getWasteFormType() {
+      return wasteForm.getAttribute('data-form-type') || 'individual';
+    }
+
+    function getActiveWastePanel() {
+      return wasteForm.querySelector('.form-panel.active');
+    }
+
+    function getActiveWastePhoneInput() {
+      const activePanel = getActiveWastePanel();
+      return activePanel ? activePanel.querySelector('input[type="tel"]') : null;
+    }
+
+    function syncWastePanelFields() {
+      formPanels.forEach(panel => {
+        const isActive = panel.classList.contains('active');
+        panel.querySelectorAll('input, select, textarea, button').forEach(control => {
+          control.disabled = !isActive;
+        });
+      });
+    }
+
     function updateWasteSubmitState() {
-      const activeOtpInput = getActiveOtpInput();
-      wasteSubmitButton.disabled = !activeOtpInput || activeOtpInput.value.trim() === '';
+      const formType = getWasteFormType();
+      wasteSubmitButton.disabled = !wasteOtpState[formType].token;
+    }
+
+    async function requestWasteOtp(button) {
+      const otpRow = button.closest('.otp-row');
+      const otpInputWrap = otpRow.querySelector('.otp-input-wrap');
+      const otpInput = otpInputWrap.querySelector('input');
+      const hint = otpInputWrap.querySelector('.otp-hint');
+      const phoneInput = getActiveWastePhoneInput();
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const emailInput = getActiveWastePanel()?.querySelector('input[type="email"]');
+      const email = emailInput ? emailInput.value.trim() : '';
+      const formType = getWasteFormType();
+
+      if (!phone) {
+        alert('Please enter the phone number first.');
+        phoneInput && phoneInput.focus();
+        return;
+      }
+
+      if (!email) {
+        alert('Please enter the email address first.');
+        emailInput && emailInput.focus();
+        return;
+      }
+
+      wasteOtpState[formType] = { phone, token: '' };
+      updateWasteSubmitState();
+
+      try {
+        button.disabled = true;
+        button.textContent = 'Sending OTP...';
+        hint.textContent = 'Sending OTP to email...';
+        const result = await postJson('/api/waste/request-otp', { phone, email });
+        otpInput.value = '';
+        otpInputWrap.hidden = false;
+        otpInput.required = true;
+        otpInput.focus();
+        hint.textContent = `OTP sent to ${email}.`;
+      } catch (error) {
+        hint.textContent = error.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Send OTP to Email';
+      }
+    }
+
+    async function verifyWasteOtp(input) {
+      const otp = input.value.trim();
+      const formType = getWasteFormType();
+      const state = wasteOtpState[formType];
+      const hint = input.closest('.otp-input-wrap').querySelector('.otp-hint');
+
+      if (otp.length !== 6 || !state.phone || state.token) return;
+
+      try {
+        const result = await postJson('/api/waste/verify-otp', {
+          phone: state.phone,
+          otp
+        });
+        wasteOtpState[formType].token = result.verificationToken;
+        hint.textContent = 'OTP verified. You can submit the form now.';
+        updateWasteSubmitState();
+      } catch (error) {
+        wasteOtpState[formType].token = '';
+        hint.textContent = error.message;
+        updateWasteSubmitState();
+      }
     }
 
     function addSignupWasteCategory() {
@@ -533,6 +662,79 @@
       newCategory.required = false;
       signupCategoryList.appendChild(newCategory);
       newCategory.focus();
+    }
+
+    async function readApiResponse(response) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || data.detail || data.title || 'The request could not be completed.');
+      }
+      return data;
+    }
+
+    async function postJson(url, body) {
+      const response = await fetch(apiUrl(url), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return readApiResponse(response);
+    }
+
+    function buildSignupData() {
+      const data = new FormData();
+      const logoInput = document.getElementById('signupLogo');
+
+      data.append('companyName', document.getElementById('signupCompanyName').value.trim());
+      data.append('mobile', document.getElementById('signupMobile').value.trim());
+      data.append('email', document.getElementById('signupEmailModal').value.trim());
+      data.append('address', document.getElementById('signupAddress').value.trim());
+      data.append('website', document.getElementById('signupWebsite').value.trim());
+
+      if (logoInput.files[0]) {
+        data.append('logo', logoInput.files[0]);
+      }
+
+      signupCategoryList.querySelectorAll('select').forEach(select => {
+        if (select.value) {
+          data.append('wasteCategories', select.value);
+        }
+      });
+
+      return data;
+    }
+
+    function buildWasteSubmissionData() {
+      const formType = getWasteFormType();
+      const activePanel = getActiveWastePanel();
+      const state = wasteOtpState[formType];
+      const data = new FormData();
+      const textInputs = Array.from(activePanel.querySelectorAll('input[type="text"]'));
+      const emailInput = activePanel.querySelector('input[type="email"]');
+      const wasteCategory = activePanel.querySelector('select');
+      const notes = activePanel.querySelector('textarea');
+      const images = activePanel.querySelector('input[type="file"]');
+
+      data.append('submitterType', formType);
+      data.append('phone', state.phone);
+      data.append('email', emailInput ? emailInput.value.trim() : '');
+      data.append('address', formType === 'individual' ? (textInputs[1]?.value.trim() || '') : (textInputs[1]?.value.trim() || ''));
+      data.append('wasteCategory', wasteCategory ? wasteCategory.value : '');
+      data.append('notes', notes ? notes.value.trim() : '');
+      data.append('verificationToken', state.token);
+
+      if (formType === 'individual') {
+        data.append('submitterName', document.getElementById('individualName').value.trim());
+      } else {
+        data.append('companyName', document.getElementById('companyName').value.trim());
+        data.append('submitterName', document.getElementById('contactPerson').value.trim());
+      }
+
+      Array.from(images?.files || []).forEach(file => {
+        data.append('images', file);
+      });
+
+      return data;
     }
 
     openLoginModal.addEventListener('click', showLoginModal);
@@ -556,6 +758,74 @@
       if (e.target === signupModal) hideSignupModal();
     });
 
+    loginSendOtpButton.addEventListener('click', async function () {
+      const emailInput = loginForm.querySelector('input[type="email"]');
+      pendingLoginEmail = emailInput.value.trim();
+
+      if (!pendingLoginEmail) {
+        loginOtpStatus.textContent = 'Please enter your email first.';
+        loginOtpStatus.className = 'login-feedback error';
+        loginOtpStatus.style.display = 'block';
+        emailInput.focus();
+        return;
+      }
+
+      try {
+        loginSendOtpButton.disabled = true;
+        loginSendOtpButton.textContent = 'Sending OTP...';
+        loginOtpStatus.textContent = 'Sending OTP to your email...';
+        loginOtpStatus.className = 'login-feedback success';
+        loginOtpStatus.style.display = 'block';
+        const result = await postJson('/api/auth/request-otp', { email: pendingLoginEmail });
+        loginOtpInput.value = '';
+        loginOtpField.hidden = false;
+        loginOtpInput.required = true;
+        loginVerifyButton.disabled = false;
+        loginOtpInput.focus();
+        loginOtpStatus.textContent = 'OTP sent to your email address.';
+        loginOtpHint.textContent = 'Enter the code from your email to finish login.';
+      } catch (error) {
+        loginOtpStatus.textContent = error.message;
+        loginOtpStatus.className = 'login-feedback error';
+        loginOtpStatus.style.display = 'block';
+      } finally {
+        loginSendOtpButton.disabled = false;
+        loginSendOtpButton.textContent = 'Send OTP';
+      }
+    });
+
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      try {
+        const result = await postJson('/api/auth/verify-otp', {
+          email: pendingLoginEmail,
+          otp: loginOtpInput.value.trim()
+        });
+        localStorage.setItem('greenCycleAuth', JSON.stringify(result));
+        window.location.href = 'dashboard-en.html';
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    signupForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      try {
+        const response = await fetch(apiUrl('/api/auth/signup'), {
+          method: 'POST',
+          body: buildSignupData()
+        });
+        const result = await readApiResponse(response);
+        alert(`Account created: ${result.companyName}`);
+        signupForm.reset();
+        hideSignupModal();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
     wasteImageInputs.forEach(input => {
       input.addEventListener('change', function () {
         if (this.files.length > 5) {
@@ -575,41 +845,65 @@
         this.classList.add('active');
         document.getElementById(targetId).classList.add('active');
         wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
+        syncWastePanelFields();
         updateWasteSubmitState();
       });
     });
 
     otpButtons.forEach(button => {
       button.addEventListener('click', function () {
-        const otpRow = this.closest('.otp-row');
-        const otpInputWrap = otpRow.querySelector('.otp-input-wrap');
-        const otpInput = otpInputWrap.querySelector('input');
-
-        otpInputWrap.hidden = false;
-        otpInput.focus();
-        updateWasteSubmitState();
+        requestWasteOtp(this);
       });
     });
 
     otpInputWraps.forEach(wrap => {
       const otpInput = wrap.querySelector('input');
-      otpInput.addEventListener('input', updateWasteSubmitState);
+      otpInput.addEventListener('input', function () {
+        const formType = getWasteFormType();
+        wasteOtpState[formType].token = '';
+        updateWasteSubmitState();
+        verifyWasteOtp(this);
+      });
     });
 
-    wasteForm.addEventListener('submit', function (e) {
+    wasteForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       if (wasteSubmitButton.disabled) return;
-      successMessage.style.display = 'block';
-      wasteForm.reset();
-      otpInputWraps.forEach(wrap => {
-        wrap.hidden = true;
-      });
-      updateWasteSubmitState();
-      setTimeout(() => {
-        successMessage.style.display = 'none';
-      }, 4000);
+
+      try {
+        const response = await fetch(apiUrl('/api/waste/submissions'), {
+          method: 'POST',
+          body: buildWasteSubmissionData()
+        });
+        await readApiResponse(response);
+        successMessage.style.display = 'block';
+        const formType = getWasteFormType();
+        const verifiedState = { ...wasteOtpState[formType] };
+        const otpValue = getActiveOtpInput()?.value || '';
+        wasteForm.reset();
+        wasteOtpState[formType] = verifiedState;
+        const activePhoneInput = getActiveWastePhoneInput();
+        const activeOtpInput = getActiveOtpInput();
+        if (activePhoneInput) activePhoneInput.value = verifiedState.phone;
+        otpInputWraps.forEach(wrap => {
+          const isActive = wrap.closest('.form-panel')?.classList.contains('active');
+          wrap.hidden = !isActive;
+          wrap.querySelector('input').required = Boolean(isActive);
+          wrap.querySelector('.otp-hint').textContent = isActive
+            ? 'OTP is still valid for another submission.'
+            : '';
+        });
+        if (activeOtpInput) activeOtpInput.value = otpValue;
+        updateWasteSubmitState();
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+        }, 4000);
+      } catch (error) {
+        alert(error.message);
+      }
     });
 
+    syncWastePanelFields();
     updateWasteSubmitState();
 
     const ads = [

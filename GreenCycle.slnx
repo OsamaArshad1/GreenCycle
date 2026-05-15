@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/GreenCycle.Api/GreenCycle.Api.csproj" />
+  </Folder>
+</Solution>

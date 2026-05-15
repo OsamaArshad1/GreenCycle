@@ -833,6 +833,27 @@ footer {
   font-size: 0.92rem;
 }
 
+.login-feedback {
+  display: none;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  padding: 13px 14px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.login-feedback.success {
+  background: #e6f6e8;
+  color: #1d6f32;
+  border: 1px solid #bbf7d0;
+}
+
+.login-feedback.error {
+  background: #fdecec;
+  color: #a32121;
+  border: 1px solid #f8c9c9;
+}
+
 html[dir="rtl"] body.landing-page {
   font-family: 'Cairo', 'Inter', Arial, Helvetica, sans-serif;
   direction: rtl;

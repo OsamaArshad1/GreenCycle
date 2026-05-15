@@ -1,0 +1,11 @@
+bin/
+obj/
+**/bin/
+**/obj/
+backend/GreenCycle.Api/App_Data/users.json
+backend/GreenCycle.Api/App_Data/*.db
+backend/GreenCycle.Api/App_Data/*.db-shm
+backend/GreenCycle.Api/App_Data/*.db-wal
+App_Data/
+*.log
+backend/GreenCycle.Api/appsettings.json
