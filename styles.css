@@ -334,13 +334,19 @@ body.landing-page {
 
 .hero-content p {
   color: #163b28;
-  max-width: 980px;
+  max-width: 820px;
   font-family: 'Manrope', 'Inter', Arial, Helvetica, sans-serif;
-  font-size: 1.78rem;
-  font-weight: 800;
-  line-height: 1.45;
-  letter-spacing: -0.02em;
+  font-size: 1.52rem;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0;
   margin: 0 auto;
+  text-align: center;
+}
+
+html:not([dir="rtl"]) .hero-content p {
+  max-width: 960px;
+  font-size: 1.2rem;
 }
 
 #submit-waste {
@@ -1080,6 +1086,14 @@ html[dir="rtl"] .section-title p {
   margin-left: auto;
 }
 
+html[dir="rtl"] .hero-content {
+  text-align: center;
+}
+
+html[dir="rtl"] .hero-content p {
+  text-align: center;
+}
+
 html[dir="rtl"] .section-title {
   text-align: center;
 }
@@ -1594,8 +1608,8 @@ body.directory-page {
   }
 
   .hero-content p {
-    font-size: 1.38rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
   #objectives .section-title h2 { font-size: 2rem; }
@@ -1726,8 +1740,8 @@ body.directory-page {
   .hero { padding: 14px 4% 0; }
 
   .hero-content p {
-    font-size: 1.12rem;
-    line-height: 1.65;
+    font-size: 0.9rem;
+    line-height: 1.72;
   }
 
   #submit-waste { padding: 10px 4% 28px !important; }
