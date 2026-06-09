@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text;
 using System.Security.Cryptography;
 using System.Net;
 using System.Net.Mail;
@@ -17,7 +18,9 @@ var allowedCorsOrigins = builder.Configuration
 builder.Services.AddSingleton(new UserStore(apiRoot));
 builder.Services.AddSingleton<OtpStore>();
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.Configure<WhatsAppOptions>(builder.Configuration.GetSection("WhatsApp"));
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+builder.Services.AddHttpClient<IWhatsAppSender, WhatsAppCloudSender>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -78,20 +81,40 @@ app.UseCors();
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 
-app.MapPost("/api/waste/request-otp", async (WasteOtpRequest request, OtpStore otpStore, IEmailSender emailSender) =>
+app.MapPost("/api/waste/request-otp", async (WasteOtpRequest request, OtpStore otpStore, IEmailSender emailSender, IWhatsAppSender whatsAppSender) =>
 {
     if (string.IsNullOrWhiteSpace(request.Phone))
     {
         return Results.BadRequest(new ApiError("Phone number is required."));
     }
 
-    if (string.IsNullOrWhiteSpace(request.Email))
+    var channel = NormalizeOtpChannel(request.Channel);
+
+    if (channel == OtpDeliveryChannel.Email && string.IsNullOrWhiteSpace(request.Email))
     {
         return Results.BadRequest(new ApiError("Email is required so the OTP can be sent securely."));
     }
 
     var challenge = otpStore.Create(request.Phone);
-    var emailResult = await emailSender.SendOtpAsync(request.Email, challenge.Code);
+
+    if (channel == OtpDeliveryChannel.WhatsApp)
+    {
+        var whatsAppResult = await whatsAppSender.SendOtpAsync(request.Phone, challenge.Code);
+        if (!whatsAppResult.Success)
+        {
+            return Results.Json(
+                new ApiError(whatsAppResult.ErrorMessage ?? "WhatsApp OTP is not configured on the server."),
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return Results.Ok(new OtpChallengeResponse(
+            MaskPhone(request.Phone),
+            MaskPhone(request.Phone),
+            "OTP sent to the entered WhatsApp phone number. Use the code to verify this waste submission.",
+            null));
+    }
+
+    var emailResult = await emailSender.SendOtpAsync(request.Email!, challenge.Code);
     if (!emailResult.Success)
     {
         return Results.Json(
@@ -100,7 +123,7 @@ app.MapPost("/api/waste/request-otp", async (WasteOtpRequest request, OtpStore o
     }
 
     return Results.Ok(new OtpChallengeResponse(
-        request.Email,
+        request.Email!,
         null,
         "OTP sent to the entered email address. Use the code to verify this waste submission.",
         null));
@@ -124,7 +147,7 @@ app.MapPost("/api/waste/verify-otp", (WasteOtpVerifyRequest request, OtpStore ot
         "OTP verified. You can submit the waste form."));
 });
 
-app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore store, OtpStore otpStore) =>
+app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender) =>
 {
     if (!request.HasFormContentType)
     {
@@ -134,7 +157,21 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
     var form = await request.ReadFormAsync();
     var submitterType = GetRequired(form, "submitterType");
     var phone = GetRequired(form, "phone");
-    var wasteCategory = GetRequired(form, "wasteCategory");
+    var categories = form["wasteCategories"]
+        .Select(value => value?.Trim())
+        .Where(value => !string.IsNullOrWhiteSpace(value))
+        .Select(value => value!)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+    var targetCompanyIds = form["targetCompanyIds"]
+        .Select(value => Guid.TryParse(value, out var companyId) ? companyId : Guid.Empty)
+        .Where(companyId => companyId != Guid.Empty)
+        .Distinct()
+        .ToArray();
+    var targetScope = form["targetCompanyScope"].ToString();
+    var wasteCategory = categories.Length > 0
+        ? string.Join(", ", categories)
+        : GetRequired(form, "wasteCategory");
     var verificationToken = GetRequired(form, "verificationToken");
 
     if (submitterType is null || phone is null || wasteCategory is null || verificationToken is null)
@@ -142,23 +179,30 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
         return Results.BadRequest(new ApiError("Submission type, phone number, waste category, and OTP verification are required."));
     }
 
-    if (!otpStore.VerifyToken(phone, verificationToken))
+    if (!otpStore.ConsumeVerifiedToken(phone, verificationToken))
     {
-        return Results.BadRequest(new ApiError("Please verify the email OTP before submitting waste."));
+        return Results.BadRequest(new ApiError("Please verify a new email OTP before submitting waste."));
     }
 
-    var images = form.Files
+    if (!string.Equals(targetScope, "all", StringComparison.OrdinalIgnoreCase) && targetCompanyIds.Length == 0)
+    {
+        return Results.BadRequest(new ApiError("Select at least one recycler company or choose send to all companies."));
+    }
+
+    var submissionId = Guid.NewGuid();
+    var imageFiles = form.Files
         .Where(file => string.Equals(file.Name, "images", StringComparison.OrdinalIgnoreCase))
-        .Select(file => new WasteSubmissionImage(file.FileName, file.ContentType))
         .ToArray();
 
-    if (images.Length > 5)
+    if (imageFiles.Length > 5)
     {
         return Results.BadRequest(new ApiError("A maximum of 5 waste images can be uploaded."));
     }
 
+    var images = await SaveWasteImagesAsync(imageFiles, siteRoot, submissionId);
+
     var submission = new WasteSubmission(
-        Guid.NewGuid(),
+        submissionId,
         submitterType.Trim(),
         EmptyToNull(form["submitterName"].ToString()),
         EmptyToNull(form["companyName"].ToString()),
@@ -171,9 +215,35 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
         verificationToken.Trim(),
         "received",
         DateTimeOffset.UtcNow,
-        images);
+        images,
+        targetCompanyIds);
 
-    await store.CreateWasteSubmissionAsync(submission);
+    var sessionUser = await store.CreateWasteSubmissionAsync(submission);
+    var matchedCompanies = await store.GetMatchingCompaniesForSubmissionAsync(submission);
+    foreach (var company in matchedCompanies)
+    {
+        await emailSender.SendNotificationAsync(
+            company.Email,
+            "New Green Cycle waste order available for bidding",
+            $"""
+            A new waste order is available for bidding.
+
+            Waste category: {submission.WasteCategory}
+            Submitter type: {submission.SubmitterType}
+            Location: {submission.Address ?? "Not provided"}
+            Notes: {submission.Notes ?? "Not provided"}
+
+            Log in to your Green Cycle dashboard to place a bid.
+            """);
+    }
+    var session = sessionUser is null
+        ? null
+        : new AuthSessionResponse(
+            sessionUser.Id,
+            sessionUser.CompanyName,
+            sessionUser.Email,
+            Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+            "Waste submission completed. You are now signed in.");
 
     return Results.Created($"/api/waste/submissions/{submission.Id}", new WasteSubmissionResponse(
         submission.Id,
@@ -181,7 +251,32 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
         submission.Phone,
         submission.WasteCategory,
         submission.Status,
-        "Waste submission received."));
+        "Waste submission received.",
+        session));
+});
+
+app.MapGet("/api/waste/prefill", async (string? phone, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(phone))
+    {
+        return Results.BadRequest(new ApiError("Phone number is required."));
+    }
+
+    var submission = await store.GetLatestWasteSubmissionByPhoneAsync(phone);
+    if (submission is null)
+    {
+        return Results.NotFound(new ApiError("No saved details were found for this phone number."));
+    }
+
+    return Results.Ok(new WastePrefillResponse(
+        submission.SubmitterType,
+        submission.SubmitterName,
+        submission.CompanyName,
+        submission.Phone,
+        submission.Email,
+        submission.Address,
+        SplitWasteCategories(submission.WasteCategory),
+        submission.Notes));
 });
 
 app.MapPost("/api/auth/signup", async (HttpRequest request, UserStore store) =>
@@ -230,7 +325,7 @@ app.MapPost("/api/auth/signup", async (HttpRequest request, UserStore store) =>
     };
 });
 
-app.MapPost("/api/auth/request-otp", async (LoginRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender) =>
+app.MapPost("/api/auth/request-otp", async (LoginRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender, IWhatsAppSender whatsAppSender) =>
 {
     if (string.IsNullOrWhiteSpace(request.Email))
     {
@@ -244,6 +339,30 @@ app.MapPost("/api/auth/request-otp", async (LoginRequest request, UserStore stor
     }
 
     var challenge = otpStore.Create(user.Email);
+    var channel = NormalizeOtpChannel(request.Channel);
+
+    if (channel == OtpDeliveryChannel.WhatsApp)
+    {
+        if (string.IsNullOrWhiteSpace(user.Mobile))
+        {
+            return Results.BadRequest(new ApiError("This account does not have a mobile number for WhatsApp OTP."));
+        }
+
+        var whatsAppResult = await whatsAppSender.SendOtpAsync(user.Mobile, challenge.Code);
+        if (!whatsAppResult.Success)
+        {
+            return Results.Json(
+                new ApiError(whatsAppResult.ErrorMessage ?? "WhatsApp OTP is not configured on the server."),
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return Results.Ok(new OtpChallengeResponse(
+            user.Email,
+            MaskPhone(user.Mobile),
+            "OTP sent to the registered WhatsApp phone number. Use the code to finish login.",
+            null));
+    }
+
     var emailResult = await emailSender.SendOtpAsync(user.Email, challenge.Code);
     if (!emailResult.Success)
     {
@@ -285,7 +404,7 @@ app.MapPost("/api/auth/verify-otp", async (OtpVerifyRequest request, UserStore s
         "Login completed."));
 });
 
-app.MapPost("/api/auth/login", async (LoginRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender) =>
+app.MapPost("/api/auth/login", async (LoginRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender, IWhatsAppSender whatsAppSender) =>
 {
     if (string.IsNullOrWhiteSpace(request.Email))
     {
@@ -299,6 +418,30 @@ app.MapPost("/api/auth/login", async (LoginRequest request, UserStore store, Otp
     }
 
     var challenge = otpStore.Create(user.Email);
+    var channel = NormalizeOtpChannel(request.Channel);
+
+    if (channel == OtpDeliveryChannel.WhatsApp)
+    {
+        if (string.IsNullOrWhiteSpace(user.Mobile))
+        {
+            return Results.BadRequest(new ApiError("This account does not have a mobile number for WhatsApp OTP."));
+        }
+
+        var whatsAppResult = await whatsAppSender.SendOtpAsync(user.Mobile, challenge.Code);
+        if (!whatsAppResult.Success)
+        {
+            return Results.Json(
+                new ApiError(whatsAppResult.ErrorMessage ?? "WhatsApp OTP is not configured on the server."),
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return Results.Ok(new OtpChallengeResponse(
+            user.Email,
+            MaskPhone(user.Mobile),
+            "OTP sent to the registered WhatsApp phone number. Use the code to finish login.",
+            null));
+    }
+
     var emailResult = await emailSender.SendOtpAsync(user.Email, challenge.Code);
     if (!emailResult.Success)
     {
@@ -315,6 +458,20 @@ app.MapPost("/api/auth/login", async (LoginRequest request, UserStore store, Otp
 });
 
 app.MapGet("/api/companies", async (UserStore store) =>
+{
+    var companies = await store.GetAllAsync();
+    return Results.Ok(companies.Select(company => new CompanySummary(
+        company.Id,
+        company.CompanyName,
+        company.Mobile,
+        company.Email,
+        company.Address,
+        company.Website,
+        company.WasteCategories,
+        company.CreatedAtUtc)));
+});
+
+app.MapGet("/api/companies/recyclers", async (UserStore store) =>
 {
     var companies = await store.GetAllAsync();
     return Results.Ok(companies.Select(company => new CompanySummary(
@@ -348,10 +505,317 @@ app.MapGet("/api/waste/submissions", async (string? email, UserStore store) =>
         submission.Notes,
         submission.Status,
         submission.CreatedAtUtc,
-        submission.Images.Length)));
+        submission.Images.Length,
+        submission.Images.Select(ToImageSummary).ToArray())));
+});
+
+app.MapGet("/api/waste/opportunities", async (string? companyEmail, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(companyEmail))
+    {
+        return Results.BadRequest(new ApiError("Company email is required."));
+    }
+
+    var opportunities = await store.GetBidOpportunitiesAsync(companyEmail);
+    return Results.Ok(opportunities.Select(item => new BidOpportunitySummary(
+        item.Submission.Id,
+        item.Submission.SubmitterType,
+        item.Submission.SubmitterName,
+        item.Submission.CompanyName,
+        item.Submission.Phone,
+        item.Submission.Email,
+        item.Submission.Address,
+        item.Submission.WasteCategory,
+        item.Submission.Notes,
+        item.Submission.Status,
+        item.Submission.CreatedAtUtc,
+        item.Submission.Images.Length,
+        item.Submission.Images.Select(ToImageSummary).ToArray(),
+        item.ExistingBid?.Id,
+        item.ExistingBid?.Amount,
+        item.ExistingBid?.PickupDate,
+        item.ExistingBid?.Status)));
+});
+
+app.MapGet("/api/waste/company-orders", async (string? companyEmail, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(companyEmail))
+    {
+        return Results.BadRequest(new ApiError("Company email is required."));
+    }
+
+    var orders = await store.GetCompanyOrdersAsync(companyEmail);
+    return Results.Ok(orders.Select(item => new CompanyOrderSummary(
+        item.Submission.Id,
+        item.Submission.SubmitterType,
+        item.Submission.SubmitterName,
+        item.Submission.CompanyName,
+        item.Submission.Phone,
+        item.Submission.Email,
+        item.Submission.Address,
+        item.Submission.WasteCategory,
+        item.Submission.Notes,
+        item.Submission.Status,
+        item.Submission.CreatedAtUtc,
+        item.Submission.Images.Length,
+        item.Submission.Images.Select(ToImageSummary).ToArray(),
+        BidToSummary(item.Bid))));
+});
+
+app.MapGet("/api/waste/my-bids", async (string? companyEmail, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(companyEmail))
+    {
+        return Results.BadRequest(new ApiError("Company email is required."));
+    }
+
+    var bids = await store.GetCompanyBidsAsync(companyEmail);
+    return Results.Ok(bids.Select(item => new CompanyBidSummary(
+        item.Submission.Id,
+        item.Submission.SubmitterType,
+        item.Submission.SubmitterName,
+        item.Submission.CompanyName,
+        item.Submission.Phone,
+        item.Submission.Email,
+        item.Submission.Address,
+        item.Submission.WasteCategory,
+        item.Submission.Notes,
+        item.Submission.Status,
+        item.Submission.CreatedAtUtc,
+        item.Submission.Images.Length,
+        item.Submission.Images.Select(ToImageSummary).ToArray(),
+        BidToSummary(item.Bid))));
+});
+
+app.MapGet("/api/waste/submissions/{submissionId:guid}/bids", async (Guid submissionId, string? requesterEmail, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(requesterEmail))
+    {
+        return Results.BadRequest(new ApiError("Requester email is required."));
+    }
+
+    var bids = await store.GetBidsForSubmissionAsync(submissionId, requesterEmail);
+    if (bids is null)
+    {
+        return Results.NotFound(new ApiError("Submission was not found for this account."));
+    }
+
+    return Results.Ok(bids.Select(BidToSummary));
+});
+
+app.MapPost("/api/waste/submissions/{submissionId:guid}/bids", async (Guid submissionId, BidCreateRequest request, UserStore store, IEmailSender emailSender) =>
+{
+    if (string.IsNullOrWhiteSpace(request.CompanyEmail))
+    {
+        return Results.BadRequest(new ApiError("Company email is required."));
+    }
+
+    if (!DateOnly.TryParse(request.PickupDate, out var pickupDate))
+    {
+        return Results.BadRequest(new ApiError("Pickup date is required."));
+    }
+
+    if (pickupDate < DateOnly.FromDateTime(DateTime.UtcNow))
+    {
+        return Results.BadRequest(new ApiError("Pickup date must be today or a future date."));
+    }
+
+    var result = await store.CreateWasteBidAsync(submissionId, request.CompanyEmail, pickupDate, request.Notes);
+    return result switch
+    {
+        BidCreateResult.Created created => await NotifyAndReturnCreatedBid(created, emailSender),
+        BidCreateResult.Duplicate => Results.Conflict(new ApiError("Your company already placed a bid for this order.")),
+        BidCreateResult.NotFound => Results.NotFound(new ApiError("This waste order is not available for bidding.")),
+        BidCreateResult.OwnSubmission => Results.BadRequest(new ApiError("You cannot bid on your own waste order.")),
+        _ => Results.BadRequest(new ApiError("Bid could not be submitted."))
+    };
+});
+
+app.MapPost("/api/waste/submissions/{submissionId:guid}/bids/{bidId:guid}/accept", async (Guid submissionId, Guid bidId, BidAcceptRequest request, UserStore store, IEmailSender emailSender) =>
+{
+    if (string.IsNullOrWhiteSpace(request.RequesterEmail))
+    {
+        return Results.BadRequest(new ApiError("Requester email is required."));
+    }
+
+    var result = await store.AcceptWasteBidAsync(submissionId, bidId, request.RequesterEmail);
+    return result switch
+    {
+        BidAcceptResult.Accepted accepted => await NotifyAndReturnAcceptedBid(accepted, emailSender),
+        BidAcceptResult.NotFound => Results.NotFound(new ApiError("Bid was not found for this waste order.")),
+        BidAcceptResult.NotOwner => Results.BadRequest(new ApiError("Only the waste submitter can accept a bid.")),
+        _ => Results.BadRequest(new ApiError("Bid could not be accepted."))
+    };
+});
+
+app.MapPost("/api/waste/submissions/{submissionId:guid}/complete", async (Guid submissionId, CompleteSubmissionRequest request, UserStore store, IEmailSender emailSender) =>
+{
+    if (string.IsNullOrWhiteSpace(request.RequesterEmail))
+    {
+        return Results.BadRequest(new ApiError("Requester email is required."));
+    }
+
+    var result = await store.CompleteWasteSubmissionAsync(submissionId, request.RequesterEmail);
+    return result switch
+    {
+        CompleteSubmissionResult.Completed completed => await NotifyAndReturnCompletedSubmission(completed, emailSender),
+        CompleteSubmissionResult.NotFound => Results.NotFound(new ApiError("Submission was not found.")),
+        CompleteSubmissionResult.NotOwner => Results.BadRequest(new ApiError("Only the waste submitter can complete this order.")),
+        CompleteSubmissionResult.NoAcceptedBid => Results.BadRequest(new ApiError("This order needs an accepted bid before it can be completed.")),
+        _ => Results.BadRequest(new ApiError("Order could not be completed."))
+    };
+});
+
+app.MapGet("/api/company-reviews", async (string? companyEmail, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(companyEmail))
+    {
+        return Results.BadRequest(new ApiError("Company email is required."));
+    }
+
+    var reviews = await store.GetCompanyReviewsByEmailAsync(companyEmail);
+    var averageRating = reviews.Count == 0
+        ? 0
+        : Math.Round(reviews.Average(review => review.Rating), 1);
+
+    return Results.Ok(new CompanyReviewsResponse(
+        averageRating,
+        reviews.Count,
+        reviews.Select(review => new CompanyReviewSummary(
+            review.Id,
+            review.ReviewerName,
+            review.ReviewerEmail,
+            review.Rating,
+            review.Comment,
+            review.CreatedAtUtc))));
+});
+
+app.MapPost("/api/company-reviews", async (CompanyReviewRequest request, UserStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(request.CompanyEmail) ||
+        string.IsNullOrWhiteSpace(request.ReviewerName))
+    {
+        return Results.BadRequest(new ApiError("Company email and reviewer name are required."));
+    }
+
+    if (request.Rating is < 1 or > 5)
+    {
+        return Results.BadRequest(new ApiError("Rating must be between 1 and 5."));
+    }
+
+    var company = await store.FindByEmailAsync(request.CompanyEmail);
+    if (company is null)
+    {
+        return Results.NotFound(new ApiError("No company account was found for this email."));
+    }
+
+    if (!string.IsNullOrWhiteSpace(request.ReviewerEmail) &&
+        await store.CompanyReviewExistsAsync(company.Id, request.ReviewerEmail, request.WasteSubmissionId))
+    {
+        var duplicateMessage = request.WasteSubmissionId is null
+            ? "You already submitted a review for this company."
+            : "You already submitted a review for this order.";
+        return Results.Conflict(new ApiError(duplicateMessage));
+    }
+
+    var review = new CompanyReview(
+        Guid.NewGuid(),
+        company.Id,
+        request.WasteSubmissionId,
+        request.ReviewerName.Trim(),
+        EmptyToNull(request.ReviewerEmail),
+        request.Rating,
+        EmptyToNull(request.Comment),
+        DateTimeOffset.UtcNow);
+
+    await store.CreateCompanyReviewAsync(review);
+
+    return Results.Created($"/api/company-reviews/{review.Id}", new CompanyReviewSummary(
+        review.Id,
+        review.ReviewerName,
+        review.ReviewerEmail,
+        review.Rating,
+        review.Comment,
+        review.CreatedAtUtc));
 });
 
 app.Run();
+
+static WasteBidSummary BidToSummary(WasteBid bid) =>
+    new(
+        bid.Id,
+        bid.WasteSubmissionId,
+        bid.CompanyId,
+        bid.CompanyName,
+        bid.CompanyEmail,
+        bid.Amount,
+        bid.PickupDate,
+        bid.Notes,
+        bid.Status,
+        bid.CreatedAtUtc);
+
+static async Task<IResult> NotifyAndReturnCreatedBid(BidCreateResult.Created created, IEmailSender emailSender)
+{
+    if (!string.IsNullOrWhiteSpace(created.Submission.Email))
+    {
+        await emailSender.SendNotificationAsync(
+            created.Submission.Email,
+            "A recycler company placed a bid on your Green Cycle waste order",
+            $"""
+            {created.Bid.CompanyName} placed a bid on your waste order.
+
+            Waste category: {created.Submission.WasteCategory}
+            Pickup date: {created.Bid.PickupDate ?? "Not provided"}
+            Notes: {created.Bid.Notes ?? "Not provided"}
+
+            Log in to your Green Cycle dashboard to review and accept a bid.
+            """);
+    }
+
+    return Results.Created(
+        $"/api/waste/submissions/{created.Bid.WasteSubmissionId}/bids/{created.Bid.Id}",
+        BidToSummary(created.Bid));
+}
+
+static async Task<IResult> NotifyAndReturnAcceptedBid(BidAcceptResult.Accepted accepted, IEmailSender emailSender)
+{
+    await emailSender.SendNotificationAsync(
+        accepted.Bid.CompanyEmail,
+        "Your Green Cycle bid was accepted",
+        $"""
+        Your bid was accepted by the waste submitter.
+
+        Waste category: {accepted.Submission.WasteCategory}
+        Pickup date: {accepted.Bid.PickupDate ?? "Not provided"}
+        Submitter phone: {accepted.Submission.Phone}
+        Submitter email: {accepted.Submission.Email ?? "Not provided"}
+        Location: {accepted.Submission.Address ?? "Not provided"}
+
+        Please contact the submitter to complete the pickup and sale.
+        """);
+
+    return Results.Ok(BidToSummary(accepted.Bid));
+}
+
+static async Task<IResult> NotifyAndReturnCompletedSubmission(CompleteSubmissionResult.Completed completed, IEmailSender emailSender)
+{
+    await emailSender.SendNotificationAsync(
+        completed.Bid.CompanyEmail,
+        "Green Cycle waste order completed",
+        $"""
+        The waste submitter marked this order as completed.
+
+        Waste category: {completed.Submission.WasteCategory}
+        Pickup date: {completed.Bid.PickupDate ?? "Not provided"}
+
+        Thank you for completing this Green Cycle order.
+        """);
+
+    return Results.Ok(new CompletedSubmissionResponse(
+        completed.Submission.Id,
+        completed.Submission.Status,
+        BidToSummary(completed.Bid)));
+}
 
 static string? GetRequired(IFormCollection form, string name)
 {
@@ -403,11 +867,96 @@ static string FindSiteRoot(string apiRoot)
     return expectedSiteRoot;
 }
 
-public sealed record LoginRequest(string Email);
+static OtpDeliveryChannel NormalizeOtpChannel(string? channel)
+{
+    return string.Equals(channel, "whatsapp", StringComparison.OrdinalIgnoreCase)
+        ? OtpDeliveryChannel.WhatsApp
+        : OtpDeliveryChannel.Email;
+}
+
+static string MaskPhone(string phone)
+{
+    var digits = new string(phone.Where(char.IsDigit).ToArray());
+    if (digits.Length <= 4)
+    {
+        return phone.Trim();
+    }
+
+    return new string('*', Math.Max(0, digits.Length - 4)) + digits[^4..];
+}
+
+static string[] SplitWasteCategories(string wasteCategory)
+{
+    return wasteCategory
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Where(category => !string.IsNullOrWhiteSpace(category))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+}
+
+static async Task<WasteSubmissionImage[]> SaveWasteImagesAsync(IReadOnlyList<IFormFile> imageFiles, string siteRoot, Guid submissionId)
+{
+    if (imageFiles.Count == 0)
+    {
+        return [];
+    }
+
+    var relativeFolder = Path.Combine("uploads", "waste", submissionId.ToString("N"));
+    var outputFolder = Path.Combine(siteRoot, relativeFolder);
+    Directory.CreateDirectory(outputFolder);
+
+    var images = new List<WasteSubmissionImage>();
+    for (var index = 0; index < imageFiles.Count; index++)
+    {
+        var file = imageFiles[index];
+        if (file.Length <= 0)
+        {
+            continue;
+        }
+
+        var extension = NormalizeImageExtension(Path.GetExtension(file.FileName));
+        var storedFileName = $"{index + 1}-{RandomNumberGenerator.GetHexString(8).ToLowerInvariant()}{extension}";
+        var relativePath = Path.Combine(relativeFolder, storedFileName).Replace('\\', '/');
+        var outputPath = Path.Combine(outputFolder, storedFileName);
+
+        await using var stream = File.Create(outputPath);
+        await file.CopyToAsync(stream);
+        images.Add(new WasteSubmissionImage(relativePath, file.ContentType));
+    }
+
+    return images.ToArray();
+}
+
+static string NormalizeImageExtension(string? extension)
+{
+    var normalized = extension?.ToLowerInvariant();
+    return normalized is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp" or ".bmp"
+        ? normalized
+        : ".bin";
+}
+
+static WasteSubmissionImageSummary ToImageSummary(WasteSubmissionImage image)
+{
+    var normalizedPath = image.FileName.Replace('\\', '/').TrimStart('/');
+    return new WasteSubmissionImageSummary(
+        image.FileName,
+        image.ContentType,
+        normalizedPath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase)
+            ? $"/{normalizedPath}"
+            : null);
+}
+
+public enum OtpDeliveryChannel
+{
+    Email,
+    WhatsApp
+}
+
+public sealed record LoginRequest(string Email, string? Channel);
 
 public sealed record OtpVerifyRequest(string Email, string Otp);
 
-public sealed record WasteOtpRequest(string Phone, string? Email);
+public sealed record WasteOtpRequest(string Phone, string? Email, string? Channel);
 
 public sealed record WasteOtpVerifyRequest(string Phone, string Otp);
 
@@ -425,9 +974,12 @@ public sealed record WasteSubmission(
     string? VerificationToken,
     string Status,
     DateTimeOffset CreatedAtUtc,
-    WasteSubmissionImage[] Images);
+    WasteSubmissionImage[] Images,
+    Guid[] TargetCompanyIds);
 
 public sealed record WasteSubmissionImage(string FileName, string? ContentType);
+
+public sealed record WasteSubmissionImageSummary(string FileName, string? ContentType, string? Url);
 
 public sealed record CompanySignup(
     string CompanyName,
@@ -463,7 +1015,18 @@ public sealed record WasteSubmissionResponse(
     string Phone,
     string WasteCategory,
     string Status,
-    string Message);
+    string Message,
+    AuthSessionResponse? Session = null);
+
+public sealed record WastePrefillResponse(
+    string SubmitterType,
+    string? SubmitterName,
+    string? CompanyName,
+    string Phone,
+    string? Email,
+    string? Address,
+    string[] WasteCategories,
+    string? Notes);
 
 public sealed record WasteSubmissionSummary(
     Guid Id,
@@ -477,11 +1040,134 @@ public sealed record WasteSubmissionSummary(
     string? Notes,
     string Status,
     DateTimeOffset CreatedAtUtc,
-    int ImageCount);
+    int ImageCount,
+    WasteSubmissionImageSummary[] Images);
+
+public sealed record WasteBid(
+    Guid Id,
+    Guid WasteSubmissionId,
+    Guid CompanyId,
+    string CompanyName,
+    string CompanyEmail,
+    decimal Amount,
+    string? PickupDate,
+    string? Notes,
+    string Status,
+    DateTimeOffset CreatedAtUtc);
+
+public sealed record BidOpportunity(WasteSubmission Submission, WasteBid? ExistingBid);
+
+public sealed record CompanyOrder(WasteSubmission Submission, WasteBid Bid);
+
+public sealed record CompanyBid(WasteSubmission Submission, WasteBid Bid);
+
+public sealed record BidOpportunitySummary(
+    Guid Id,
+    string SubmitterType,
+    string? SubmitterName,
+    string? CompanyName,
+    string Phone,
+    string? Email,
+    string? Address,
+    string WasteCategory,
+    string? Notes,
+    string Status,
+    DateTimeOffset CreatedAtUtc,
+    int ImageCount,
+    WasteSubmissionImageSummary[] Images,
+    Guid? ExistingBidId,
+    decimal? ExistingBidAmount,
+    string? ExistingBidPickupDate,
+    string? ExistingBidStatus);
+
+public sealed record CompanyOrderSummary(
+    Guid Id,
+    string SubmitterType,
+    string? SubmitterName,
+    string? CompanyName,
+    string Phone,
+    string? Email,
+    string? Address,
+    string WasteCategory,
+    string? Notes,
+    string Status,
+    DateTimeOffset CreatedAtUtc,
+    int ImageCount,
+    WasteSubmissionImageSummary[] Images,
+    WasteBidSummary AcceptedBid);
+
+public sealed record CompanyBidSummary(
+    Guid Id,
+    string SubmitterType,
+    string? SubmitterName,
+    string? CompanyName,
+    string Phone,
+    string? Email,
+    string? Address,
+    string WasteCategory,
+    string? Notes,
+    string Status,
+    DateTimeOffset CreatedAtUtc,
+    int ImageCount,
+    WasteSubmissionImageSummary[] Images,
+    WasteBidSummary Bid);
+
+public sealed record BidCreateRequest(string? CompanyEmail, string? PickupDate, string? Notes);
+
+public sealed record BidAcceptRequest(string? RequesterEmail);
+
+public sealed record CompleteSubmissionRequest(string? RequesterEmail);
+
+public sealed record WasteBidSummary(
+    Guid Id,
+    Guid WasteSubmissionId,
+    Guid CompanyId,
+    string CompanyName,
+    string CompanyEmail,
+    decimal Amount,
+    string? PickupDate,
+    string? Notes,
+    string Status,
+    DateTimeOffset CreatedAtUtc);
+
+public sealed record CompletedSubmissionResponse(Guid Id, string Status, WasteBidSummary AcceptedBid);
+
+public sealed record CompanyReview(
+    Guid Id,
+    Guid CompanyId,
+    Guid? WasteSubmissionId,
+    string ReviewerName,
+    string? ReviewerEmail,
+    int Rating,
+    string? Comment,
+    DateTimeOffset CreatedAtUtc);
+
+public sealed record CompanyReviewRequest(
+    string? CompanyEmail,
+    Guid? WasteSubmissionId,
+    string? ReviewerName,
+    string? ReviewerEmail,
+    int Rating,
+    string? Comment);
+
+public sealed record CompanyReviewSummary(
+    Guid Id,
+    string ReviewerName,
+    string? ReviewerEmail,
+    int Rating,
+    string? Comment,
+    DateTimeOffset CreatedAtUtc);
+
+public sealed record CompanyReviewsResponse(
+    double AverageRating,
+    int ReviewCount,
+    IEnumerable<CompanyReviewSummary> Reviews);
 
 public sealed record ApiError(string Message);
 
 public sealed record EmailSendResult(bool Success, string? ErrorMessage = null);
+
+public sealed record WhatsAppSendResult(bool Success, string? ErrorMessage = null);
 
 public sealed class SmtpOptions
 {
@@ -497,6 +1183,114 @@ public sealed class SmtpOptions
 public interface IEmailSender
 {
     Task<EmailSendResult> SendOtpAsync(string toEmail, string otp);
+    Task<EmailSendResult> SendNotificationAsync(string toEmail, string subject, string body);
+}
+
+public interface IWhatsAppSender
+{
+    Task<WhatsAppSendResult> SendOtpAsync(string toPhone, string otp);
+}
+
+public sealed class WhatsAppOptions
+{
+    public string? AccessToken { get; init; }
+    public string? PhoneNumberId { get; init; }
+    public string ApiVersion { get; init; } = "v20.0";
+    public string? TemplateName { get; init; }
+    public string LanguageCode { get; init; } = "en_US";
+}
+
+public sealed class WhatsAppCloudSender(HttpClient httpClient, IOptions<WhatsAppOptions> options) : IWhatsAppSender
+{
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private readonly WhatsAppOptions options = options.Value;
+
+    public async Task<WhatsAppSendResult> SendOtpAsync(string toPhone, string otp)
+    {
+        if (string.IsNullOrWhiteSpace(options.AccessToken) ||
+            string.IsNullOrWhiteSpace(options.PhoneNumberId))
+        {
+            return new WhatsAppSendResult(false, "WhatsApp OTP is not configured on the server.");
+        }
+
+        var normalizedPhone = NormalizeWhatsAppPhone(toPhone);
+        if (string.IsNullOrWhiteSpace(normalizedPhone))
+        {
+            return new WhatsAppSendResult(false, "Please enter a WhatsApp phone number with country code.");
+        }
+
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"https://graph.facebook.com/{options.ApiVersion.Trim('/')}/{options.PhoneNumberId}/messages");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", options.AccessToken);
+        request.Content = new StringContent(BuildMessagePayload(normalizedPhone, otp), Encoding.UTF8, "application/json");
+
+        try
+        {
+            using var response = await httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return new WhatsAppSendResult(true);
+            }
+
+            return new WhatsAppSendResult(false, "Could not send WhatsApp OTP. Check WhatsApp Cloud API configuration.");
+        }
+        catch
+        {
+            return new WhatsAppSendResult(false, "Could not send WhatsApp OTP. Please try again later.");
+        }
+    }
+
+    private string BuildMessagePayload(string toPhone, string otp)
+    {
+        if (!string.IsNullOrWhiteSpace(options.TemplateName))
+        {
+            var templatePayload = new
+            {
+                messaging_product = "whatsapp",
+                to = toPhone,
+                type = "template",
+                template = new
+                {
+                    name = options.TemplateName,
+                    language = new { code = options.LanguageCode },
+                    components = new object[]
+                    {
+                        new
+                        {
+                            type = "body",
+                            parameters = new object[]
+                            {
+                                new { type = "text", text = otp }
+                            }
+                        }
+                    }
+                }
+            };
+
+            return JsonSerializer.Serialize(templatePayload, SerializerOptions);
+        }
+
+        var textPayload = new
+        {
+            messaging_product = "whatsapp",
+            to = toPhone,
+            type = "text",
+            text = new
+            {
+                preview_url = false,
+                body = $"Your Green Cycle verification code is {otp}. It expires in 5 minutes."
+            }
+        };
+
+        return JsonSerializer.Serialize(textPayload, SerializerOptions);
+    }
+
+    private static string NormalizeWhatsAppPhone(string phone)
+    {
+        var digits = new string(phone.Where(char.IsDigit).ToArray());
+        return digits.StartsWith("00", StringComparison.Ordinal) ? digits[2..] : digits;
+    }
 }
 
 public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender
@@ -574,6 +1368,42 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
         }
     }
 
+    public async Task<EmailSendResult> SendNotificationAsync(string toEmail, string subject, string body)
+    {
+        if (string.IsNullOrWhiteSpace(options.Host) ||
+            string.IsNullOrWhiteSpace(options.FromEmail) ||
+            string.IsNullOrWhiteSpace(options.Username) ||
+            string.IsNullOrWhiteSpace(options.Password))
+        {
+            return new EmailSendResult(false, "Email notifications are not configured on the server.");
+        }
+
+        using var message = new MailMessage
+        {
+            From = new MailAddress(options.FromEmail, options.FromName),
+            Subject = subject,
+            Body = body,
+            IsBodyHtml = false
+        };
+        message.To.Add(toEmail);
+
+        using var client = new SmtpClient(options.Host, options.Port)
+        {
+            EnableSsl = options.EnableSsl,
+            Credentials = new NetworkCredential(options.Username, options.Password)
+        };
+
+        try
+        {
+            await client.SendMailAsync(message);
+            return new EmailSendResult(true);
+        }
+        catch
+        {
+            return new EmailSendResult(false, "Could not send notification email. Please try again later.");
+        }
+    }
+
     private static string BuildOtpEmailHtml(string otp, string? logoContentId)
     {
         var encodedOtp = WebUtility.HtmlEncode(otp);
@@ -647,6 +1477,29 @@ public abstract record SignupResult
     public sealed record Duplicate : SignupResult;
 }
 
+public abstract record BidCreateResult
+{
+    public sealed record Created(WasteBid Bid, WasteSubmission Submission) : BidCreateResult;
+    public sealed record Duplicate : BidCreateResult;
+    public sealed record NotFound : BidCreateResult;
+    public sealed record OwnSubmission : BidCreateResult;
+}
+
+public abstract record BidAcceptResult
+{
+    public sealed record Accepted(WasteBid Bid, WasteSubmission Submission) : BidAcceptResult;
+    public sealed record NotFound : BidAcceptResult;
+    public sealed record NotOwner : BidAcceptResult;
+}
+
+public abstract record CompleteSubmissionResult
+{
+    public sealed record Completed(WasteBid Bid, WasteSubmission Submission) : CompleteSubmissionResult;
+    public sealed record NotFound : CompleteSubmissionResult;
+    public sealed record NotOwner : CompleteSubmissionResult;
+    public sealed record NoAcceptedBid : CompleteSubmissionResult;
+}
+
 public sealed record OtpChallenge(string Email, string Code, DateTimeOffset ExpiresAtUtc);
 
 public sealed class OtpStore
@@ -711,7 +1564,7 @@ public sealed class OtpStore
         return token;
     }
 
-    public bool VerifyToken(string contact, string token)
+    public bool ConsumeVerifiedToken(string contact, string token)
     {
         var normalizedContact = contact.Trim();
 
@@ -722,7 +1575,13 @@ public sealed class OtpStore
                 return false;
             }
 
-            return storedToken == token.Trim();
+            if (storedToken != token.Trim())
+            {
+                return false;
+            }
+
+            verifiedTokens.Remove(normalizedContact);
+            return true;
         }
     }
 
@@ -830,7 +1689,7 @@ public sealed class UserStore
         }
     }
 
-    public async Task CreateWasteSubmissionAsync(WasteSubmission submission)
+    public async Task<CompanyUser?> CreateWasteSubmissionAsync(WasteSubmission submission)
     {
         await gate.WaitAsync();
         try
@@ -911,12 +1770,83 @@ public sealed class UserStore
                 await imageCommand.ExecuteNonQueryAsync();
             }
 
+            foreach (var targetCompanyId in submission.TargetCompanyIds)
+            {
+                var targetCommand = connection.CreateCommand();
+                targetCommand.CommandText = """
+                    INSERT OR IGNORE INTO waste_submission_targets (
+                        waste_submission_id,
+                        company_id
+                    )
+                    VALUES (
+                        $wasteSubmissionId,
+                        $companyId
+                    );
+                    """;
+                targetCommand.Parameters.AddWithValue("$wasteSubmissionId", submission.Id.ToString());
+                targetCommand.Parameters.AddWithValue("$companyId", targetCompanyId.ToString());
+                await targetCommand.ExecuteNonQueryAsync();
+            }
+
+            var sessionUser = await EnsureWasteSubmitterAccountAsync(connection, submission);
             await transaction.CommitAsync();
+            return sessionUser;
         }
         finally
         {
             gate.Release();
         }
+    }
+
+    private static async Task<CompanyUser?> EnsureWasteSubmitterAccountAsync(SqliteConnection connection, WasteSubmission submission)
+    {
+        if (string.IsNullOrWhiteSpace(submission.Email))
+        {
+            return null;
+        }
+
+        var existing = await FindByEmailAsync(connection, submission.Email.Trim());
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        var displayName = submission.CompanyName ??
+            submission.SubmitterName ??
+            $"Waste submitter {submission.Phone}";
+        var categories = SplitWasteCategories(submission.WasteCategory);
+        if (categories.Length == 0)
+        {
+            categories = ["General waste"];
+        }
+
+        var user = new CompanyUser(
+            Guid.NewGuid(),
+            displayName.Trim(),
+            submission.Phone.Trim(),
+            submission.Email.Trim(),
+            EmptyToNull(submission.Address),
+            null,
+            null,
+            categories,
+            DateTimeOffset.UtcNow);
+
+        await InsertCompanyAsync(connection, user);
+        return user;
+    }
+
+    private static string[] SplitWasteCategories(string wasteCategory)
+    {
+        return wasteCategory
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(category => !string.IsNullOrWhiteSpace(category))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    private static string NormalizePhoneDigits(string phone)
+    {
+        return new string(phone.Where(char.IsDigit).ToArray());
     }
 
     public async Task<IReadOnlyList<WasteSubmission>> GetWasteSubmissionsByEmailAsync(string email)
@@ -940,12 +1870,7 @@ public sealed class UserStore
                     notes,
                     verification_token,
                     status,
-                    created_at_utc,
-                    (
-                        SELECT COUNT(*)
-                        FROM waste_submission_images
-                        WHERE waste_submission_id = waste_submissions.id
-                    ) AS image_count
+                    created_at_utc
                 FROM waste_submissions
                 WHERE email = $email
                 ORDER BY created_at_utc DESC;
@@ -971,16 +1896,940 @@ public sealed class UserStore
                     GetNullableString(reader, 10),
                     reader.GetString(11),
                     DateTimeOffset.Parse(reader.GetString(12)),
-                    new WasteSubmissionImage[reader.GetInt32(13)]));
+                    [],
+                    []));
             }
 
-            return submissions;
+            return await AddImagesToSubmissionsAsync(connection, submissions);
         }
         finally
         {
             gate.Release();
         }
     }
+
+    public async Task<WasteSubmission?> GetLatestWasteSubmissionByPhoneAsync(string phone)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var phoneDigits = NormalizePhoneDigits(phone);
+            var phoneWithoutCountryCode = phoneDigits.StartsWith("965", StringComparison.Ordinal) && phoneDigits.Length > 8
+                ? phoneDigits[3..]
+                : phoneDigits;
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    id,
+                    submitter_type,
+                    submitter_name,
+                    company_name,
+                    phone,
+                    email,
+                    address,
+                    waste_category,
+                    quantity,
+                    notes,
+                    verification_token,
+                    status,
+                    created_at_utc,
+                    (
+                        SELECT COUNT(*)
+                        FROM waste_submission_images
+                        WHERE waste_submission_id = waste_submissions.id
+                    ) AS image_count
+                FROM waste_submissions
+                ORDER BY created_at_utc DESC
+                """;
+
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var storedPhoneDigits = NormalizePhoneDigits(reader.GetString(4));
+                var storedPhoneWithoutCountryCode = storedPhoneDigits.StartsWith("965", StringComparison.Ordinal) && storedPhoneDigits.Length > 8
+                    ? storedPhoneDigits[3..]
+                    : storedPhoneDigits;
+
+                if (string.Equals(reader.GetString(4), phone.Trim(), StringComparison.OrdinalIgnoreCase) ||
+                    (!string.IsNullOrWhiteSpace(phoneDigits) && storedPhoneDigits == phoneDigits) ||
+                    (!string.IsNullOrWhiteSpace(phoneWithoutCountryCode) && storedPhoneWithoutCountryCode == phoneWithoutCountryCode))
+                {
+                    return new WasteSubmission(
+                        Guid.Parse(reader.GetString(0)),
+                        reader.GetString(1),
+                        GetNullableString(reader, 2),
+                        GetNullableString(reader, 3),
+                        reader.GetString(4),
+                        GetNullableString(reader, 5),
+                        GetNullableString(reader, 6),
+                        reader.GetString(7),
+                        GetNullableString(reader, 8),
+                        GetNullableString(reader, 9),
+                        GetNullableString(reader, 10),
+                        reader.GetString(11),
+                        DateTimeOffset.Parse(reader.GetString(12)),
+                        new WasteSubmissionImage[reader.GetInt32(13)],
+                        []);
+                }
+            }
+
+            return null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<CompanyUser>> GetMatchingCompaniesForSubmissionAsync(WasteSubmission submission)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var companies = await ReadUsersAsync(connection);
+            var targetIds = submission.TargetCompanyIds.ToHashSet();
+
+            return companies
+                .Where(company => !string.Equals(company.Email, submission.Email, StringComparison.OrdinalIgnoreCase))
+                .Where(company => targetIds.Count == 0 || targetIds.Contains(company.Id))
+                .ToArray();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<BidOpportunity>> GetBidOpportunitiesAsync(string companyEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var company = await FindByEmailAsync(connection, companyEmail.Trim());
+            if (company is null)
+            {
+                return [];
+            }
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    id,
+                    submitter_type,
+                    submitter_name,
+                    company_name,
+                    phone,
+                    email,
+                    address,
+                    waste_category,
+                    quantity,
+                    notes,
+                    verification_token,
+                    status,
+                    created_at_utc
+                FROM waste_submissions
+                WHERE status IN ('received', 'bidding')
+                  AND (email IS NULL OR email <> $companyEmail COLLATE NOCASE)
+                  AND (
+                    NOT EXISTS (
+                        SELECT 1
+                        FROM waste_submission_targets
+                        WHERE waste_submission_id = waste_submissions.id
+                    )
+                    OR EXISTS (
+                        SELECT 1
+                        FROM waste_submission_targets
+                        WHERE waste_submission_id = waste_submissions.id
+                          AND company_id = $companyId
+                    )
+                  )
+                ORDER BY created_at_utc DESC;
+                """;
+            command.Parameters.AddWithValue("$companyEmail", company.Email);
+            command.Parameters.AddWithValue("$companyId", company.Id.ToString());
+
+            var submissions = new List<WasteSubmission>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                submissions.Add(ReadWasteSubmission(reader));
+            }
+
+            submissions = [.. await AddImagesToSubmissionsAsync(connection, submissions)];
+
+            var opportunities = new List<BidOpportunity>();
+            foreach (var submission in submissions)
+            {
+                var existingBid = await ReadBidBySubmissionAndCompanyAsync(connection, submission.Id, company.Id);
+                opportunities.Add(new BidOpportunity(submission, existingBid));
+            }
+
+            return opportunities;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<CompanyOrder>> GetCompanyOrdersAsync(string companyEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var company = await FindByEmailAsync(connection, companyEmail.Trim());
+            if (company is null)
+            {
+                return [];
+            }
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    ws.id,
+                    ws.submitter_type,
+                    ws.submitter_name,
+                    ws.company_name,
+                    ws.phone,
+                    ws.email,
+                    ws.address,
+                    ws.waste_category,
+                    ws.quantity,
+                    ws.notes,
+                    ws.verification_token,
+                    ws.status,
+                    ws.created_at_utc,
+                    wb.id,
+                    wb.waste_submission_id,
+                    wb.company_id,
+                    c.company_name,
+                    c.email,
+                    wb.amount,
+                    wb.pickup_date,
+                    wb.notes,
+                    wb.status,
+                    wb.created_at_utc
+                FROM waste_bids wb
+                INNER JOIN waste_submissions ws ON ws.id = wb.waste_submission_id
+                INNER JOIN companies c ON c.id = wb.company_id
+                WHERE wb.company_id = $companyId
+                  AND wb.status = 'accepted'
+                  AND ws.status IN ('pickup_pending', 'accepted', 'completed')
+                ORDER BY ws.created_at_utc DESC;
+                """;
+            command.Parameters.AddWithValue("$companyId", company.Id.ToString());
+
+            var orders = new List<CompanyOrder>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var submission = ReadWasteSubmission(reader);
+                var bid = new WasteBid(
+                    Guid.Parse(reader.GetString(13)),
+                    Guid.Parse(reader.GetString(14)),
+                    Guid.Parse(reader.GetString(15)),
+                    reader.GetString(16),
+                    reader.GetString(17),
+                    reader.GetDecimal(18),
+                    GetNullableString(reader, 19),
+                    GetNullableString(reader, 20),
+                    reader.GetString(21),
+                    DateTimeOffset.Parse(reader.GetString(22)));
+                orders.Add(new CompanyOrder(submission, bid));
+            }
+
+            var submissionsWithImages = await AddImagesToSubmissionsAsync(
+                connection,
+                orders.Select(order => order.Submission).ToArray());
+            var submissionsById = submissionsWithImages.ToDictionary(submission => submission.Id);
+
+            return orders
+                .Select(order => order with { Submission = submissionsById[order.Submission.Id] })
+                .ToArray();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<CompanyBid>> GetCompanyBidsAsync(string companyEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var company = await FindByEmailAsync(connection, companyEmail.Trim());
+            if (company is null)
+            {
+                return [];
+            }
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    ws.id,
+                    ws.submitter_type,
+                    ws.submitter_name,
+                    ws.company_name,
+                    ws.phone,
+                    ws.email,
+                    ws.address,
+                    ws.waste_category,
+                    ws.quantity,
+                    ws.notes,
+                    ws.verification_token,
+                    ws.status,
+                    ws.created_at_utc,
+                    wb.id,
+                    wb.waste_submission_id,
+                    wb.company_id,
+                    c.company_name,
+                    c.email,
+                    wb.amount,
+                    wb.pickup_date,
+                    wb.notes,
+                    wb.status,
+                    wb.created_at_utc
+                FROM waste_bids wb
+                INNER JOIN waste_submissions ws ON ws.id = wb.waste_submission_id
+                INNER JOIN companies c ON c.id = wb.company_id
+                WHERE wb.company_id = $companyId
+                ORDER BY wb.created_at_utc DESC;
+                """;
+            command.Parameters.AddWithValue("$companyId", company.Id.ToString());
+
+            var bids = new List<CompanyBid>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var submission = ReadWasteSubmission(reader);
+                var bid = new WasteBid(
+                    Guid.Parse(reader.GetString(13)),
+                    Guid.Parse(reader.GetString(14)),
+                    Guid.Parse(reader.GetString(15)),
+                    reader.GetString(16),
+                    reader.GetString(17),
+                    reader.GetDecimal(18),
+                    GetNullableString(reader, 19),
+                    GetNullableString(reader, 20),
+                    reader.GetString(21),
+                    DateTimeOffset.Parse(reader.GetString(22)));
+                bids.Add(new CompanyBid(submission, bid));
+            }
+
+            var submissionsWithImages = await AddImagesToSubmissionsAsync(
+                connection,
+                bids.Select(item => item.Submission).ToArray());
+            var submissionsById = submissionsWithImages.ToDictionary(submission => submission.Id);
+
+            return bids
+                .Select(item => item with { Submission = submissionsById[item.Submission.Id] })
+                .ToArray();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<BidCreateResult> CreateWasteBidAsync(Guid submissionId, string companyEmail, DateOnly pickupDate, string? notes)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            var company = await FindByEmailAsync(connection, companyEmail.Trim());
+            var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
+
+            if (company is null || submission is null || submission.Status is "pickup_pending" or "completed")
+            {
+                return new BidCreateResult.NotFound();
+            }
+
+            if (string.Equals(submission.Email, company.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return new BidCreateResult.OwnSubmission();
+            }
+
+            if (await ReadBidBySubmissionAndCompanyAsync(connection, submissionId, company.Id) is not null)
+            {
+                return new BidCreateResult.Duplicate();
+            }
+
+            var bid = new WasteBid(
+                Guid.NewGuid(),
+                submissionId,
+                company.Id,
+                company.CompanyName,
+                company.Email,
+                0,
+                pickupDate.ToString("yyyy-MM-dd"),
+                EmptyToNull(notes),
+                "pending",
+                DateTimeOffset.UtcNow);
+
+            await InsertBidAsync(connection, bid);
+            await UpdateSubmissionStatusAsync(connection, submissionId, "bidding");
+            await transaction.CommitAsync();
+            return new BidCreateResult.Created(bid, submission);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<WasteBid>?> GetBidsForSubmissionAsync(Guid submissionId, string requesterEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
+            if (submission is null ||
+                !string.Equals(submission.Email, requesterEmail.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return await ReadBidsForSubmissionAsync(connection, submissionId);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<BidAcceptResult> AcceptWasteBidAsync(Guid submissionId, Guid bidId, string requesterEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
+            if (submission is null)
+            {
+                return new BidAcceptResult.NotFound();
+            }
+
+            if (!string.Equals(submission.Email, requesterEmail.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return new BidAcceptResult.NotOwner();
+            }
+
+            var bid = await ReadBidByIdAsync(connection, bidId, submissionId);
+            if (bid is null)
+            {
+                return new BidAcceptResult.NotFound();
+            }
+
+            await RejectOtherBidsAsync(connection, submissionId, bidId);
+            await UpdateBidStatusAsync(connection, bidId, "accepted");
+            await UpdateSubmissionStatusAsync(connection, submissionId, "pickup_pending");
+            await transaction.CommitAsync();
+            return new BidAcceptResult.Accepted(bid with { Status = "accepted" }, submission with { Status = "pickup_pending" });
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<CompleteSubmissionResult> CompleteWasteSubmissionAsync(Guid submissionId, string requesterEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
+            if (submission is null)
+            {
+                return new CompleteSubmissionResult.NotFound();
+            }
+
+            if (!string.Equals(submission.Email, requesterEmail.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return new CompleteSubmissionResult.NotOwner();
+            }
+
+            var acceptedBid = await ReadAcceptedBidForSubmissionAsync(connection, submissionId);
+            if (acceptedBid is null)
+            {
+                return new CompleteSubmissionResult.NoAcceptedBid();
+            }
+
+            await UpdateSubmissionStatusAsync(connection, submissionId, "completed");
+            await transaction.CommitAsync();
+            return new CompleteSubmissionResult.Completed(acceptedBid, submission with { Status = "completed" });
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task CreateCompanyReviewAsync(CompanyReview review)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO company_reviews (
+                    id,
+                    company_id,
+                    waste_submission_id,
+                    reviewer_name,
+                    reviewer_email,
+                    rating,
+                    comment,
+                    created_at_utc
+                )
+                VALUES (
+                    $id,
+                    $companyId,
+                    $wasteSubmissionId,
+                    $reviewerName,
+                    $reviewerEmail,
+                    $rating,
+                    $comment,
+                    $createdAtUtc
+                );
+                """;
+            command.Parameters.AddWithValue("$id", review.Id.ToString());
+            command.Parameters.AddWithValue("$companyId", review.CompanyId.ToString());
+            command.Parameters.AddWithValue("$wasteSubmissionId", ToDbValue(review.WasteSubmissionId?.ToString()));
+            command.Parameters.AddWithValue("$reviewerName", review.ReviewerName);
+            command.Parameters.AddWithValue("$reviewerEmail", ToDbValue(review.ReviewerEmail));
+            command.Parameters.AddWithValue("$rating", review.Rating);
+            command.Parameters.AddWithValue("$comment", ToDbValue(review.Comment));
+            command.Parameters.AddWithValue("$createdAtUtc", review.CreatedAtUtc.ToString("O"));
+            await command.ExecuteNonQueryAsync();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<bool> CompanyReviewExistsAsync(Guid companyId, string reviewerEmail, Guid? wasteSubmissionId)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = wasteSubmissionId is null
+                ? """
+                  SELECT 1
+                  FROM company_reviews
+                  WHERE company_id = $companyId
+                    AND reviewer_email = $reviewerEmail COLLATE NOCASE
+                    AND waste_submission_id IS NULL
+                  LIMIT 1;
+                  """
+                : """
+                  SELECT 1
+                  FROM company_reviews
+                  WHERE company_id = $companyId
+                    AND reviewer_email = $reviewerEmail COLLATE NOCASE
+                    AND waste_submission_id = $wasteSubmissionId
+                  LIMIT 1;
+                  """;
+            command.Parameters.AddWithValue("$companyId", companyId.ToString());
+            command.Parameters.AddWithValue("$reviewerEmail", reviewerEmail.Trim());
+            if (wasteSubmissionId is not null)
+            {
+                command.Parameters.AddWithValue("$wasteSubmissionId", wasteSubmissionId.Value.ToString());
+            }
+            return await command.ExecuteScalarAsync() is not null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<CompanyReview>> GetCompanyReviewsByEmailAsync(string companyEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    cr.id,
+                    cr.company_id,
+                    cr.waste_submission_id,
+                    cr.reviewer_name,
+                    cr.reviewer_email,
+                    cr.rating,
+                    cr.comment,
+                    cr.created_at_utc
+                FROM company_reviews cr
+                INNER JOIN companies c ON c.id = cr.company_id
+                WHERE c.email = $companyEmail
+                ORDER BY cr.created_at_utc DESC;
+                """;
+            command.Parameters.AddWithValue("$companyEmail", companyEmail.Trim());
+
+            var reviews = new List<CompanyReview>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                reviews.Add(new CompanyReview(
+                    Guid.Parse(reader.GetString(0)),
+                    Guid.Parse(reader.GetString(1)),
+                    GetNullableGuid(reader, 2),
+                    reader.GetString(3),
+                    GetNullableString(reader, 4),
+                    reader.GetInt32(5),
+                    GetNullableString(reader, 6),
+                    DateTimeOffset.Parse(reader.GetString(7))));
+            }
+
+            return reviews;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private static bool CategoriesOverlap(IEnumerable<string> companyCategories, IEnumerable<string> submissionCategories)
+    {
+        var companyKeys = companyCategories.SelectMany(GetCategoryKeys).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        var submissionKeys = submissionCategories.SelectMany(GetCategoryKeys).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        if (companyKeys.Length > 0 && submissionKeys.Length > 0)
+        {
+            return companyKeys.Intersect(submissionKeys, StringComparer.OrdinalIgnoreCase).Any();
+        }
+
+        var submissionList = submissionCategories
+            .Select(category => category.Trim())
+            .Where(category => category.Length > 0)
+            .ToArray();
+
+        return companyCategories.Any(companyCategory =>
+            submissionList.Any(submissionCategory =>
+                companyCategory.Contains(submissionCategory, StringComparison.OrdinalIgnoreCase) ||
+                submissionCategory.Contains(companyCategory, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private static IEnumerable<string> GetCategoryKeys(string category)
+    {
+        var normalized = category.Trim().ToLowerInvariant();
+        foreach (var (key, tokens) in CategoryTokens)
+        {
+            if (tokens.Any(token => normalized.Contains(token, StringComparison.OrdinalIgnoreCase)))
+            {
+                yield return key;
+            }
+        }
+    }
+
+    private static readonly IReadOnlyDictionary<string, string[]> CategoryTokens = new Dictionary<string, string[]>
+    {
+        ["plastic"] = ["plastic", "بلاستيك"],
+        ["paper"] = ["paper", "cardboard", "ورق", "كرتون"],
+        ["metal"] = ["metal", "scrap", "aluminum", "خردة", "معدن", "المعدنية"],
+        ["glass"] = ["glass", "زجاج"],
+        ["electronics"] = ["electronic", "electrical", "mobile", "cable", "wire", "إلكترون", "كهرب", "هواتف", "كيبل", "واير"],
+        ["organic"] = ["organic", "زراعية", "عضوية"],
+        ["textile"] = ["textile", "نسيج"],
+        ["construction"] = ["construction", "debris", "بناء"],
+        ["wood"] = ["wood", "خشب"],
+        ["battery"] = ["battery", "batteries", "بطاريات"],
+        ["tires"] = ["tire", "tyre", "إطارات", "تواير"],
+        ["cooking-oil"] = ["cooking oil", "food oil", "زيوت الطبخ"],
+        ["engine-oil"] = ["engine oil", "mineral oil", "زيت المحرك"],
+        ["toys"] = ["toy", "ألعاب"],
+        ["filters"] = ["filter", "filters", "فلاتر"],
+        ["mixed"] = ["mixed", "multiple", "مختلطة", "متنوعة", "other", "أخرى"]
+    };
+
+    private static WasteSubmission ReadWasteSubmission(SqliteDataReader reader)
+    {
+        return new WasteSubmission(
+            Guid.Parse(reader.GetString(0)),
+            reader.GetString(1),
+            GetNullableString(reader, 2),
+            GetNullableString(reader, 3),
+            reader.GetString(4),
+            GetNullableString(reader, 5),
+            GetNullableString(reader, 6),
+            reader.GetString(7),
+            GetNullableString(reader, 8),
+            GetNullableString(reader, 9),
+            GetNullableString(reader, 10),
+            reader.GetString(11),
+            DateTimeOffset.Parse(reader.GetString(12)),
+            [],
+            []);
+    }
+
+    private static async Task<IReadOnlyList<WasteSubmission>> AddImagesToSubmissionsAsync(
+        SqliteConnection connection,
+        IReadOnlyList<WasteSubmission> submissions)
+    {
+        if (submissions.Count == 0)
+        {
+            return submissions;
+        }
+
+        var imagesBySubmissionId = new Dictionary<Guid, List<WasteSubmissionImage>>();
+        foreach (var submission in submissions)
+        {
+            imagesBySubmissionId[submission.Id] = [];
+        }
+
+        var command = connection.CreateCommand();
+        var parameterNames = new List<string>();
+        for (var index = 0; index < submissions.Count; index++)
+        {
+            var parameterName = $"$id{index}";
+            parameterNames.Add(parameterName);
+            command.Parameters.AddWithValue(parameterName, submissions[index].Id.ToString());
+        }
+
+        command.CommandText = $"""
+            SELECT waste_submission_id, file_name, content_type
+            FROM waste_submission_images
+            WHERE waste_submission_id IN ({string.Join(", ", parameterNames)})
+            ORDER BY id;
+            """;
+
+        await using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var submissionId = Guid.Parse(reader.GetString(0));
+            if (imagesBySubmissionId.TryGetValue(submissionId, out var images))
+            {
+                images.Add(new WasteSubmissionImage(
+                    reader.GetString(1),
+                    GetNullableString(reader, 2)));
+            }
+        }
+
+        return submissions
+            .Select(submission => submission with
+            {
+                Images = imagesBySubmissionId[submission.Id].ToArray()
+            })
+            .ToArray();
+    }
+
+    private static async Task<WasteSubmission?> ReadWasteSubmissionByIdAsync(SqliteConnection connection, Guid submissionId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT
+                id,
+                submitter_type,
+                submitter_name,
+                company_name,
+                phone,
+                email,
+                address,
+                waste_category,
+                quantity,
+                notes,
+                verification_token,
+                status,
+                created_at_utc,
+                (
+                    SELECT COUNT(*)
+                    FROM waste_submission_images
+                    WHERE waste_submission_id = waste_submissions.id
+                ) AS image_count
+            FROM waste_submissions
+            WHERE id = $id
+            LIMIT 1;
+            """;
+        command.Parameters.AddWithValue("$id", submissionId.ToString());
+
+        await using var reader = await command.ExecuteReaderAsync();
+        return await reader.ReadAsync() ? ReadWasteSubmission(reader) : null;
+    }
+
+    private static async Task InsertBidAsync(SqliteConnection connection, WasteBid bid)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = """
+            INSERT INTO waste_bids (
+                id,
+                waste_submission_id,
+                company_id,
+                amount,
+                pickup_date,
+                notes,
+                status,
+                created_at_utc
+            )
+            VALUES (
+                $id,
+                $wasteSubmissionId,
+                $companyId,
+                $amount,
+                $pickupDate,
+                $notes,
+                $status,
+                $createdAtUtc
+            );
+            """;
+        command.Parameters.AddWithValue("$id", bid.Id.ToString());
+        command.Parameters.AddWithValue("$wasteSubmissionId", bid.WasteSubmissionId.ToString());
+        command.Parameters.AddWithValue("$companyId", bid.CompanyId.ToString());
+        command.Parameters.AddWithValue("$amount", bid.Amount);
+        command.Parameters.AddWithValue("$pickupDate", ToDbValue(bid.PickupDate));
+        command.Parameters.AddWithValue("$notes", ToDbValue(bid.Notes));
+        command.Parameters.AddWithValue("$status", bid.Status);
+        command.Parameters.AddWithValue("$createdAtUtc", bid.CreatedAtUtc.ToString("O"));
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task<WasteBid?> ReadBidBySubmissionAndCompanyAsync(SqliteConnection connection, Guid submissionId, Guid companyId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = BidSelectSql + """
+
+            WHERE wb.waste_submission_id = $submissionId
+              AND wb.company_id = $companyId
+            LIMIT 1;
+            """;
+        command.Parameters.AddWithValue("$submissionId", submissionId.ToString());
+        command.Parameters.AddWithValue("$companyId", companyId.ToString());
+
+        await using var reader = await command.ExecuteReaderAsync();
+        return await reader.ReadAsync() ? ReadBid(reader) : null;
+    }
+
+    private static async Task<WasteBid?> ReadBidByIdAsync(SqliteConnection connection, Guid bidId, Guid submissionId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = BidSelectSql + """
+
+            WHERE wb.id = $bidId
+              AND wb.waste_submission_id = $submissionId
+            LIMIT 1;
+            """;
+        command.Parameters.AddWithValue("$bidId", bidId.ToString());
+        command.Parameters.AddWithValue("$submissionId", submissionId.ToString());
+
+        await using var reader = await command.ExecuteReaderAsync();
+        return await reader.ReadAsync() ? ReadBid(reader) : null;
+    }
+
+    private static async Task<IReadOnlyList<WasteBid>> ReadBidsForSubmissionAsync(SqliteConnection connection, Guid submissionId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = BidSelectSql + """
+
+            WHERE wb.waste_submission_id = $submissionId
+            ORDER BY
+                CASE wb.status WHEN 'accepted' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END,
+                wb.pickup_date ASC,
+                wb.created_at_utc DESC;
+            """;
+        command.Parameters.AddWithValue("$submissionId", submissionId.ToString());
+
+        var bids = new List<WasteBid>();
+        await using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            bids.Add(ReadBid(reader));
+        }
+
+        return bids;
+    }
+
+    private static async Task<WasteBid?> ReadAcceptedBidForSubmissionAsync(SqliteConnection connection, Guid submissionId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = BidSelectSql + """
+
+            WHERE wb.waste_submission_id = $submissionId
+              AND wb.status = 'accepted'
+            LIMIT 1;
+            """;
+        command.Parameters.AddWithValue("$submissionId", submissionId.ToString());
+
+        await using var reader = await command.ExecuteReaderAsync();
+        return await reader.ReadAsync() ? ReadBid(reader) : null;
+    }
+
+    private static WasteBid ReadBid(SqliteDataReader reader)
+    {
+        return new WasteBid(
+            Guid.Parse(reader.GetString(0)),
+            Guid.Parse(reader.GetString(1)),
+            Guid.Parse(reader.GetString(2)),
+            reader.GetString(3),
+            reader.GetString(4),
+            reader.GetDecimal(5),
+            GetNullableString(reader, 6),
+            GetNullableString(reader, 7),
+            reader.GetString(8),
+            DateTimeOffset.Parse(reader.GetString(9)));
+    }
+
+    private static async Task UpdateSubmissionStatusAsync(SqliteConnection connection, Guid submissionId, string status)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE waste_submissions SET status = $status WHERE id = $id;";
+        command.Parameters.AddWithValue("$status", status);
+        command.Parameters.AddWithValue("$id", submissionId.ToString());
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task UpdateBidStatusAsync(SqliteConnection connection, Guid bidId, string status)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE waste_bids SET status = $status WHERE id = $id;";
+        command.Parameters.AddWithValue("$status", status);
+        command.Parameters.AddWithValue("$id", bidId.ToString());
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task RejectOtherBidsAsync(SqliteConnection connection, Guid submissionId, Guid acceptedBidId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE waste_bids
+            SET status = 'rejected'
+            WHERE waste_submission_id = $submissionId
+              AND id <> $acceptedBidId;
+            """;
+        command.Parameters.AddWithValue("$submissionId", submissionId.ToString());
+        command.Parameters.AddWithValue("$acceptedBidId", acceptedBidId.ToString());
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private const string BidSelectSql = """
+        SELECT
+            wb.id,
+            wb.waste_submission_id,
+            wb.company_id,
+            c.company_name,
+            c.email,
+            wb.amount,
+            wb.pickup_date,
+            wb.notes,
+            wb.status,
+            wb.created_at_utc
+        FROM waste_bids wb
+        INNER JOIN companies c ON c.id = wb.company_id
+        """;
 
     private async Task<SqliteConnection> OpenConnectionAsync()
     {
@@ -1050,6 +2899,41 @@ public sealed class UserStore
                 FOREIGN KEY (waste_submission_id) REFERENCES waste_submissions(id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS waste_submission_targets (
+                waste_submission_id TEXT NOT NULL,
+                company_id TEXT NOT NULL,
+                PRIMARY KEY (waste_submission_id, company_id),
+                FOREIGN KEY (waste_submission_id) REFERENCES waste_submissions(id) ON DELETE CASCADE,
+                FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE IF NOT EXISTS company_reviews (
+                id TEXT NOT NULL PRIMARY KEY,
+                company_id TEXT NOT NULL,
+                waste_submission_id TEXT NULL,
+                reviewer_name TEXT NOT NULL,
+                reviewer_email TEXT NULL,
+                rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                comment TEXT NULL,
+                created_at_utc TEXT NOT NULL,
+                FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+                FOREIGN KEY (waste_submission_id) REFERENCES waste_submissions(id) ON DELETE SET NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS waste_bids (
+                id TEXT NOT NULL PRIMARY KEY,
+                waste_submission_id TEXT NOT NULL,
+                company_id TEXT NOT NULL,
+                amount REAL NOT NULL,
+                pickup_date TEXT NULL,
+                notes TEXT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                created_at_utc TEXT NOT NULL,
+                UNIQUE (waste_submission_id, company_id),
+                FOREIGN KEY (waste_submission_id) REFERENCES waste_submissions(id) ON DELETE CASCADE,
+                FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+            );
+
             CREATE INDEX IF NOT EXISTS ix_company_waste_categories_category_id
                 ON company_waste_categories(waste_category_id);
 
@@ -1058,9 +2942,54 @@ public sealed class UserStore
 
             CREATE INDEX IF NOT EXISTS ix_waste_submissions_status
                 ON waste_submissions(status);
+
+            CREATE INDEX IF NOT EXISTS ix_waste_submission_targets_company_id
+                ON waste_submission_targets(company_id);
+
+            CREATE INDEX IF NOT EXISTS ix_company_reviews_company_id_created_at
+                ON company_reviews(company_id, created_at_utc DESC);
+
+            CREATE INDEX IF NOT EXISTS ix_company_reviews_company_reviewer
+                ON company_reviews(company_id, reviewer_email);
+
+            CREATE INDEX IF NOT EXISTS ix_waste_bids_submission_status
+                ON waste_bids(waste_submission_id, status);
+
+            CREATE INDEX IF NOT EXISTS ix_waste_bids_company_status
+                ON waste_bids(company_id, status);
             """;
 
         await command.ExecuteNonQueryAsync();
+        await AddColumnIfMissingAsync(connection, "company_reviews", "waste_submission_id", "TEXT NULL");
+        await AddColumnIfMissingAsync(connection, "waste_bids", "pickup_date", "TEXT NULL");
+
+        var reviewOrderIndexCommand = connection.CreateCommand();
+        reviewOrderIndexCommand.CommandText = """
+            CREATE INDEX IF NOT EXISTS ix_company_reviews_order_reviewer
+                ON company_reviews(waste_submission_id, reviewer_email);
+            """;
+        await reviewOrderIndexCommand.ExecuteNonQueryAsync();
+    }
+
+    private static async Task AddColumnIfMissingAsync(SqliteConnection connection, string tableName, string columnName, string columnDefinition)
+    {
+        var infoCommand = connection.CreateCommand();
+        infoCommand.CommandText = $"PRAGMA table_info({tableName});";
+
+        await using (var reader = await infoCommand.ExecuteReaderAsync())
+        {
+            while (await reader.ReadAsync())
+            {
+                if (string.Equals(reader.GetString(1), columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+            }
+        }
+
+        var alterCommand = connection.CreateCommand();
+        alterCommand.CommandText = $"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnDefinition};";
+        await alterCommand.ExecuteNonQueryAsync();
     }
 
     private async Task MigrateLegacyUsersAsync(SqliteConnection connection)
@@ -1247,6 +3176,11 @@ public sealed class UserStore
     private static string? GetNullableString(SqliteDataReader reader, int ordinal)
     {
         return reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);
+    }
+
+    private static Guid? GetNullableGuid(SqliteDataReader reader, int ordinal)
+    {
+        return reader.IsDBNull(ordinal) ? null : Guid.Parse(reader.GetString(ordinal));
     }
 
     private static object ToDbValue(string? value)

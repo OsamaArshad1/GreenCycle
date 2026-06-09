@@ -86,7 +86,7 @@
 
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
       margin-top: 24px;
     }
@@ -167,20 +167,25 @@
       border: 1px solid #f8c9c9;
     }
 
-    .submission-list {
+    .submission-list,
+    .review-list {
       display: grid;
       gap: 12px;
       margin-top: 18px;
     }
 
-    .submission-card {
+    .submission-card,
+    .review-card,
+    .bid-card {
       border: 1px solid rgba(29, 86, 45, 0.14);
       border-radius: 8px;
       padding: 16px;
       background: #fbfdf9;
     }
 
-    .submission-card header {
+    .submission-card header,
+    .review-card header,
+    .bid-card header {
       display: flex;
       justify-content: space-between;
       gap: 12px;
@@ -188,8 +193,143 @@
       margin-bottom: 10px;
     }
 
-    .submission-card strong {
+    .submission-card strong,
+    .review-card strong,
+    .bid-card strong {
       color: var(--green-900);
+    }
+
+    .bid-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .bid-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .nav-badge {
+      align-items: center;
+      background: var(--green-700);
+      border-radius: 999px;
+      color: #fff;
+      display: inline-flex;
+      font-size: 12px;
+      justify-content: center;
+      line-height: 1;
+      margin-inline-start: 6px;
+      min-width: 20px;
+      padding: 4px 6px;
+    }
+
+    .btn-primary .nav-badge {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .status-pill {
+      border-radius: 999px;
+      display: inline-flex;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 9px;
+    }
+
+    .status-pill.open,
+    .status-pill.pending {
+      background: #fff7d6;
+      color: #8a5c00;
+    }
+
+    .status-pill.accepted {
+      background: #dff7e6;
+      color: #176b35;
+    }
+
+    .status-pill.rejected {
+      background: #fdecec;
+      color: #a32121;
+    }
+
+    .status-pill.completed {
+      background: #e8f0ff;
+      color: #254b8d;
+    }
+
+    .submission-image-gallery {
+      display: none;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      margin-top: 14px;
+    }
+
+    .submission-image-gallery.active {
+      display: grid;
+    }
+
+    .submission-image-gallery a {
+      aspect-ratio: 4 / 3;
+      border: 1px solid rgba(29, 86, 45, 0.14);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .submission-image-gallery img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .review-modal-overlay {
+      align-items: center;
+      background: rgba(8, 34, 20, 0.58);
+      display: none;
+      inset: 0;
+      justify-content: center;
+      padding: 20px;
+      position: fixed;
+      z-index: 1000;
+    }
+
+    .review-modal-overlay.active {
+      display: flex;
+    }
+
+    .review-modal {
+      background: #fff;
+      border-radius: 8px;
+      max-width: 520px;
+      padding: 24px;
+      width: min(100%, 520px);
+    }
+
+    .review-modal-head {
+      align-items: flex-start;
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .review-modal h2 {
+      color: var(--green-900);
+      margin: 0;
+    }
+
+    .review-modal .field {
+      margin-bottom: 14px;
+    }
+
+    .rating-stars {
+      color: #d28b12;
+      direction: ltr;
+      display: inline-block;
+      font-weight: 800;
+      letter-spacing: 1px;
     }
 
     .submission-meta {
@@ -232,8 +372,12 @@
       </a>
       <div class="dashboard-actions">
         <a class="btn btn-outline" href="dashboard-en.html">English</a>
-        <a class="btn btn-primary" href="#submitWasteRequest">تقديم طلب نفايات</a>
-        <a class="btn btn-outline" href="#submissionHistory">عرض الطلبات</a>
+        <a class="btn btn-primary" href="index.html#submit-waste">تقديم طلب نفايات</a>
+        <a class="btn btn-outline" href="#submissionHistory">عرض الطلبات <span class="nav-badge" id="submittedBadge">0</span></a>
+        <a class="btn btn-outline" href="#bidOpportunities">المزايدات <span class="nav-badge" id="opportunitiesBadge">0</span></a>
+        <a class="btn btn-outline" href="#myBids">عروضي <span class="nav-badge" id="myBidsBadge">0</span></a>
+        <a class="btn btn-outline" href="#companyOrders">طلبات الشركة <span class="nav-badge" id="companyOrdersBadge">0</span></a>
+        <a class="btn btn-outline" href="#companyReviews">التقييمات <span class="nav-badge" id="reviewsBadge">0</span></a>
         <button class="btn btn-outline" id="logoutButton">تسجيل الخروج</button>
       </div>
     </div>
@@ -250,11 +394,15 @@
           </div>
           <div class="metric">
             <strong id="pendingRequestsMetric">0</strong>
-            <span>طلبات قيد الاستلام</span>
+            <span>طلبات مفتوحة</span>
           </div>
           <div class="metric">
             <strong id="lastRequestMetric">-</strong>
             <span>آخر طلب</span>
+          </div>
+          <div class="metric">
+            <strong id="averageRatingMetric">-</strong>
+            <span>متوسط التقييم</span>
           </div>
         </div>
       </div>
@@ -279,83 +427,20 @@
       </aside>
     </section>
 
+    <section class="dashboard-section" id="bidOpportunities">
+      <h2>طلبات تسليم النفايات المتاحة</h2>
+      <p>تظهر هنا طلبات النفايات المفتوحة من المستخدمين والشركات الأخرى للمزايدة.</p>
+      <div class="submission-list" id="bidOpportunityList">
+        <div class="form-feedback success" style="display:block;">جاري تحميل الطلبات المتاحة...</div>
+      </div>
+    </section>
+
     <section class="dashboard-section" id="submitWasteRequest">
       <h2>تقديم طلب نفايات</h2>
-      <p>سيتم إرسال رمز OTP إلى بريد الشركة الإلكتروني. بعد التحقق يمكنك إرسال أكثر من طلب بدون انتهاء الرمز بعد أول محاولة.</p>
-
-      <form class="dashboard-form" id="dashboardWasteForm">
-        <div class="dashboard-form-grid">
-          <div class="field">
-            <label for="dashboardPhone">رقم الهاتف *</label>
-            <input type="tel" id="dashboardPhone" placeholder="أدخل رقم هاتف الشركة" required>
-          </div>
-
-          <div class="field">
-            <label for="dashboardContactPerson">الشخص المسؤول *</label>
-            <input type="text" id="dashboardContactPerson" placeholder="أدخل اسم الشخص المسؤول" required>
-          </div>
-
-          <div class="field">
-            <label for="dashboardCity">المدينة *</label>
-            <input type="text" id="dashboardCity" placeholder="أدخل المدينة" required>
-          </div>
-
-          <div class="field">
-            <label for="dashboardWasteCategory">نوع النفايات *</label>
-            <select id="dashboardWasteCategory" required>
-              <option value="">اختر نوع النفايات</option>
-              <option>نفايات بلاستيكية</option>
-              <option>ورق وكرتون</option>
-              <option>خردة معدنية</option>
-              <option>نفايات زجاجية</option>
-              <option>نفايات إلكترونية</option>
-              <option>نفايات عضوية</option>
-              <option>نفايات نسيجية</option>
-              <option>مخلفات بناء</option>
-              <option>نفايات خشبية</option>
-              <option>نفايات البطاريات</option>
-              <option>الإطارات المستعملة</option>
-              <option>نفايات زراعية</option>
-              <option>زيوت الطبخ المستعملة</option>
-              <option>زيت المحرك المستعمل</option>
-              <option>نفايات الأجهزة الكهربائية</option>
-              <option>نفايات الهواتف والأجهزة الإلكترونية</option>
-              <option>نفايات الكيبلات والوايرات</option>
-              <option>نفايات ألعاب الأطفال</option>
-              <option>فلاتر الهواء المستعملة</option>
-              <option>فلاتر الزيت المستعملة</option>
-              <option>فلاتر المياه المستعملة</option>
-              <option>نفايات مختلطة ومتنوعة</option>
-              <option>نفايات أخرى</option>
-            </select>
-          </div>
-
-          <div class="field full">
-            <label for="dashboardWasteImages">صور النفايات</label>
-            <input type="file" id="dashboardWasteImages" accept="image/*" multiple>
-            <div class="form-note">يمكنك إرفاق حتى 5 صور.</div>
-          </div>
-
-          <div class="field full">
-            <label for="dashboardWasteNotes">تفاصيل إضافية</label>
-            <textarea id="dashboardWasteNotes" placeholder="أدخل الكمية أو موقع الاستلام أو ساعات العمل أو أي تفاصيل إضافية..."></textarea>
-          </div>
-
-          <div class="field full">
-            <button type="button" class="btn btn-outline" id="dashboardSendOtpButton">إرسال رمز OTP إلى البريد الإلكتروني</button>
-            <div class="form-feedback success" id="dashboardOtpStatus" style="margin-top: 12px;"></div>
-            <div id="dashboardOtpWrap" style="margin-top: 12px;" hidden>
-              <label for="dashboardOtp">رمز OTP *</label>
-              <input type="text" id="dashboardOtp" inputmode="numeric" maxlength="6" placeholder="أدخل الرمز المرسل إلى البريد الإلكتروني">
-              <small id="dashboardOtpHint" style="color:#5b7566;"></small>
-            </div>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" id="dashboardSubmitButton" disabled>إرسال طلب النفايات</button>
-        <div class="form-feedback success" id="dashboardSuccess">تم إرسال طلب النفايات بنجاح.</div>
-        <div class="form-feedback error" id="dashboardError"></div>
-      </form>
+      <p>يمكنك تقديم طلب نفايات جديد من النموذج الرئيسي مع بقاء جلسة تسجيل الدخول الحالية فعالة.</p>
+      <a class="btn btn-primary" href="index.html#submit-waste">فتح نموذج تقديم النفايات</a>
+      <div class="form-feedback success" id="dashboardSuccess"></div>
+      <div class="form-feedback error" id="dashboardError"></div>
     </section>
 
     <section class="dashboard-section" id="submissionHistory">
@@ -365,7 +450,94 @@
         <div class="form-feedback success" style="display:block;">جاري تحميل الطلبات...</div>
       </div>
     </section>
+
+    <section class="dashboard-section" id="receivedBids">
+      <h2>العروض على طلبات النفايات الخاصة بك</h2>
+      <p>راجع عروض شركات التدوير واختر العرض المناسب لبيع النفايات.</p>
+      <div class="submission-list" id="receivedBidList">
+        <div class="form-feedback success" style="display:block;">جاري تحميل العروض...</div>
+      </div>
+    </section>
+
+    <section class="dashboard-section" id="myBids">
+      <h2>عروضي</h2>
+      <p>كل العروض التي قدمتها شركتك، بما في ذلك المقدمة والمقبولة والمرفوضة والمكتملة.</p>
+      <div class="bid-actions" role="tablist" aria-label="حالة العروض">
+        <button class="btn btn-primary my-bid-tab active" type="button" data-status="all">الكل</button>
+        <button class="btn btn-outline my-bid-tab" type="button" data-status="pending">مقدمة</button>
+        <button class="btn btn-outline my-bid-tab" type="button" data-status="accepted">مقبولة</button>
+        <button class="btn btn-outline my-bid-tab" type="button" data-status="rejected">مرفوضة</button>
+        <button class="btn btn-outline my-bid-tab" type="button" data-status="completed">مكتملة</button>
+      </div>
+      <div class="submission-list" id="myBidList">
+        <div class="form-feedback success" style="display:block;">جاري تحميل العروض...</div>
+      </div>
+    </section>
+
+    <section class="dashboard-section" id="companyOrders">
+      <h2>طلبات الشركة</h2>
+      <p>تابع الطلبات التي تم قبول عرض شركتك عليها والطلبات المكتملة.</p>
+      <div class="bid-actions" role="tablist" aria-label="حالة طلبات الشركة">
+        <button class="btn btn-primary company-order-tab active" type="button" data-status="active">العروض المقبولة</button>
+        <button class="btn btn-outline company-order-tab" type="button" data-status="completed">الطلبات المكتملة</button>
+      </div>
+      <div class="submission-list" id="companyOrderList">
+        <div class="form-feedback success" style="display:block;">جاري تحميل طلبات الشركة...</div>
+      </div>
+    </section>
+
+    <section class="dashboard-section" id="companyReviews">
+      <h2>تقييمات المستخدمين</h2>
+      <p>هنا تظهر تقييمات وتعليقات المستخدمين على الشركة المسجلة.</p>
+      <div class="dashboard-grid">
+        <div class="metric">
+          <strong id="reviewsAverageValue">-</strong>
+          <span>متوسط التقييم</span>
+        </div>
+        <div class="metric">
+          <strong id="reviewsCountValue">0</strong>
+          <span>عدد التقييمات</span>
+        </div>
+      </div>
+      <div class="review-list" id="reviewList">
+        <div class="form-feedback success" style="display:block;">جاري تحميل التقييمات...</div>
+      </div>
+    </section>
   </main>
+
+  <div class="review-modal-overlay" id="bidReviewModal">
+    <div class="review-modal" role="dialog" aria-modal="true" aria-labelledby="bidReviewTitle">
+      <div class="review-modal-head">
+        <div>
+          <h2 id="bidReviewTitle">تقييم الشركة</h2>
+          <p id="bidReviewCompanyName">شارك تجربتك مع الشركة.</p>
+        </div>
+        <button class="btn btn-outline" type="button" id="closeBidReviewModal" aria-label="إغلاق نموذج التقييم">×</button>
+      </div>
+      <form id="bidReviewForm">
+        <input type="hidden" id="bidReviewCompanyEmail">
+        <input type="hidden" id="bidReviewSubmissionId">
+        <div class="field">
+          <label for="bidReviewRating">التقييم *</label>
+          <select id="bidReviewRating" required>
+            <option value="">اختر التقييم</option>
+            <option value="5">★★★★★ 5 - ممتاز</option>
+            <option value="4">★★★★☆ 4 - جيد</option>
+            <option value="3">★★★☆☆ 3 - متوسط</option>
+            <option value="2">★★☆☆☆ 2 - ضعيف</option>
+            <option value="1">★☆☆☆☆ 1 - ضعيف جداً</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bidReviewComment">التعليق</label>
+          <textarea id="bidReviewComment" placeholder="اكتب تعليقاً قصيراً..."></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit" id="submitBidReviewButton">إرسال التقييم</button>
+        <div class="form-feedback success" id="bidReviewSuccess">شكراً لك. تم إرسال تقييمك.</div>
+        <div class="form-feedback error" id="bidReviewError"></div>
+      </form>
+    </div>
+  </div>
 
   <script src="site-config.js"></script>
   <script>
@@ -377,7 +549,12 @@
       window.location.hostname === '127.0.0.1';
     const apiOrigin = configuredApiOrigin || (isBackendHost ? '' : 'http://localhost:5294');
     const apiIsMissing = !configuredApiOrigin && !isBackendHost && !isLocalPage;
-    const wasteOtpState = { phone: '', token: '', otp: '' };
+    const bidReviewModal = document.getElementById('bidReviewModal');
+    const bidReviewForm = document.getElementById('bidReviewForm');
+    let companyOrders = [];
+    let selectedCompanyOrderStatus = 'active';
+    let myBids = [];
+    let selectedMyBidStatus = 'all';
 
     function apiUrl(path) {
       if (apiIsMissing) {
@@ -416,16 +593,6 @@
       document.getElementById('dashboardSuccess').style.display = 'none';
     }
 
-    function showOtpStatus(message) {
-      const status = document.getElementById('dashboardOtpStatus');
-      status.textContent = message;
-      status.style.display = 'block';
-    }
-
-    function updateDashboardSubmitState() {
-      document.getElementById('dashboardSubmitButton').disabled = !wasteOtpState.token;
-    }
-
     function formatDate(value) {
       return new Intl.DateTimeFormat('ar-KW', {
         dateStyle: 'medium',
@@ -433,25 +600,107 @@
       }).format(new Date(value));
     }
 
-    function buildDashboardWasteData() {
-      const data = new FormData();
-      const images = document.getElementById('dashboardWasteImages');
+    function todayDateValue() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      return now.toISOString().slice(0, 10);
+    }
 
-      data.append('submitterType', 'corporate');
-      data.append('phone', wasteOtpState.phone);
-      data.append('companyName', session.companyName);
-      data.append('submitterName', document.getElementById('dashboardContactPerson').value.trim());
-      data.append('email', session.email);
-      data.append('address', document.getElementById('dashboardCity').value.trim());
-      data.append('wasteCategory', document.getElementById('dashboardWasteCategory').value);
-      data.append('notes', document.getElementById('dashboardWasteNotes').value.trim());
-      data.append('verificationToken', wasteOtpState.token);
+    function formatPickupDate(value) {
+      if (!value) return 'غير مذكور';
+      return new Intl.DateTimeFormat('ar-KW', { dateStyle: 'medium' }).format(new Date(`${value}T00:00:00`));
+    }
 
-      Array.from(images.files || []).forEach(file => {
-        data.append('images', file);
-      });
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
 
-      return data;
+    function assetUrl(url) {
+      if (!url) return '';
+      return url.startsWith('/') ? `${apiOrigin}${url}` : url;
+    }
+
+    function renderSubmissionImages(item) {
+      const images = Array.isArray(item.images) ? item.images.filter(image => image.url) : [];
+      if (images.length === 0) {
+        return '';
+      }
+
+      return `
+        <button class="btn btn-outline view-images-btn" type="button" aria-expanded="false">عرض الصور</button>
+        <div class="submission-image-gallery" hidden>
+          ${images.map((image, index) => {
+            const url = escapeHtml(assetUrl(image.url));
+            return `<a href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="صورة نفايات ${index + 1}" loading="lazy"></a>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderStars(rating) {
+      const safeRating = Math.max(0, Math.min(5, Number(rating) || 0));
+      return `${'★'.repeat(safeRating)}${'☆'.repeat(5 - safeRating)}`;
+    }
+
+    function setBadge(id, value) {
+      const badge = document.getElementById(id);
+      if (badge) badge.textContent = String(value);
+    }
+
+    function statusClass(status) {
+      return ({
+        received: 'open',
+        bidding: 'pending',
+        pickup_pending: 'accepted',
+        accepted: 'accepted',
+        completed: 'completed',
+        pending: 'pending',
+        rejected: 'rejected'
+      })[status] || 'open';
+    }
+
+    function submissionStatusLabel(status) {
+      return ({
+        received: 'مفتوح للعروض',
+        bidding: 'تم تقديم عروض',
+        pickup_pending: 'عرض مقبول / بانتظار الاستلام',
+        accepted: 'عرض مقبول / بانتظار الاستلام',
+        completed: 'مكتمل'
+      })[status] || status;
+    }
+
+    function bidStatusLabel(status) {
+      return ({
+        pending: 'تم تقديم العرض',
+        accepted: 'مقبول',
+        rejected: 'مرفوض'
+      })[status] || status;
+    }
+
+    function bidLifecycleLabel(item) {
+      if (item.status === 'completed') return 'مكتمل';
+      return bidStatusLabel(item.bid.status);
+    }
+
+    function openBidReviewModal(companyName, companyEmail, submissionId) {
+      bidReviewForm.reset();
+      document.getElementById('bidReviewCompanyName').textContent = `كيف كانت تجربتك مع ${companyName}؟`;
+      document.getElementById('bidReviewCompanyEmail').value = companyEmail;
+      document.getElementById('bidReviewSubmissionId').value = submissionId || '';
+      document.getElementById('bidReviewSuccess').style.display = 'none';
+      document.getElementById('bidReviewError').style.display = 'none';
+      bidReviewModal.classList.add('active');
+      document.getElementById('bidReviewRating').focus();
+    }
+
+    function closeBidReviewModal() {
+      bidReviewModal.classList.remove('active');
     }
 
     async function loadSubmissions() {
@@ -461,8 +710,9 @@
         const response = await fetch(apiUrl(`/api/waste/submissions?email=${encodeURIComponent(session.email)}`));
         const submissions = await readApiResponse(response);
         document.getElementById('totalRequestsMetric').textContent = submissions.length;
-        document.getElementById('pendingRequestsMetric').textContent = submissions.filter(item => item.status === 'received').length;
+        document.getElementById('pendingRequestsMetric').textContent = submissions.filter(item => item.status === 'received' || item.status === 'bidding').length;
         document.getElementById('lastRequestMetric').textContent = submissions[0] ? formatDate(submissions[0].createdAtUtc) : '-';
+        setBadge('submittedBadge', submissions.length);
 
         if (submissions.length === 0) {
           list.innerHTML = '<div class="form-feedback success" style="display:block;">لا توجد طلبات حتى الآن.</div>';
@@ -476,15 +726,245 @@
               <span>${formatDate(item.createdAtUtc)}</span>
             </header>
             <div class="submission-meta">
-              <span>الحالة: ${item.status}</span>
+              <span>الحالة: <span class="status-pill ${statusClass(item.status)}">${submissionStatusLabel(item.status)}</span></span>
               <span>الهاتف: ${item.phone}</span>
               <span>الصور: ${item.imageCount}</span>
             </div>
             ${item.notes ? `<p>${item.notes}</p>` : ''}
+            ${renderSubmissionImages(item)}
           </article>
         `).join('');
       } catch (error) {
         list.innerHTML = `<div class="form-feedback error" style="display:block;">${error.message}</div>`;
+      }
+    }
+
+    async function loadReceivedBids() {
+      const list = document.getElementById('receivedBidList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/waste/submissions?email=${encodeURIComponent(session.email)}`));
+        const submissions = await readApiResponse(response);
+        const bidGroups = [];
+
+        for (const submission of submissions) {
+          const bidResponse = await fetch(apiUrl(`/api/waste/submissions/${submission.id}/bids?requesterEmail=${encodeURIComponent(session.email)}`));
+          const bids = await readApiResponse(bidResponse);
+          if (bids.length > 0) {
+            bidGroups.push({ submission, bids });
+          }
+        }
+
+        if (bidGroups.length === 0) {
+          list.innerHTML = '<div class="form-feedback success" style="display:block;">لا توجد عروض حتى الآن.</div>';
+          return;
+        }
+
+        list.innerHTML = bidGroups.map(group => `
+          <article class="bid-card">
+            <header>
+              <strong>${escapeHtml(group.submission.wasteCategory)}</strong>
+              <span>${formatDate(group.submission.createdAtUtc)}</span>
+            </header>
+            <p>الحالة: <span class="status-pill ${statusClass(group.submission.status)}">${escapeHtml(submissionStatusLabel(group.submission.status))}</span></p>
+            ${group.bids.map(bid => `
+              <div class="submission-card">
+                <header>
+                  <strong>${escapeHtml(bid.companyName)}</strong>
+                  <span>تاريخ الاستلام: ${escapeHtml(formatPickupDate(bid.pickupDate))}</span>
+                </header>
+                <p>حالة العرض: <span class="status-pill ${statusClass(bid.status)}">${escapeHtml(bidStatusLabel(bid.status))}</span></p>
+                ${bid.notes ? `<p>${escapeHtml(bid.notes)}</p>` : ''}
+                ${bid.status === 'pending' && !['pickup_pending', 'accepted', 'completed'].includes(group.submission.status)
+                  ? `<button class="btn btn-primary accept-bid-btn" type="button" data-submission-id="${group.submission.id}" data-bid-id="${bid.id}">قبول العرض</button>`
+                  : bid.status === 'accepted' && group.submission.status === 'completed'
+                    ? `<button class="btn btn-outline review-accepted-company-btn" type="button" data-submission-id="${group.submission.id}" data-company-name="${escapeHtml(bid.companyName)}" data-company-email="${escapeHtml(bid.companyEmail)}">تقييم الشركة</button>`
+                    : bid.status === 'accepted'
+                      ? `<button class="btn btn-primary complete-order-btn" type="button" data-submission-id="${group.submission.id}" data-company-name="${escapeHtml(bid.companyName)}" data-company-email="${escapeHtml(bid.companyEmail)}">تأكيد اكتمال الطلب</button>`
+                  : ''}
+              </div>
+            `).join('')}
+          </article>
+        `).join('');
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadBidOpportunities() {
+      const list = document.getElementById('bidOpportunityList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/waste/opportunities?companyEmail=${encodeURIComponent(session.email)}`));
+        const opportunities = await readApiResponse(response);
+        setBadge('opportunitiesBadge', opportunities.filter(item => !item.existingBidId).length);
+
+        if (opportunities.length === 0) {
+          list.innerHTML = '<div class="form-feedback success" style="display:block;">لا توجد طلبات متاحة للمزايدة.</div>';
+          return;
+        }
+
+        list.innerHTML = opportunities.map(item => `
+          <article class="bid-card">
+            <header>
+              <strong>${escapeHtml(item.wasteCategory)}</strong>
+              <span>${formatDate(item.createdAtUtc)}</span>
+            </header>
+            <div class="submission-meta">
+              <span>الحالة: <span class="status-pill ${statusClass(item.status)}">${escapeHtml(submissionStatusLabel(item.status))}</span></span>
+              <span>الموقع: ${escapeHtml(item.address || 'غير مذكور')}</span>
+              <span>الصور: ${item.imageCount}</span>
+            </div>
+            ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
+            ${renderSubmissionImages(item)}
+            ${item.existingBidId
+              ? `<p><strong>تاريخ الاستلام:</strong> ${escapeHtml(formatPickupDate(item.existingBidPickupDate))} (${escapeHtml(bidStatusLabel(item.existingBidStatus))})</p>`
+              : `<form class="bid-form" data-submission-id="${item.id}">
+                  <div class="field">
+                    <label>تاريخ الاستلام *</label>
+                    <input type="date" name="pickupDate" min="${todayDateValue()}" required>
+                  </div>
+                  <div class="field">
+                    <label>ملاحظات العرض</label>
+                    <textarea name="notes" placeholder="تفاصيل الاستلام أو الوقت أو الشروط..."></textarea>
+                  </div>
+                  <button class="btn btn-primary" type="submit">تقديم العرض</button>
+                </form>`}
+          </article>
+        `).join('');
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function renderCompanyOrders() {
+      const list = document.getElementById('companyOrderList');
+      const filteredOrders = companyOrders.filter(item =>
+        selectedCompanyOrderStatus === 'completed'
+          ? item.status === 'completed'
+          : item.status !== 'completed');
+
+      if (filteredOrders.length === 0) {
+        list.innerHTML = selectedCompanyOrderStatus === 'completed'
+          ? '<div class="form-feedback success" style="display:block;">لا توجد طلبات مكتملة حتى الآن.</div>'
+          : '<div class="form-feedback success" style="display:block;">لا توجد عروض مقبولة حتى الآن.</div>';
+        return;
+      }
+
+      list.innerHTML = filteredOrders.map(item => `
+        <article class="bid-card">
+          <header>
+            <strong>${escapeHtml(item.wasteCategory)}</strong>
+            <span>${formatDate(item.createdAtUtc)}</span>
+          </header>
+          <div class="submission-meta">
+            <span>الحالة: <span class="status-pill ${statusClass(item.status)}">${escapeHtml(submissionStatusLabel(item.status))}</span></span>
+            <span>الموقع: ${escapeHtml(item.address || 'غير مذكور')}</span>
+            <span>تاريخ الاستلام: ${escapeHtml(formatPickupDate(item.acceptedBid.pickupDate))}</span>
+          </div>
+          <p>صاحب الطلب: ${escapeHtml(item.submitterName || item.companyName || 'غير مذكور')}</p>
+          <p>الهاتف: ${escapeHtml(item.phone || 'غير مذكور')}</p>
+          ${item.email ? `<p>البريد الإلكتروني: ${escapeHtml(item.email)}</p>` : ''}
+          ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
+          ${item.acceptedBid.notes ? `<p><strong>ملاحظات عرضك:</strong> ${escapeHtml(item.acceptedBid.notes)}</p>` : ''}
+          ${renderSubmissionImages(item)}
+        </article>
+      `).join('');
+    }
+
+    async function loadCompanyOrders() {
+      const list = document.getElementById('companyOrderList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/waste/company-orders?companyEmail=${encodeURIComponent(session.email)}`));
+        companyOrders = await readApiResponse(response);
+        setBadge('companyOrdersBadge', companyOrders.filter(item => item.status !== 'completed').length);
+        renderCompanyOrders();
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function matchesMyBidTab(item) {
+      if (selectedMyBidStatus === 'all') return true;
+      if (selectedMyBidStatus === 'completed') return item.status === 'completed';
+      if (selectedMyBidStatus === 'accepted') return item.bid.status === 'accepted' && item.status !== 'completed';
+      return item.bid.status === selectedMyBidStatus;
+    }
+
+    function renderMyBids() {
+      const list = document.getElementById('myBidList');
+      const filteredBids = myBids.filter(matchesMyBidTab);
+
+      if (filteredBids.length === 0) {
+        list.innerHTML = '<div class="form-feedback success" style="display:block;">لا توجد عروض في هذه الحالة.</div>';
+        return;
+      }
+
+      list.innerHTML = filteredBids.map(item => `
+        <article class="bid-card">
+          <header>
+            <strong>${escapeHtml(item.wasteCategory)}</strong>
+            <span>${formatDate(item.bid.createdAtUtc)}</span>
+          </header>
+          <div class="submission-meta">
+            <span>حالة عرضك: <span class="status-pill ${statusClass(item.status === 'completed' ? 'completed' : item.bid.status)}">${escapeHtml(bidLifecycleLabel(item))}</span></span>
+            <span>حالة الطلب: ${escapeHtml(submissionStatusLabel(item.status))}</span>
+            <span>تاريخ الاستلام: ${escapeHtml(formatPickupDate(item.bid.pickupDate))}</span>
+          </div>
+          <p>الموقع: ${escapeHtml(item.address || 'غير مذكور')}</p>
+          ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
+          ${item.bid.notes ? `<p><strong>ملاحظات عرضك:</strong> ${escapeHtml(item.bid.notes)}</p>` : ''}
+          ${renderSubmissionImages(item)}
+        </article>
+      `).join('');
+    }
+
+    async function loadMyBids() {
+      const list = document.getElementById('myBidList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/waste/my-bids?companyEmail=${encodeURIComponent(session.email)}`));
+        myBids = await readApiResponse(response);
+        setBadge('myBidsBadge', myBids.filter(item => item.bid.status === 'pending').length);
+        renderMyBids();
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadReviews() {
+      const list = document.getElementById('reviewList');
+
+      try {
+        const response = await fetch(apiUrl(`/api/company-reviews?companyEmail=${encodeURIComponent(session.email)}`));
+        const result = await readApiResponse(response);
+        const averageRating = result.averageRating > 0 ? `${result.averageRating} / 5` : '-';
+        document.getElementById('averageRatingMetric').textContent = averageRating;
+        document.getElementById('reviewsAverageValue').textContent = averageRating;
+        document.getElementById('reviewsCountValue').textContent = result.reviewCount;
+        setBadge('reviewsBadge', result.reviewCount);
+
+        if (!result.reviews || result.reviews.length === 0) {
+          list.innerHTML = '<div class="form-feedback success" style="display:block;">لا توجد تقييمات حتى الآن.</div>';
+          return;
+        }
+
+        list.innerHTML = result.reviews.map(review => `
+          <article class="review-card">
+            <header>
+              <strong>${escapeHtml(review.reviewerName)}</strong>
+              <span>${formatDate(review.createdAtUtc)}</span>
+            </header>
+            <div>
+              <span class="rating-stars" aria-label="${review.rating} من 5">${renderStars(review.rating)}</span>
+              <strong>${review.rating} / 5</strong>
+            </div>
+            ${review.comment ? `<p>${escapeHtml(review.comment)}</p>` : ''}
+          </article>
+        `).join('');
+      } catch (error) {
+        list.innerHTML = `<div class="form-feedback error" style="display:block;">${escapeHtml(error.message)}</div>`;
       }
     }
 
@@ -495,107 +975,195 @@
       document.getElementById('companyName').textContent = session.companyName;
       document.getElementById('companyEmail').textContent = session.email;
       loadSubmissions();
+      loadReceivedBids();
+      loadBidOpportunities();
+      loadCompanyOrders();
+      loadMyBids();
+      loadReviews();
     }
 
-    document.getElementById('dashboardWasteImages').addEventListener('change', function () {
-      if (this.files.length > 5) {
-        showDashboardError('يمكنك إرفاق 5 صور كحد أقصى.');
-        this.value = '';
-      }
+    document.getElementById('submissionList').addEventListener('click', function (event) {
+      const button = event.target.closest('.view-images-btn');
+      if (!button) return;
+
+      const gallery = button.nextElementSibling;
+      const isOpen = gallery.classList.toggle('active');
+      gallery.hidden = !isOpen;
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.textContent = isOpen ? 'إخفاء الصور' : 'عرض الصور';
     });
 
-    document.getElementById('dashboardSendOtpButton').addEventListener('click', async function () {
-      const phoneInput = document.getElementById('dashboardPhone');
-      const phone = phoneInput.value.trim();
-      const otpWrap = document.getElementById('dashboardOtpWrap');
-      const otpInput = document.getElementById('dashboardOtp');
-      const otpHint = document.getElementById('dashboardOtpHint');
-      const sendButton = document.getElementById('dashboardSendOtpButton');
+    document.getElementById('bidOpportunityList').addEventListener('submit', async function (event) {
+      const form = event.target.closest('.bid-form');
+      if (!form) return;
 
-      clearDashboardMessages();
-      document.getElementById('dashboardOtpStatus').style.display = 'none';
-
-      if (!phone) {
-        showDashboardError('يرجى إدخال رقم الهاتف أولاً.');
-        phoneInput.focus();
-        return;
-      }
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      const pickupDate = form.elements.pickupDate.value;
+      const notes = form.elements.notes.value.trim();
 
       try {
-        sendButton.disabled = true;
-        sendButton.textContent = 'جاري إرسال رمز OTP...';
-        otpHint.textContent = 'جاري إرسال رمز OTP إلى البريد الإلكتروني...';
-        await postJson('/api/waste/request-otp', { phone, email: session.email });
-        wasteOtpState.phone = phone;
-        wasteOtpState.token = '';
-        wasteOtpState.otp = '';
-        otpInput.value = '';
-        otpWrap.hidden = false;
-        otpInput.required = true;
-        otpInput.focus();
-        showOtpStatus(`تم إرسال رمز OTP إلى ${session.email}.`);
-        otpHint.textContent = 'أدخل الرمز الذي وصلك إلى البريد الإلكتروني.';
-        updateDashboardSubmitState();
+        button.disabled = true;
+        button.textContent = 'جاري الإرسال...';
+        await postJson(`/api/waste/submissions/${form.dataset.submissionId}/bids`, {
+          companyEmail: session.email,
+          pickupDate,
+          notes
+        });
+        await loadBidOpportunities();
+        await loadMyBids();
       } catch (error) {
         showDashboardError(error.message);
       } finally {
-        sendButton.disabled = false;
-        sendButton.textContent = 'إرسال رمز OTP إلى البريد الإلكتروني';
+        button.disabled = false;
+        button.textContent = 'تقديم العرض';
       }
     });
 
-    document.getElementById('dashboardOtp').addEventListener('input', async function () {
-      const otp = this.value.trim();
-      const hint = document.getElementById('dashboardOtpHint');
-
-      if (otp.length !== 6 || !wasteOtpState.phone) {
+    document.getElementById('bidOpportunityList').addEventListener('click', function (event) {
+      const dateInput = event.target.closest('input[type="date"]');
+      if (dateInput) {
+        dateInput.focus();
+        if (typeof dateInput.showPicker === 'function') {
+          dateInput.showPicker();
+        }
         return;
       }
 
-      try {
-        const result = await postJson('/api/waste/verify-otp', {
-          phone: wasteOtpState.phone,
-          otp
-        });
-        wasteOtpState.otp = otp;
-        wasteOtpState.token = result.verificationToken;
-        hint.textContent = 'تم التحقق من رمز OTP. يمكنك إرسال الطلب الآن.';
-        showOtpStatus('تم التحقق من رمز OTP.');
-        updateDashboardSubmitState();
-      } catch (error) {
-        hint.textContent = error.message;
-      }
+      const button = event.target.closest('.view-images-btn');
+      if (!button) return;
+
+      const gallery = button.nextElementSibling;
+      const isOpen = gallery.classList.toggle('active');
+      gallery.hidden = !isOpen;
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.textContent = isOpen ? 'إخفاء الصور' : 'عرض الصور';
     });
 
-    document.getElementById('dashboardWasteForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
-      clearDashboardMessages();
-
-      if (!wasteOtpState.token) {
-        showDashboardError('يرجى التحقق من رمز OTP قبل الإرسال.');
-        return;
-      }
+    document.getElementById('receivedBidList').addEventListener('click', async function (event) {
+      const button = event.target.closest('.accept-bid-btn');
+      if (!button) return;
 
       try {
-        const response = await fetch(apiUrl('/api/waste/submissions'), {
-          method: 'POST',
-          body: buildDashboardWasteData()
+        button.disabled = true;
+        button.textContent = 'جاري القبول...';
+        const acceptedBid = await postJson(`/api/waste/submissions/${button.dataset.submissionId}/bids/${button.dataset.bidId}/accept`, {
+          requesterEmail: session.email
         });
-        await readApiResponse(response);
-
-        const keepPhone = wasteOtpState.phone;
-        const keepOtp = wasteOtpState.otp;
-        this.reset();
-        document.getElementById('dashboardPhone').value = keepPhone;
-        document.getElementById('dashboardOtp').value = keepOtp;
-        document.getElementById('dashboardOtpWrap').hidden = false;
-        document.getElementById('dashboardOtpHint').textContent = 'رمز OTP لا يزال صالحاً لإرسال طلب آخر.';
-        showOtpStatus('تم إرسال الطلب. يمكنك إرسال طلب آخر بنفس رمز OTP.');
-        document.getElementById('dashboardSuccess').style.display = 'block';
-        updateDashboardSubmitState();
         await loadSubmissions();
+        await loadReceivedBids();
+        await loadBidOpportunities();
+        await loadCompanyOrders();
+        await loadMyBids();
       } catch (error) {
         showDashboardError(error.message);
+      }
+    });
+
+    document.getElementById('receivedBidList').addEventListener('click', async function (event) {
+      const button = event.target.closest('.complete-order-btn');
+      if (!button) return;
+
+      try {
+        button.disabled = true;
+        button.textContent = 'جاري الإكمال...';
+        await postJson(`/api/waste/submissions/${button.dataset.submissionId}/complete`, {
+          requesterEmail: session.email
+        });
+        await loadSubmissions();
+        await loadReceivedBids();
+        await loadBidOpportunities();
+        await loadCompanyOrders();
+        await loadMyBids();
+        openBidReviewModal(button.dataset.companyName, button.dataset.companyEmail, button.dataset.submissionId);
+      } catch (error) {
+        showDashboardError(error.message);
+      }
+    });
+
+    document.getElementById('receivedBidList').addEventListener('click', function (event) {
+      const button = event.target.closest('.review-accepted-company-btn');
+      if (!button) return;
+
+      openBidReviewModal(button.dataset.companyName, button.dataset.companyEmail, button.dataset.submissionId);
+    });
+
+    document.querySelectorAll('.my-bid-tab').forEach(tab => {
+      tab.addEventListener('click', function () {
+        selectedMyBidStatus = this.dataset.status || 'all';
+        document.querySelectorAll('.my-bid-tab').forEach(button => {
+          button.classList.toggle('active', button === this);
+          button.classList.toggle('btn-primary', button === this);
+          button.classList.toggle('btn-outline', button !== this);
+        });
+        renderMyBids();
+      });
+    });
+
+    document.getElementById('myBidList').addEventListener('click', function (event) {
+      const button = event.target.closest('.view-images-btn');
+      if (!button) return;
+
+      const gallery = button.nextElementSibling;
+      const isOpen = gallery.classList.toggle('active');
+      gallery.hidden = !isOpen;
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.textContent = isOpen ? 'إخفاء الصور' : 'عرض الصور';
+    });
+
+    document.querySelectorAll('.company-order-tab').forEach(tab => {
+      tab.addEventListener('click', function () {
+        selectedCompanyOrderStatus = this.dataset.status || 'active';
+        document.querySelectorAll('.company-order-tab').forEach(button => {
+          button.classList.toggle('active', button === this);
+          button.classList.toggle('btn-primary', button === this);
+          button.classList.toggle('btn-outline', button !== this);
+        });
+        renderCompanyOrders();
+      });
+    });
+
+    document.getElementById('companyOrderList').addEventListener('click', function (event) {
+      const button = event.target.closest('.view-images-btn');
+      if (!button) return;
+
+      const gallery = button.nextElementSibling;
+      const isOpen = gallery.classList.toggle('active');
+      gallery.hidden = !isOpen;
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.textContent = isOpen ? 'إخفاء الصور' : 'عرض الصور';
+    });
+
+    document.getElementById('closeBidReviewModal').addEventListener('click', closeBidReviewModal);
+
+    bidReviewModal.addEventListener('click', function (event) {
+      if (event.target === bidReviewModal) closeBidReviewModal();
+    });
+
+    bidReviewForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = document.getElementById('submitBidReviewButton');
+
+      try {
+        button.disabled = true;
+        button.textContent = 'جاري الإرسال...';
+        await postJson('/api/company-reviews', {
+          companyEmail: document.getElementById('bidReviewCompanyEmail').value,
+          wasteSubmissionId: document.getElementById('bidReviewSubmissionId').value || null,
+          reviewerName: session.companyName,
+          reviewerEmail: session.email,
+          rating: Number(document.getElementById('bidReviewRating').value),
+          comment: document.getElementById('bidReviewComment').value.trim()
+        });
+        document.getElementById('bidReviewSuccess').style.display = 'block';
+        document.getElementById('bidReviewError').style.display = 'none';
+        setTimeout(closeBidReviewModal, 900);
+      } catch (error) {
+        document.getElementById('bidReviewError').textContent = error.message;
+        document.getElementById('bidReviewError').style.display = 'block';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'إرسال التقييم';
       }
     });
 

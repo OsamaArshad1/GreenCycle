@@ -19,6 +19,12 @@ Open the URL printed by .NET, usually `http://localhost:5294`.
 - `POST /api/waste/request-otp` sends a waste submission OTP to the entered email address.
 - `POST /api/waste/verify-otp` verifies the waste submission OTP and unlocks the submit button.
 - `POST /api/waste/submissions` stores a verified waste submission in SQLite.
+- `GET /api/waste/opportunities?companyEmail=...` lists matching open waste orders a recycler company can bid on.
+- `POST /api/waste/submissions/{submissionId}/bids` lets a recycler company place a bid on a waste order.
+- `GET /api/waste/submissions/{submissionId}/bids?requesterEmail=...` lists bids for the waste submitter.
+- `POST /api/waste/submissions/{submissionId}/bids/{bidId}/accept` lets the waste submitter accept one bid.
+- `GET /api/company-reviews?companyEmail=...` returns user ratings and reviews for a registered company dashboard.
+- `POST /api/company-reviews` stores a user rating and review for a registered company.
 - `GET /api/companies` lists registered companies.
 - Local application data is stored in `backend/GreenCycle.Api/App_Data/greencycle.db`.
 - Existing `backend/GreenCycle.Api/App_Data/users.json` signup data is migrated into SQLite automatically the first time the backend starts.
@@ -33,6 +39,8 @@ The backend creates the SQLite database and tables automatically on startup. The
 - `otp_challenges` for OTP challenge persistence support.
 - `waste_submissions` for individual or corporate waste submission records.
 - `waste_submission_images` for uploaded waste submission image metadata.
+- `waste_bids` for recycler-company bids on waste submissions.
+- `company_reviews` for user ratings and comments shown on company dashboards.
 
 ## Email OTP Setup
 
