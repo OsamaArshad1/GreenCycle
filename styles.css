@@ -1091,6 +1091,7 @@ html[dir="rtl"] .hero-content {
 }
 
 html[dir="rtl"] .hero-content p {
+  max-width: 960px;
   text-align: center;
 }
 
