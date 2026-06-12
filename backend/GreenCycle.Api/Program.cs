@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Net;
 using System.Net.Mail;
@@ -7,6 +8,7 @@ using System.Net.Mime;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.WebUtilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,7 @@ var allowedCorsOrigins = builder.Configuration
 builder.Services.AddSingleton(new UserStore(apiRoot));
 builder.Services.AddSingleton<OtpStore>();
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.Configure<ReviewApprovalOptions>(builder.Configuration.GetSection("ReviewApproval"));
 builder.Services.Configure<WhatsAppOptions>(builder.Configuration.GetSection("WhatsApp"));
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddHttpClient<IWhatsAppSender, WhatsAppCloudSender>();
@@ -509,6 +512,18 @@ app.MapGet("/api/waste/submissions", async (string? email, UserStore store) =>
         submission.Images.Select(ToImageSummary).ToArray())));
 });
 
+app.MapGet("/api/waste/recent-transactions", async (int? limit, UserStore store) =>
+{
+    var take = Math.Clamp(limit.GetValueOrDefault(25), 1, 50);
+    var submissions = await store.GetRecentWasteTransactionsAsync(take);
+    return Results.Ok(submissions.Select(submission => new RecentWasteTransactionSummary(
+        submission.Id,
+        submission.WasteCategory,
+        submission.Status,
+        submission.CreatedAtUtc,
+        submission.Images.Select(ToImageSummary).ToArray())));
+});
+
 app.MapGet("/api/waste/opportunities", async (string? companyEmail, UserStore store) =>
 {
     if (string.IsNullOrWhiteSpace(companyEmail))
@@ -648,6 +663,23 @@ app.MapPost("/api/waste/submissions/{submissionId:guid}/bids/{bidId:guid}/accept
     };
 });
 
+app.MapPost("/api/waste/submissions/{submissionId:guid}/picked-up", async (Guid submissionId, CompanyPickupRequest request, UserStore store, IEmailSender emailSender) =>
+{
+    if (string.IsNullOrWhiteSpace(request.CompanyEmail))
+    {
+        return Results.BadRequest(new ApiError("Company email is required."));
+    }
+
+    var result = await store.MarkWasteSubmissionPickedUpAsync(submissionId, request.CompanyEmail);
+    return result switch
+    {
+        PickupSubmissionResult.PickedUp pickedUp => await NotifyAndReturnPickedUpSubmission(pickedUp, emailSender),
+        PickupSubmissionResult.NotFound => Results.NotFound(new ApiError("Accepted order was not found for this company.")),
+        PickupSubmissionResult.NotReady => Results.BadRequest(new ApiError("Only accepted orders waiting for pickup can be marked as picked up.")),
+        _ => Results.BadRequest(new ApiError("Order could not be marked as picked up."))
+    };
+});
+
 app.MapPost("/api/waste/submissions/{submissionId:guid}/complete", async (Guid submissionId, CompleteSubmissionRequest request, UserStore store, IEmailSender emailSender) =>
 {
     if (string.IsNullOrWhiteSpace(request.RequesterEmail))
@@ -662,6 +694,7 @@ app.MapPost("/api/waste/submissions/{submissionId:guid}/complete", async (Guid s
         CompleteSubmissionResult.NotFound => Results.NotFound(new ApiError("Submission was not found.")),
         CompleteSubmissionResult.NotOwner => Results.BadRequest(new ApiError("Only the waste submitter can complete this order.")),
         CompleteSubmissionResult.NoAcceptedBid => Results.BadRequest(new ApiError("This order needs an accepted bid before it can be completed.")),
+        CompleteSubmissionResult.NotPickedUp => Results.BadRequest(new ApiError("The recycler company must mark this order as picked up before it can be completed.")),
         _ => Results.BadRequest(new ApiError("Order could not be completed."))
     };
 });
@@ -690,7 +723,7 @@ app.MapGet("/api/company-reviews", async (string? companyEmail, UserStore store)
             review.CreatedAtUtc))));
 });
 
-app.MapPost("/api/company-reviews", async (CompanyReviewRequest request, UserStore store) =>
+app.MapPost("/api/company-reviews", async (CompanyReviewRequest request, HttpRequest httpRequest, UserStore store, IEmailSender emailSender, IOptions<ReviewApprovalOptions> approvalOptions) =>
 {
     if (string.IsNullOrWhiteSpace(request.CompanyEmail) ||
         string.IsNullOrWhiteSpace(request.ReviewerName))
@@ -726,17 +759,109 @@ app.MapPost("/api/company-reviews", async (CompanyReviewRequest request, UserSto
         EmptyToNull(request.ReviewerEmail),
         request.Rating,
         EmptyToNull(request.Comment),
-        DateTimeOffset.UtcNow);
+        DateTimeOffset.UtcNow,
+        "pending",
+        CreateApprovalToken(),
+        null,
+        null);
 
     await store.CreateCompanyReviewAsync(review);
+    await NotifyAdminForReviewApprovalAsync(
+        emailSender,
+        approvalOptions.Value,
+        httpRequest,
+        "Company review pending approval",
+        $"""
+        A user submitted a review for a recycling company.
 
-    return Results.Created($"/api/company-reviews/{review.Id}", new CompanyReviewSummary(
+        Company: {company.CompanyName}
+        Company email: {company.Email}
+        Reviewer: {review.ReviewerName}
+        Reviewer email: {review.ReviewerEmail ?? "Not provided"}
+        Rating: {review.Rating} / 5
+        Comment: {review.Comment ?? "Not provided"}
+        """,
+        $"/api/admin/company-reviews/{review.Id}/approve?token={WebUtility.UrlEncode(review.ApprovalToken)}",
+        $"/api/admin/company-reviews/{review.Id}/reject?token={WebUtility.UrlEncode(review.ApprovalToken)}");
+
+    return Results.Created($"/api/company-reviews/{review.Id}", new ReviewPendingResponse(
         review.Id,
-        review.ReviewerName,
-        review.ReviewerEmail,
-        review.Rating,
-        review.Comment,
-        review.CreatedAtUtc));
+        "Review submitted and waiting for admin approval."));
+});
+
+app.MapPost("/api/user-reviews", async (UserReviewRequest request, HttpRequest httpRequest, UserStore store, IEmailSender emailSender, IOptions<ReviewApprovalOptions> approvalOptions) =>
+{
+    if (string.IsNullOrWhiteSpace(request.CompanyEmail) ||
+        string.IsNullOrWhiteSpace(request.ReviewerName) ||
+        request.WasteSubmissionId is null)
+    {
+        return Results.BadRequest(new ApiError("Company email, reviewer name, and waste submission are required."));
+    }
+
+    if (request.Rating is < 1 or > 5)
+    {
+        return Results.BadRequest(new ApiError("Rating must be between 1 and 5."));
+    }
+
+    var result = await store.CreateUserReviewAsync(new UserReviewCreate(
+        request.WasteSubmissionId.Value,
+        request.CompanyEmail,
+        request.ReviewerName.Trim(),
+        request.Rating,
+        EmptyToNull(request.Comment),
+        CreateApprovalToken()));
+
+    return result switch
+    {
+        UserReviewCreateResult.Created created => await NotifyAndReturnCreatedUserReview(created, httpRequest, emailSender, approvalOptions.Value),
+        UserReviewCreateResult.NotFound => Results.NotFound(new ApiError("Completed order was not found for this company.")),
+        UserReviewCreateResult.Duplicate => Results.Conflict(new ApiError("You already submitted a review for this user on this order.")),
+        _ => Results.BadRequest(new ApiError("User review could not be submitted."))
+    };
+});
+
+app.MapGet("/api/admin/company-reviews/{reviewId:guid}/approve", async (Guid reviewId, string? token, UserStore store) =>
+{
+    var result = await store.ResolveCompanyReviewAsync(reviewId, token, "approved");
+    return result switch
+    {
+        ReviewApprovalResult.Updated => Results.Text("Company review approved."),
+        ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
+        _ => Results.NotFound("Review was not found.")
+    };
+});
+
+app.MapGet("/api/admin/company-reviews/{reviewId:guid}/reject", async (Guid reviewId, string? token, UserStore store) =>
+{
+    var result = await store.ResolveCompanyReviewAsync(reviewId, token, "rejected");
+    return result switch
+    {
+        ReviewApprovalResult.Updated => Results.Text("Company review rejected."),
+        ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
+        _ => Results.NotFound("Review was not found.")
+    };
+});
+
+app.MapGet("/api/admin/user-reviews/{reviewId:guid}/approve", async (Guid reviewId, string? token, UserStore store) =>
+{
+    var result = await store.ResolveUserReviewAsync(reviewId, token, "approved");
+    return result switch
+    {
+        ReviewApprovalResult.Updated => Results.Text("User review approved."),
+        ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
+        _ => Results.NotFound("Review was not found.")
+    };
+});
+
+app.MapGet("/api/admin/user-reviews/{reviewId:guid}/reject", async (Guid reviewId, string? token, UserStore store) =>
+{
+    var result = await store.ResolveUserReviewAsync(reviewId, token, "rejected");
+    return result switch
+    {
+        ReviewApprovalResult.Updated => Results.Text("User review rejected."),
+        ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
+        _ => Results.NotFound("Review was not found.")
+    };
 });
 
 app.Run();
@@ -815,6 +940,118 @@ static async Task<IResult> NotifyAndReturnCompletedSubmission(CompleteSubmission
         completed.Submission.Id,
         completed.Submission.Status,
         BidToSummary(completed.Bid)));
+}
+
+static async Task<IResult> NotifyAndReturnPickedUpSubmission(PickupSubmissionResult.PickedUp pickedUp, IEmailSender emailSender)
+{
+    if (!string.IsNullOrWhiteSpace(pickedUp.Submission.Email))
+    {
+        await emailSender.SendNotificationAsync(
+            pickedUp.Submission.Email,
+            "Green Cycle waste order picked up",
+            $"""
+            The recycler company marked your waste order as picked up.
+
+            Company: {pickedUp.Bid.CompanyName}
+            Waste category: {pickedUp.Submission.WasteCategory}
+            Pickup date: {pickedUp.Bid.PickupDate ?? "Not provided"}
+
+            You can now log in to your Green Cycle dashboard and mark the order as completed.
+            """);
+    }
+
+    return Results.Ok(new CompletedSubmissionResponse(
+        pickedUp.Submission.Id,
+        pickedUp.Submission.Status,
+        BidToSummary(pickedUp.Bid)));
+}
+
+static async Task<IResult> NotifyAndReturnCreatedUserReview(UserReviewCreateResult.Created created, HttpRequest request, IEmailSender emailSender, ReviewApprovalOptions approvalOptions)
+{
+    await NotifyAdminForReviewApprovalAsync(
+        emailSender,
+        approvalOptions,
+        request,
+        "User review pending approval",
+        $"""
+        A recycling company submitted a review for a user.
+
+        Company: {created.Review.ReviewerCompanyName}
+        Company email: {created.Review.ReviewerCompanyEmail}
+        User: {created.Review.TargetName ?? "Not provided"}
+        User email: {created.Review.TargetEmail ?? "Not provided"}
+        User phone: {created.Review.TargetPhone}
+        Waste category: {created.Submission.WasteCategory}
+        Rating: {created.Review.Rating} / 5
+        Comment: {created.Review.Comment ?? "Not provided"}
+        """,
+        $"/api/admin/user-reviews/{created.Review.Id}/approve?token={WebUtility.UrlEncode(created.Review.ApprovalToken)}",
+        $"/api/admin/user-reviews/{created.Review.Id}/reject?token={WebUtility.UrlEncode(created.Review.ApprovalToken)}");
+
+    return Results.Created($"/api/user-reviews/{created.Review.Id}", new ReviewPendingResponse(
+        created.Review.Id,
+        "Review submitted and waiting for admin approval."));
+}
+
+static async Task NotifyAdminForReviewApprovalAsync(
+    IEmailSender emailSender,
+    ReviewApprovalOptions options,
+    HttpRequest request,
+    string subject,
+    string details,
+    string approvePath,
+    string rejectPath)
+{
+    var adminEmail = EmptyToNull(options.AdminEmail);
+    if (adminEmail is null)
+    {
+        return;
+    }
+
+    var baseUrl = EmptyToNull(options.PublicBaseUrl)?.TrimEnd('/') ??
+        $"{request.Scheme}://{request.Host}";
+    var approveUrl = $"{baseUrl}{approvePath}";
+    var rejectUrl = $"{baseUrl}{rejectPath}";
+
+    await emailSender.SendNotificationAsync(
+        adminEmail,
+        subject,
+        BuildReviewApprovalEmail(details, approveUrl, rejectUrl));
+}
+
+static string CreateApprovalToken() =>
+    WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+
+static string BuildReviewApprovalEmail(string details, string approveUrl, string rejectUrl)
+{
+    var encodedDetails = WebUtility.HtmlEncode(details).Replace("\n", "<br>", StringComparison.Ordinal);
+    var encodedApproveUrl = WebUtility.HtmlEncode(approveUrl);
+    var encodedRejectUrl = WebUtility.HtmlEncode(rejectUrl);
+
+    return $"""
+        <!doctype html>
+        <html>
+        <body style="margin:0;padding:24px;background:#f4faf5;font-family:Arial,sans-serif;color:#123322;">
+          <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #dcefe0;border-radius:12px;padding:24px;">
+            <div style="text-align:center;margin-bottom:18px;">
+              <img src="cid:greencycle-logo" alt="Green Cycle Platform" style="max-width:150px;height:auto;display:inline-block;">
+            </div>
+            <h2 style="margin:0 0 16px;color:#14532d;">Review approval request</h2>
+            <p style="line-height:1.6;margin:0 0 22px;">{encodedDetails}</p>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+              <tr>
+                <td align="left">
+                  <a href="{encodedApproveUrl}" style="display:inline-block;background:#15803d;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:8px;">Approve</a>
+                </td>
+                <td align="right">
+                  <a href="{encodedRejectUrl}" style="display:inline-block;background:#b91c1c;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:8px;">Decline</a>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </body>
+        </html>
+        """;
 }
 
 static string? GetRequired(IFormCollection form, string name)
@@ -1043,6 +1280,13 @@ public sealed record WasteSubmissionSummary(
     int ImageCount,
     WasteSubmissionImageSummary[] Images);
 
+public sealed record RecentWasteTransactionSummary(
+    Guid Id,
+    string WasteCategory,
+    string Status,
+    DateTimeOffset CreatedAtUtc,
+    WasteSubmissionImageSummary[] Images);
+
 public sealed record WasteBid(
     Guid Id,
     Guid WasteSubmissionId,
@@ -1116,6 +1360,8 @@ public sealed record BidCreateRequest(string? CompanyEmail, string? PickupDate, 
 
 public sealed record BidAcceptRequest(string? RequesterEmail);
 
+public sealed record CompanyPickupRequest(string? CompanyEmail);
+
 public sealed record CompleteSubmissionRequest(string? RequesterEmail);
 
 public sealed record WasteBidSummary(
@@ -1140,7 +1386,11 @@ public sealed record CompanyReview(
     string? ReviewerEmail,
     int Rating,
     string? Comment,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    string Status,
+    string ApprovalToken,
+    DateTimeOffset? ReviewedAtUtc,
+    string? ReviewedBy);
 
 public sealed record CompanyReviewRequest(
     string? CompanyEmail,
@@ -1163,6 +1413,40 @@ public sealed record CompanyReviewsResponse(
     int ReviewCount,
     IEnumerable<CompanyReviewSummary> Reviews);
 
+public sealed record ReviewPendingResponse(Guid Id, string Message);
+
+public sealed record UserReviewCreate(
+    Guid WasteSubmissionId,
+    string CompanyEmail,
+    string ReviewerName,
+    int Rating,
+    string? Comment,
+    string ApprovalToken);
+
+public sealed record UserReview(
+    Guid Id,
+    Guid WasteSubmissionId,
+    Guid ReviewerCompanyId,
+    string ReviewerCompanyName,
+    string ReviewerCompanyEmail,
+    string? TargetName,
+    string? TargetEmail,
+    string TargetPhone,
+    int Rating,
+    string? Comment,
+    DateTimeOffset CreatedAtUtc,
+    string Status,
+    string ApprovalToken,
+    DateTimeOffset? ReviewedAtUtc,
+    string? ReviewedBy);
+
+public sealed record UserReviewRequest(
+    string? CompanyEmail,
+    Guid? WasteSubmissionId,
+    string? ReviewerName,
+    int Rating,
+    string? Comment);
+
 public sealed record ApiError(string Message);
 
 public sealed record EmailSendResult(bool Success, string? ErrorMessage = null);
@@ -1184,6 +1468,12 @@ public interface IEmailSender
 {
     Task<EmailSendResult> SendOtpAsync(string toEmail, string otp);
     Task<EmailSendResult> SendNotificationAsync(string toEmail, string subject, string body);
+}
+
+public sealed class ReviewApprovalOptions
+{
+    public string? AdminEmail { get; init; }
+    public string? PublicBaseUrl { get; init; }
 }
 
 public interface IWhatsAppSender
@@ -1378,14 +1668,41 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
             return new EmailSendResult(false, "Email notifications are not configured on the server.");
         }
 
+        var isHtml = IsHtmlEmail(body);
         using var message = new MailMessage
         {
             From = new MailAddress(options.FromEmail, options.FromName),
             Subject = subject,
             Body = body,
-            IsBodyHtml = false
+            IsBodyHtml = isHtml
         };
         message.To.Add(toEmail);
+
+        if (isHtml)
+        {
+            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(
+                StripHtmlForPlainText(body),
+                null,
+                MediaTypeNames.Text.Plain));
+
+            var htmlView = AlternateView.CreateAlternateViewFromString(
+                body,
+                null,
+                MediaTypeNames.Text.Html);
+
+            var logoPath = FindLogoPath();
+            if (logoPath is not null && body.Contains("cid:greencycle-logo", StringComparison.OrdinalIgnoreCase))
+            {
+                var logo = new LinkedResource(logoPath, new ContentType(MediaTypeNames.Image.Png))
+                {
+                    ContentId = "greencycle-logo",
+                    TransferEncoding = TransferEncoding.Base64
+                };
+                htmlView.LinkedResources.Add(logo);
+            }
+
+            message.AlternateViews.Add(htmlView);
+        }
 
         using var client = new SmtpClient(options.Host, options.Port)
         {
@@ -1443,6 +1760,16 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
             """;
     }
 
+    private static bool IsHtmlEmail(string body) =>
+        body.TrimStart().StartsWith("<!doctype html", StringComparison.OrdinalIgnoreCase) ||
+        body.TrimStart().StartsWith("<html", StringComparison.OrdinalIgnoreCase);
+
+    private static string StripHtmlForPlainText(string html)
+    {
+        var text = WebUtility.HtmlDecode(Regex.Replace(html, "<[^>]+>", " "));
+        return Regex.Replace(text, @"\s{2,}", " ").Trim();
+    }
+
     private static string? FindLogoPath()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
@@ -1498,6 +1825,28 @@ public abstract record CompleteSubmissionResult
     public sealed record NotFound : CompleteSubmissionResult;
     public sealed record NotOwner : CompleteSubmissionResult;
     public sealed record NoAcceptedBid : CompleteSubmissionResult;
+    public sealed record NotPickedUp : CompleteSubmissionResult;
+}
+
+public abstract record PickupSubmissionResult
+{
+    public sealed record PickedUp(WasteBid Bid, WasteSubmission Submission) : PickupSubmissionResult;
+    public sealed record NotFound : PickupSubmissionResult;
+    public sealed record NotReady : PickupSubmissionResult;
+}
+
+public abstract record UserReviewCreateResult
+{
+    public sealed record Created(UserReview Review, WasteSubmission Submission) : UserReviewCreateResult;
+    public sealed record NotFound : UserReviewCreateResult;
+    public sealed record Duplicate : UserReviewCreateResult;
+}
+
+public abstract record ReviewApprovalResult
+{
+    public sealed record Updated : ReviewApprovalResult;
+    public sealed record NotFound : ReviewApprovalResult;
+    public sealed record InvalidToken : ReviewApprovalResult;
 }
 
 public sealed record OtpChallenge(string Email, string Code, DateTimeOffset ExpiresAtUtc);
@@ -1908,6 +2257,49 @@ public sealed class UserStore
         }
     }
 
+    public async Task<IReadOnlyList<WasteSubmission>> GetRecentWasteTransactionsAsync(int limit)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    id,
+                    submitter_type,
+                    submitter_name,
+                    company_name,
+                    phone,
+                    email,
+                    address,
+                    waste_category,
+                    quantity,
+                    notes,
+                    verification_token,
+                    status,
+                    created_at_utc
+                FROM waste_submissions
+                ORDER BY created_at_utc DESC
+                LIMIT $limit;
+                """;
+            command.Parameters.AddWithValue("$limit", Math.Clamp(limit, 1, 50));
+
+            var submissions = new List<WasteSubmission>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                submissions.Add(ReadWasteSubmission(reader));
+            }
+
+            return await AddImagesToSubmissionsAsync(connection, submissions);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
     public async Task<WasteSubmission?> GetLatestWasteSubmissionByPhoneAsync(string phone)
     {
         await gate.WaitAsync();
@@ -2118,7 +2510,7 @@ public sealed class UserStore
                 INNER JOIN companies c ON c.id = wb.company_id
                 WHERE wb.company_id = $companyId
                   AND wb.status = 'accepted'
-                  AND ws.status IN ('pickup_pending', 'accepted', 'completed')
+                  AND ws.status IN ('pickup_pending', 'accepted', 'picked_up', 'completed')
                 ORDER BY ws.created_at_utc DESC;
                 """;
             command.Parameters.AddWithValue("$companyId", company.Id.ToString());
@@ -2247,7 +2639,7 @@ public sealed class UserStore
             var company = await FindByEmailAsync(connection, companyEmail.Trim());
             var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
 
-            if (company is null || submission is null || submission.Status is "pickup_pending" or "completed")
+            if (company is null || submission is null || submission.Status is "pickup_pending" or "picked_up" or "completed")
             {
                 return new BidCreateResult.NotFound();
             }
@@ -2366,9 +2758,48 @@ public sealed class UserStore
                 return new CompleteSubmissionResult.NoAcceptedBid();
             }
 
+            if (submission.Status != "picked_up")
+            {
+                return new CompleteSubmissionResult.NotPickedUp();
+            }
+
             await UpdateSubmissionStatusAsync(connection, submissionId, "completed");
             await transaction.CommitAsync();
             return new CompleteSubmissionResult.Completed(acceptedBid, submission with { Status = "completed" });
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<PickupSubmissionResult> MarkWasteSubmissionPickedUpAsync(Guid submissionId, string companyEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            var company = await FindByEmailAsync(connection, companyEmail.Trim());
+            var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
+            var acceptedBid = await ReadAcceptedBidForSubmissionAsync(connection, submissionId);
+
+            if (company is null ||
+                submission is null ||
+                acceptedBid is null ||
+                !string.Equals(acceptedBid.CompanyEmail, company.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return new PickupSubmissionResult.NotFound();
+            }
+
+            if (submission.Status is not ("pickup_pending" or "accepted"))
+            {
+                return new PickupSubmissionResult.NotReady();
+            }
+
+            await UpdateSubmissionStatusAsync(connection, submissionId, "picked_up");
+            await transaction.CommitAsync();
+            return new PickupSubmissionResult.PickedUp(acceptedBid, submission with { Status = "picked_up" });
         }
         finally
         {
@@ -2392,7 +2823,11 @@ public sealed class UserStore
                     reviewer_email,
                     rating,
                     comment,
-                    created_at_utc
+                    created_at_utc,
+                    status,
+                    approval_token,
+                    reviewed_at_utc,
+                    reviewed_by
                 )
                 VALUES (
                     $id,
@@ -2402,7 +2837,11 @@ public sealed class UserStore
                     $reviewerEmail,
                     $rating,
                     $comment,
-                    $createdAtUtc
+                    $createdAtUtc,
+                    $status,
+                    $approvalToken,
+                    $reviewedAtUtc,
+                    $reviewedBy
                 );
                 """;
             command.Parameters.AddWithValue("$id", review.Id.ToString());
@@ -2413,6 +2852,10 @@ public sealed class UserStore
             command.Parameters.AddWithValue("$rating", review.Rating);
             command.Parameters.AddWithValue("$comment", ToDbValue(review.Comment));
             command.Parameters.AddWithValue("$createdAtUtc", review.CreatedAtUtc.ToString("O"));
+            command.Parameters.AddWithValue("$status", review.Status);
+            command.Parameters.AddWithValue("$approvalToken", review.ApprovalToken);
+            command.Parameters.AddWithValue("$reviewedAtUtc", ToDbValue(review.ReviewedAtUtc?.ToString("O")));
+            command.Parameters.AddWithValue("$reviewedBy", ToDbValue(review.ReviewedBy));
             await command.ExecuteNonQueryAsync();
         }
         finally
@@ -2435,6 +2878,7 @@ public sealed class UserStore
                   WHERE company_id = $companyId
                     AND reviewer_email = $reviewerEmail COLLATE NOCASE
                     AND waste_submission_id IS NULL
+                    AND status <> 'rejected'
                   LIMIT 1;
                   """
                 : """
@@ -2443,6 +2887,7 @@ public sealed class UserStore
                   WHERE company_id = $companyId
                     AND reviewer_email = $reviewerEmail COLLATE NOCASE
                     AND waste_submission_id = $wasteSubmissionId
+                    AND status <> 'rejected'
                   LIMIT 1;
                   """;
             command.Parameters.AddWithValue("$companyId", companyId.ToString());
@@ -2452,6 +2897,201 @@ public sealed class UserStore
                 command.Parameters.AddWithValue("$wasteSubmissionId", wasteSubmissionId.Value.ToString());
             }
             return await command.ExecuteScalarAsync() is not null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<ReviewApprovalResult> ResolveCompanyReviewAsync(Guid reviewId, string? token, string status)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return new ReviewApprovalResult.InvalidToken();
+        }
+
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE company_reviews
+                SET status = $status,
+                    reviewed_at_utc = $reviewedAtUtc,
+                    reviewed_by = 'email-admin'
+                WHERE id = $id
+                  AND approval_token = $token
+                  AND status = 'pending';
+                """;
+            command.Parameters.AddWithValue("$id", reviewId.ToString());
+            command.Parameters.AddWithValue("$token", token.Trim());
+            command.Parameters.AddWithValue("$status", status);
+            command.Parameters.AddWithValue("$reviewedAtUtc", DateTimeOffset.UtcNow.ToString("O"));
+            var updated = await command.ExecuteNonQueryAsync();
+            if (updated > 0)
+            {
+                return new ReviewApprovalResult.Updated();
+            }
+
+            var existsCommand = connection.CreateCommand();
+            existsCommand.CommandText = "SELECT 1 FROM company_reviews WHERE id = $id LIMIT 1;";
+            existsCommand.Parameters.AddWithValue("$id", reviewId.ToString());
+            return await existsCommand.ExecuteScalarAsync() is null
+                ? new ReviewApprovalResult.NotFound()
+                : new ReviewApprovalResult.InvalidToken();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<UserReviewCreateResult> CreateUserReviewAsync(UserReviewCreate request)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var company = await FindByEmailAsync(connection, request.CompanyEmail.Trim());
+            var submission = await ReadWasteSubmissionByIdAsync(connection, request.WasteSubmissionId);
+            var acceptedBid = await ReadAcceptedBidForSubmissionAsync(connection, request.WasteSubmissionId);
+            if (company is null ||
+                submission is null ||
+                acceptedBid is null ||
+                submission.Status != "completed" ||
+                !string.Equals(acceptedBid.CompanyEmail, company.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return new UserReviewCreateResult.NotFound();
+            }
+
+            var duplicateCommand = connection.CreateCommand();
+            duplicateCommand.CommandText = """
+                SELECT 1
+                FROM user_reviews
+                WHERE waste_submission_id = $wasteSubmissionId
+                  AND reviewer_company_id = $companyId
+                  AND status <> 'rejected'
+                LIMIT 1;
+                """;
+            duplicateCommand.Parameters.AddWithValue("$wasteSubmissionId", request.WasteSubmissionId.ToString());
+            duplicateCommand.Parameters.AddWithValue("$companyId", company.Id.ToString());
+            if (await duplicateCommand.ExecuteScalarAsync() is not null)
+            {
+                return new UserReviewCreateResult.Duplicate();
+            }
+
+            var review = new UserReview(
+                Guid.NewGuid(),
+                request.WasteSubmissionId,
+                company.Id,
+                company.CompanyName,
+                company.Email,
+                submission.SubmitterName ?? submission.CompanyName,
+                submission.Email,
+                submission.Phone,
+                request.Rating,
+                request.Comment,
+                DateTimeOffset.UtcNow,
+                "pending",
+                request.ApprovalToken,
+                null,
+                null);
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO user_reviews (
+                    id,
+                    waste_submission_id,
+                    reviewer_company_id,
+                    target_name,
+                    target_email,
+                    target_phone,
+                    rating,
+                    comment,
+                    created_at_utc,
+                    status,
+                    approval_token,
+                    reviewed_at_utc,
+                    reviewed_by
+                )
+                VALUES (
+                    $id,
+                    $wasteSubmissionId,
+                    $reviewerCompanyId,
+                    $targetName,
+                    $targetEmail,
+                    $targetPhone,
+                    $rating,
+                    $comment,
+                    $createdAtUtc,
+                    $status,
+                    $approvalToken,
+                    $reviewedAtUtc,
+                    $reviewedBy
+                );
+                """;
+            command.Parameters.AddWithValue("$id", review.Id.ToString());
+            command.Parameters.AddWithValue("$wasteSubmissionId", review.WasteSubmissionId.ToString());
+            command.Parameters.AddWithValue("$reviewerCompanyId", review.ReviewerCompanyId.ToString());
+            command.Parameters.AddWithValue("$targetName", ToDbValue(review.TargetName));
+            command.Parameters.AddWithValue("$targetEmail", ToDbValue(review.TargetEmail));
+            command.Parameters.AddWithValue("$targetPhone", review.TargetPhone);
+            command.Parameters.AddWithValue("$rating", review.Rating);
+            command.Parameters.AddWithValue("$comment", ToDbValue(review.Comment));
+            command.Parameters.AddWithValue("$createdAtUtc", review.CreatedAtUtc.ToString("O"));
+            command.Parameters.AddWithValue("$status", review.Status);
+            command.Parameters.AddWithValue("$approvalToken", review.ApprovalToken);
+            command.Parameters.AddWithValue("$reviewedAtUtc", ToDbValue(review.ReviewedAtUtc?.ToString("O")));
+            command.Parameters.AddWithValue("$reviewedBy", ToDbValue(review.ReviewedBy));
+            await command.ExecuteNonQueryAsync();
+
+            return new UserReviewCreateResult.Created(review, submission);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<ReviewApprovalResult> ResolveUserReviewAsync(Guid reviewId, string? token, string status)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return new ReviewApprovalResult.InvalidToken();
+        }
+
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE user_reviews
+                SET status = $status,
+                    reviewed_at_utc = $reviewedAtUtc,
+                    reviewed_by = 'email-admin'
+                WHERE id = $id
+                  AND approval_token = $token
+                  AND status = 'pending';
+                """;
+            command.Parameters.AddWithValue("$id", reviewId.ToString());
+            command.Parameters.AddWithValue("$token", token.Trim());
+            command.Parameters.AddWithValue("$status", status);
+            command.Parameters.AddWithValue("$reviewedAtUtc", DateTimeOffset.UtcNow.ToString("O"));
+            var updated = await command.ExecuteNonQueryAsync();
+            if (updated > 0)
+            {
+                return new ReviewApprovalResult.Updated();
+            }
+
+            var existsCommand = connection.CreateCommand();
+            existsCommand.CommandText = "SELECT 1 FROM user_reviews WHERE id = $id LIMIT 1;";
+            existsCommand.Parameters.AddWithValue("$id", reviewId.ToString());
+            return await existsCommand.ExecuteScalarAsync() is null
+                ? new ReviewApprovalResult.NotFound()
+                : new ReviewApprovalResult.InvalidToken();
         }
         finally
         {
@@ -2475,10 +3115,15 @@ public sealed class UserStore
                     cr.reviewer_email,
                     cr.rating,
                     cr.comment,
-                    cr.created_at_utc
+                    cr.created_at_utc,
+                    cr.status,
+                    cr.approval_token,
+                    cr.reviewed_at_utc,
+                    cr.reviewed_by
                 FROM company_reviews cr
                 INNER JOIN companies c ON c.id = cr.company_id
                 WHERE c.email = $companyEmail
+                  AND cr.status = 'approved'
                 ORDER BY cr.created_at_utc DESC;
                 """;
             command.Parameters.AddWithValue("$companyEmail", companyEmail.Trim());
@@ -2495,7 +3140,11 @@ public sealed class UserStore
                     GetNullableString(reader, 4),
                     reader.GetInt32(5),
                     GetNullableString(reader, 6),
-                    DateTimeOffset.Parse(reader.GetString(7))));
+                    DateTimeOffset.Parse(reader.GetString(7)),
+                    reader.GetString(8),
+                    reader.GetString(9),
+                    reader.IsDBNull(10) ? null : DateTimeOffset.Parse(reader.GetString(10)),
+                    GetNullableString(reader, 11)));
             }
 
             return reviews;
@@ -2545,6 +3194,7 @@ public sealed class UserStore
         ["metal"] = ["metal", "scrap", "aluminum", "خردة", "معدن", "المعدنية"],
         ["glass"] = ["glass", "زجاج"],
         ["electronics"] = ["electronic", "electrical", "mobile", "cable", "wire", "إلكترون", "كهرب", "هواتف", "كيبل", "واير"],
+        ["solar-pv"] = ["solar", "pv panel", "pv panels", "photovoltaic", "ألواح الطاقة الشمسية", "الطاقة الشمسية", "شمسية"],
         ["organic"] = ["organic", "زراعية", "عضوية"],
         ["textile"] = ["textile", "نسيج"],
         ["construction"] = ["construction", "debris", "بناء"],
@@ -2916,8 +3566,30 @@ public sealed class UserStore
                 rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
                 comment TEXT NULL,
                 created_at_utc TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                approval_token TEXT NULL,
+                reviewed_at_utc TEXT NULL,
+                reviewed_by TEXT NULL,
                 FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
                 FOREIGN KEY (waste_submission_id) REFERENCES waste_submissions(id) ON DELETE SET NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS user_reviews (
+                id TEXT NOT NULL PRIMARY KEY,
+                waste_submission_id TEXT NOT NULL,
+                reviewer_company_id TEXT NOT NULL,
+                target_name TEXT NULL,
+                target_email TEXT NULL,
+                target_phone TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                comment TEXT NULL,
+                created_at_utc TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                approval_token TEXT NULL,
+                reviewed_at_utc TEXT NULL,
+                reviewed_by TEXT NULL,
+                FOREIGN KEY (waste_submission_id) REFERENCES waste_submissions(id) ON DELETE CASCADE,
+                FOREIGN KEY (reviewer_company_id) REFERENCES companies(id) ON DELETE CASCADE
             );
 
             CREATE TABLE IF NOT EXISTS waste_bids (
@@ -2952,6 +3624,12 @@ public sealed class UserStore
             CREATE INDEX IF NOT EXISTS ix_company_reviews_company_reviewer
                 ON company_reviews(company_id, reviewer_email);
 
+            CREATE INDEX IF NOT EXISTS ix_user_reviews_submission_company
+                ON user_reviews(waste_submission_id, reviewer_company_id);
+
+            CREATE INDEX IF NOT EXISTS ix_user_reviews_target_email_created_at
+                ON user_reviews(target_email, created_at_utc DESC);
+
             CREATE INDEX IF NOT EXISTS ix_waste_bids_submission_status
                 ON waste_bids(waste_submission_id, status);
 
@@ -2961,6 +3639,10 @@ public sealed class UserStore
 
         await command.ExecuteNonQueryAsync();
         await AddColumnIfMissingAsync(connection, "company_reviews", "waste_submission_id", "TEXT NULL");
+        await AddColumnIfMissingAsync(connection, "company_reviews", "status", "TEXT NOT NULL DEFAULT 'approved'");
+        await AddColumnIfMissingAsync(connection, "company_reviews", "approval_token", "TEXT NULL");
+        await AddColumnIfMissingAsync(connection, "company_reviews", "reviewed_at_utc", "TEXT NULL");
+        await AddColumnIfMissingAsync(connection, "company_reviews", "reviewed_by", "TEXT NULL");
         await AddColumnIfMissingAsync(connection, "waste_bids", "pickup_date", "TEXT NULL");
 
         var reviewOrderIndexCommand = connection.CreateCommand();

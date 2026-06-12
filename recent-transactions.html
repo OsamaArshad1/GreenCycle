@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recent Waste Transactions | Green Cycle Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="directory-page recent-transactions-page">
+  <header class="topbar">
+    <div class="brand">
+      <a class="brand-logo" href="green_cycle_main_with_arabic_link.html" aria-label="Green Cycle Platform">
+        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
+      </a>
+      <div class="brand-links" aria-label="Brand links">
+        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
+        <br />
+        <a href="recycling-companies.html">Green Cycle Platform</a>
+      </div>
+    </div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="nav-menu">
+      <nav class="nav-links">
+        <a href="green_cycle_main_with_arabic_link.html">Home</a>
+        <a href="green_cycle_main_with_arabic_link.html#submit-waste">Submit Waste</a>
+        <a href="recycling-companies.html">Recycle Companies List</a>
+        <a href="recent-transactions-ar.html" class="lang-switch" lang="ar">العربية</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="recent-transactions-page-wrap">
+    <section class="section recent-transactions-section">
+      <div class="section-title">
+        <h1>Recent Waste Submission Transactions</h1>
+        <p>Latest waste submissions with their status, waste category, and uploaded image.</p>
+      </div>
+      <div class="recent-transactions-grid" id="recentTransactionsList">
+        <div class="recent-transactions-state">Loading recent transactions...</div>
+      </div>
+      <div class="recent-transactions-actions">
+        <button class="btn btn-outline" type="button" id="recentTransactionsMore" hidden>More</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="site-config.js"></script>
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const topbar = document.querySelector('.topbar');
+    const configuredApiOrigin = (window.GreenCycleConfig?.apiBaseUrl || '').replace(/\/$/, '');
+    const isBackendHost = window.location.port === '5294';
+    const isLocalPage = window.location.protocol === 'file:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+    const apiOrigin = configuredApiOrigin || (isBackendHost ? '' : 'http://localhost:5294');
+    const apiIsMissing = !configuredApiOrigin && !isBackendHost && !isLocalPage;
+    let recentTransactions = [];
+    let recentTransactionsVisible = 5;
+
+    if (menuToggle && topbar) {
+      menuToggle.addEventListener('click', function () {
+        const isOpen = topbar.classList.toggle('nav-open');
+        menuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+
+    function apiUrl(path) {
+      if (apiIsMissing) {
+        throw new Error('The live website needs a hosted backend API URL before recent transactions can be loaded.');
+      }
+
+      return `${apiOrigin}${path}`;
+    }
+
+    async function readApiResponse(response) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || data.detail || data.title || 'The request could not be completed.');
+      }
+      return data;
+    }
+
+    async function getJson(url) {
+      const response = await fetch(apiUrl(url));
+      return readApiResponse(response);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+
+    function resolveAssetUrl(url) {
+      if (!url) return '';
+      if (/^https?:\/\//i.test(url)) return url;
+      return `${apiOrigin}${url.startsWith('/') ? url : `/${url}`}`;
+    }
+
+    function recentStatusLabel(status) {
+      return ({
+        received: 'Received',
+        bidding: 'Bids open',
+        pickup_pending: 'Accepted / pickup pending',
+        accepted: 'Accepted / pickup pending',
+        picked_up: 'Picked up',
+        completed: 'Completed',
+        rejected: 'Rejected'
+      })[status] || status || 'Received';
+    }
+
+    function recentStatusClass(status) {
+      return ({
+        received: 'open',
+        bidding: 'pending',
+        pickup_pending: 'accepted',
+        accepted: 'accepted',
+        picked_up: 'accepted',
+        completed: 'completed',
+        rejected: 'rejected'
+      })[status] || 'open';
+    }
+
+    function formatRecentDate(value) {
+      if (!value) return '';
+      return new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(value));
+    }
+
+    function renderRecentTransactions() {
+      const list = document.getElementById('recentTransactionsList');
+      const moreButton = document.getElementById('recentTransactionsMore');
+      const visibleItems = recentTransactions.slice(0, recentTransactionsVisible);
+
+      list.innerHTML = visibleItems.map(item => {
+        const images = Array.isArray(item.images) ? item.images.filter(image => image.url) : [];
+        const firstImage = images[0];
+        return `
+          <article class="recent-transaction-card">
+            <div class="recent-transaction-main">
+              <div class="recent-transaction-body">
+                <strong>${escapeHtml(item.wasteCategory)}</strong>
+                <div class="recent-transaction-meta">
+                  <span class="status-pill ${recentStatusClass(item.status)}">${escapeHtml(recentStatusLabel(item.status))}</span>
+                  <span class="recent-transaction-date">${escapeHtml(formatRecentDate(item.createdAtUtc))}</span>
+                </div>
+              </div>
+              ${firstImage
+                ? '<button class="btn btn-outline recent-image-toggle" type="button" aria-expanded="false">View image</button>'
+                : '<span class="recent-transaction-no-image">No image</span>'}
+            </div>
+            ${firstImage
+              ? `<div class="recent-transaction-image-panel" hidden>
+                  <img src="${escapeHtml(resolveAssetUrl(firstImage.url))}" alt="${escapeHtml(item.wasteCategory)}" loading="lazy">
+                </div>`
+              : ''}
+          </article>
+        `;
+      }).join('');
+
+      moreButton.hidden = recentTransactionsVisible >= recentTransactions.length;
+    }
+
+    async function loadRecentTransactions() {
+      const list = document.getElementById('recentTransactionsList');
+      const moreButton = document.getElementById('recentTransactionsMore');
+
+      try {
+        list.innerHTML = '<div class="recent-transactions-state">Loading recent transactions...</div>';
+        moreButton.hidden = true;
+        recentTransactions = await getJson('/api/waste/recent-transactions?limit=50');
+        recentTransactionsVisible = 5;
+
+        if (!recentTransactions.length) {
+          list.innerHTML = '<div class="recent-transactions-state">No recent transactions yet.</div>';
+          return;
+        }
+
+        renderRecentTransactions();
+      } catch (error) {
+        list.innerHTML = `<div class="recent-transactions-state">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    document.getElementById('recentTransactionsList').addEventListener('click', function (event) {
+      const button = event.target.closest('.recent-image-toggle');
+      if (!button) return;
+
+      const panel = button.closest('.recent-transaction-card')?.querySelector('.recent-transaction-image-panel');
+      if (!panel) return;
+
+      const isHidden = panel.toggleAttribute('hidden');
+      button.setAttribute('aria-expanded', String(!isHidden));
+      button.textContent = isHidden ? 'View image' : 'Hide image';
+    });
+
+    document.getElementById('recentTransactionsMore').addEventListener('click', function () {
+      recentTransactionsVisible += 5;
+      renderRecentTransactions();
+    });
+
+    loadRecentTransactions();
+  </script>
+</body>
+</html>

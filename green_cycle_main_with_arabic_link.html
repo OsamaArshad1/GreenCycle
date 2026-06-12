@@ -14,8 +14,13 @@
   <header class="navbar navbar-home">
     <div class="logo">
       <div class="logo-mark">
-      <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
-    </div>
+        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
+      </div>
+      <div class="logo-links" aria-label="Brand links">
+        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
+        
+        <a href="recycling-companies.html">Green Cycle Platform</a>
+      </div>
     </div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
       <span></span>
@@ -37,6 +42,7 @@
             <a href="recycling-companies.html#paper">Paper & Cardboard</a>
             <a href="recycling-companies.html">Glass Waste</a>
             <a href="recycling-companies.html#electronics">Electrical & Electronic waste</a>
+            <a href="recycling-companies.html#solar-pv">Waste of Solar PV Panels</a>
             <a href="recycling-companies.html">Textile Waste</a>
             <a href="recycling-companies.html#construction">Construction Waste</a>
           </div>
@@ -49,7 +55,7 @@
         <a class="btn btn-outline" id="mainDashboardLink" href="dashboard-en.html" hidden>Dashboard</a>
         <button class="btn btn-outline" id="mainLogoutButton" hidden>Logout</button>
         <button class="btn btn-outline" id="openLoginModal">Login</button>
-        <button class="btn btn-primary" id="openSignupModal">Sign Up</button>
+        <button class="btn btn-primary" id="openSignupModal">Free Registration for new recycler companies and scrap managers</button>
       </div>
     </div>
   </header>
@@ -58,6 +64,12 @@
     <div class="hero-content">
       <p>
 Now, individuals, companies and corporates can submit their waste through the "Green Cycle" platform and receive a variety of valuable incentives. This platform also helps corporates fulfill their social and environmental responsibilities professionally and effectively. It's a professional platform dedicated to the recycling sector, aiming to transform waste into valuable resources and energy sources through value-based circular systems and environmental sustainability.      </p>
+    </div>
+  </section>
+
+  <section class="section recent-transactions-section" id="recent-transactions">
+    <div class="section-title">
+      <a class="btn btn-primary recent-transactions-cta" href="recent-transactions.html">Click here to view the recent waste submission transactions</a>
     </div>
   </section>
 
@@ -116,6 +128,7 @@ Now, individuals, companies and corporates can submit their waste through the "G
                 <option>Used Cooking Oil</option>
                 <option>Used Engine Oil</option>
                 <option>Electrical Devices Waste</option>
+                <option>Waste of Solar PV Panels</option>
                 <option>Mobile and Electronic Waste</option>
                 <option>Cables and Wires Waste</option>
                 <option>Toys Waste</option>
@@ -213,6 +226,7 @@ Now, individuals, companies and corporates can submit their waste through the "G
                 <option>Used Cooking Oil</option>
                 <option>Used Engine Oil</option>
                 <option>Electrical Devices Waste</option>
+                <option>Waste of Solar PV Panels</option>
                 <option>Mobile and Electronic Waste</option>
                 <option>Cables and Wires Waste</option>
                 <option>Toys Waste</option>
@@ -508,6 +522,7 @@ Now, individuals, companies and corporates can submit their waste through the "G
                   <option>Used Cooking Oil</option>
                   <option>Used Engine Oil</option>
                   <option>Electrical Devices Waste</option>
+                  <option>Waste of Solar PV Panels</option>
                   <option>Mobile and Electronic Waste</option>
                   <option>Cables and Wires Waste</option>
                   <option>Toys Waste</option>
@@ -572,6 +587,8 @@ Now, individuals, companies and corporates can submit their waste through the "G
     let pendingLoginEmail = '';
     let wastePrefillTimer = null;
     let recyclerCompanies = [];
+    let recentTransactions = [];
+    let recentTransactionsVisible = 5;
     const wasteOtpState = {
       individual: { phone: '', token: '' },
       corporate: { phone: '', token: '' }
@@ -882,6 +899,112 @@ Now, individuals, companies and corporates can submit their waste through the "G
     async function getJson(url) {
       const response = await fetch(apiUrl(url));
       return readApiResponse(response);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+
+    function resolveAssetUrl(url) {
+      if (!url) return '';
+      if (/^https?:\/\//i.test(url)) return url;
+      return `${apiOrigin}${url.startsWith('/') ? url : `/${url}`}`;
+    }
+
+    function recentStatusLabel(status) {
+      return ({
+        received: 'Received',
+        bidding: 'Bids open',
+        pickup_pending: 'Accepted / pickup pending',
+        accepted: 'Accepted / pickup pending',
+        picked_up: 'Picked up',
+        completed: 'Completed',
+        rejected: 'Rejected'
+      })[status] || status || 'Received';
+    }
+
+    function recentStatusClass(status) {
+      return ({
+        received: 'open',
+        bidding: 'pending',
+        pickup_pending: 'accepted',
+        accepted: 'accepted',
+        picked_up: 'accepted',
+        completed: 'completed',
+        rejected: 'rejected'
+      })[status] || 'open';
+    }
+
+    function formatRecentDate(value) {
+      if (!value) return '';
+      return new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(value));
+    }
+
+    function renderRecentTransactions() {
+      const list = document.getElementById('recentTransactionsList');
+      const moreButton = document.getElementById('recentTransactionsMore');
+      if (!list) return;
+
+      const visibleItems = recentTransactions.slice(0, recentTransactionsVisible);
+      list.innerHTML = visibleItems.map(item => {
+        const images = Array.isArray(item.images) ? item.images.filter(image => image.url) : [];
+        const firstImage = images[0];
+        return `
+          <article class="recent-transaction-card">
+            <div class="recent-transaction-main">
+              <div class="recent-transaction-body">
+                <strong>${escapeHtml(item.wasteCategory)}</strong>
+                <div class="recent-transaction-meta">
+                  <span class="status-pill ${recentStatusClass(item.status)}">${escapeHtml(recentStatusLabel(item.status))}</span>
+                  <span class="recent-transaction-date">${escapeHtml(formatRecentDate(item.createdAtUtc))}</span>
+                </div>
+              </div>
+              ${firstImage
+                ? `<button class="btn btn-outline recent-image-toggle" type="button" aria-expanded="false">View image</button>`
+                : '<span class="recent-transaction-no-image">No image</span>'}
+            </div>
+            ${firstImage
+              ? `<div class="recent-transaction-image-panel" hidden>
+                  <img src="${escapeHtml(resolveAssetUrl(firstImage.url))}" alt="${escapeHtml(item.wasteCategory)}" loading="lazy">
+                </div>`
+              : ''}
+          </article>
+        `;
+      }).join('');
+
+      if (moreButton) {
+        moreButton.hidden = recentTransactionsVisible >= recentTransactions.length;
+      }
+    }
+
+    async function loadRecentTransactions() {
+      const list = document.getElementById('recentTransactionsList');
+      const moreButton = document.getElementById('recentTransactionsMore');
+      if (!list) return;
+
+      try {
+        list.innerHTML = '<div class="recent-transactions-state">Loading recent transactions...</div>';
+        if (moreButton) moreButton.hidden = true;
+        recentTransactions = await getJson('/api/waste/recent-transactions?limit=25');
+        recentTransactionsVisible = 5;
+        if (!recentTransactions.length) {
+          list.innerHTML = '<div class="recent-transactions-state">No recent transactions yet.</div>';
+          return;
+        }
+
+        renderRecentTransactions();
+      } catch (error) {
+        list.innerHTML = `<div class="recent-transactions-state">${escapeHtml(error.message)}</div>`;
+      }
     }
 
     function getActiveRecyclerTargetField() {

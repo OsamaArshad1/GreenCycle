@@ -37,9 +37,10 @@
     }
 
     .dashboard-brand img {
-      width: 52px;
-      height: 52px;
+      width: 170px;
+      height: auto;
       object-fit: contain;
+      border-radius: 12px;
     }
 
     .dashboard-hero {
@@ -345,16 +346,26 @@
       .dashboard-panel h1 {
         font-size: 28px;
       }
+
+      .dashboard-brand img {
+        width: 112px;
+      }
     }
   </style>
 </head>
 <body>
   <main class="dashboard-shell">
     <div class="dashboard-topbar">
-      <a class="dashboard-brand" href="green_cycle_main_with_arabic_link.html">
-        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo">
-        <span>Green Cycle Platform</span>
-      </a>
+      <div class="dashboard-brand">
+        <a class="dashboard-brand-logo" href="green_cycle_main_with_arabic_link.html" aria-label="Green Cycle Platform">
+          <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo">
+        </a>
+        <div class="dashboard-brand-links" aria-label="Brand links">
+          <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
+          <br />
+          <a href="recycling-companies.html">Green Cycle Platform</a>
+        </div>
+      </div>
       <div class="dashboard-actions">
         <a class="btn btn-outline" href="dashboard.html">العربية</a>
         <a class="btn btn-primary" href="green_cycle_main_with_arabic_link.html#submit-waste">Submit Waste Request</a>
@@ -500,6 +511,7 @@
         <button class="btn btn-outline" type="button" id="closeBidReviewModal" aria-label="Close review form">×</button>
       </div>
       <form id="bidReviewForm">
+        <input type="hidden" id="bidReviewMode" value="company">
         <input type="hidden" id="bidReviewCompanyEmail">
         <input type="hidden" id="bidReviewSubmissionId">
         <div class="field">
@@ -518,7 +530,7 @@
           <textarea id="bidReviewComment" placeholder="Write a short review..."></textarea>
         </div>
         <button class="btn btn-primary" type="submit" id="submitBidReviewButton">Submit review</button>
-        <div class="form-feedback success" id="bidReviewSuccess">Thank you. Your review has been submitted.</div>
+        <div class="form-feedback success" id="bidReviewSuccess">Thank you. Your review was sent for admin approval.</div>
         <div class="form-feedback error" id="bidReviewError"></div>
       </form>
     </div>
@@ -644,6 +656,7 @@
         bidding: 'pending',
         pickup_pending: 'accepted',
         accepted: 'accepted',
+        picked_up: 'accepted',
         completed: 'completed',
         pending: 'pending',
         rejected: 'rejected'
@@ -656,6 +669,7 @@
         bidding: 'Bids submitted',
         pickup_pending: 'Accepted / pickup pending',
         accepted: 'Accepted / pickup pending',
+        picked_up: 'Picked up',
         completed: 'Completed'
       })[status] || status;
     }
@@ -670,13 +684,29 @@
 
     function bidLifecycleLabel(item) {
       if (item.status === 'completed') return 'Completed';
+      if (item.status === 'picked_up') return 'Picked up';
       return bidStatusLabel(item.bid.status);
     }
 
     function openBidReviewModal(companyName, companyEmail, submissionId) {
       bidReviewForm.reset();
+      document.getElementById('bidReviewMode').value = 'company';
+      document.getElementById('bidReviewTitle').textContent = 'Review company';
       document.getElementById('bidReviewCompanyName').textContent = `How was your experience with ${companyName}?`;
       document.getElementById('bidReviewCompanyEmail').value = companyEmail;
+      document.getElementById('bidReviewSubmissionId').value = submissionId || '';
+      document.getElementById('bidReviewSuccess').style.display = 'none';
+      document.getElementById('bidReviewError').style.display = 'none';
+      bidReviewModal.classList.add('active');
+      document.getElementById('bidReviewRating').focus();
+    }
+
+    function openUserReviewModal(userName, submissionId) {
+      bidReviewForm.reset();
+      document.getElementById('bidReviewMode').value = 'user';
+      document.getElementById('bidReviewTitle').textContent = 'Review user';
+      document.getElementById('bidReviewCompanyName').textContent = `How was your experience with ${userName || 'this user'}?`;
+      document.getElementById('bidReviewCompanyEmail').value = '';
       document.getElementById('bidReviewSubmissionId').value = submissionId || '';
       document.getElementById('bidReviewSuccess').style.display = 'none';
       document.getElementById('bidReviewError').style.display = 'none';
@@ -760,12 +790,14 @@
                 </header>
                 <p>Status: <span class="status-pill ${statusClass(bid.status)}">${escapeHtml(bidStatusLabel(bid.status))}</span></p>
                 ${bid.notes ? `<p>${escapeHtml(bid.notes)}</p>` : ''}
-                ${bid.status === 'pending' && !['pickup_pending', 'accepted', 'completed'].includes(group.submission.status)
+                ${bid.status === 'pending' && !['pickup_pending', 'accepted', 'picked_up', 'completed'].includes(group.submission.status)
                   ? `<button class="btn btn-primary accept-bid-btn" type="button" data-submission-id="${group.submission.id}" data-bid-id="${bid.id}">Accept bid</button>`
                   : bid.status === 'accepted' && group.submission.status === 'completed'
                     ? `<button class="btn btn-outline review-accepted-company-btn" type="button" data-submission-id="${group.submission.id}" data-company-name="${escapeHtml(bid.companyName)}" data-company-email="${escapeHtml(bid.companyEmail)}">Review company</button>`
-                    : bid.status === 'accepted'
+                    : bid.status === 'accepted' && group.submission.status === 'picked_up'
                       ? `<button class="btn btn-primary complete-order-btn" type="button" data-submission-id="${group.submission.id}" data-company-name="${escapeHtml(bid.companyName)}" data-company-email="${escapeHtml(bid.companyEmail)}">Mark completed</button>`
+                    : bid.status === 'accepted'
+                      ? '<p><strong>Waiting for recycler pickup confirmation.</strong></p>'
                   : ''}
               </div>
             `).join('')}
@@ -853,6 +885,12 @@
           ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
           ${item.acceptedBid.notes ? `<p><strong>Your bid notes:</strong> ${escapeHtml(item.acceptedBid.notes)}</p>` : ''}
           ${renderSubmissionImages(item)}
+          ${item.status === 'pickup_pending' || item.status === 'accepted'
+            ? `<button class="btn btn-primary mark-picked-up-btn" type="button" data-submission-id="${item.id}">Mark picked up</button>`
+            : ''}
+          ${item.status === 'completed'
+            ? `<button class="btn btn-outline review-user-btn" type="button" data-submission-id="${item.id}" data-user-name="${escapeHtml(item.submitterName || item.companyName || 'this user')}">Rate user</button>`
+            : ''}
         </article>
       `).join('');
     }
@@ -1119,6 +1157,33 @@
       button.textContent = isOpen ? 'Hide images' : 'View images';
     });
 
+    document.getElementById('companyOrderList').addEventListener('click', function (event) {
+      const button = event.target.closest('.review-user-btn');
+      if (!button) return;
+
+      openUserReviewModal(button.dataset.userName, button.dataset.submissionId);
+    });
+
+    document.getElementById('companyOrderList').addEventListener('click', async function (event) {
+      const button = event.target.closest('.mark-picked-up-btn');
+      if (!button) return;
+
+      try {
+        button.disabled = true;
+        button.textContent = 'Marking...';
+        await postJson(`/api/waste/submissions/${button.dataset.submissionId}/picked-up`, {
+          companyEmail: session.email
+        });
+        await loadSubmissions();
+        await loadReceivedBids();
+        await loadBidOpportunities();
+        await loadCompanyOrders();
+        await loadMyBids();
+      } catch (error) {
+        showDashboardError(error.message);
+      }
+    });
+
     document.getElementById('closeBidReviewModal').addEventListener('click', closeBidReviewModal);
 
     bidReviewModal.addEventListener('click', function (event) {
@@ -1132,14 +1197,25 @@
       try {
         button.disabled = true;
         button.textContent = 'Submitting...';
-        await postJson('/api/company-reviews', {
-          companyEmail: document.getElementById('bidReviewCompanyEmail').value,
+        const mode = document.getElementById('bidReviewMode').value;
+        const payload = {
           wasteSubmissionId: document.getElementById('bidReviewSubmissionId').value || null,
           reviewerName: session.companyName,
-          reviewerEmail: session.email,
           rating: Number(document.getElementById('bidReviewRating').value),
           comment: document.getElementById('bidReviewComment').value.trim()
-        });
+        };
+        if (mode === 'user') {
+          await postJson('/api/user-reviews', {
+            ...payload,
+            companyEmail: session.email
+          });
+        } else {
+          await postJson('/api/company-reviews', {
+            ...payload,
+            companyEmail: document.getElementById('bidReviewCompanyEmail').value,
+            reviewerEmail: session.email
+          });
+        }
         document.getElementById('bidReviewSuccess').style.display = 'block';
         document.getElementById('bidReviewError').style.display = 'none';
         setTimeout(closeBidReviewModal, 900);
