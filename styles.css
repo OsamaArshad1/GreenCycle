@@ -1740,6 +1740,15 @@ body.directory-page {
     text-align: center;
   }
 
+  .navbar-home .logo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-home .logo-links {
+    align-items: center;
+  }
+
   .logo-mark img { max-width: 112px; }
 
   .logo-links a,
