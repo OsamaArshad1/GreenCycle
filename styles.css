@@ -1919,6 +1919,10 @@ body.directory-page {
     line-height: 1.7;
   }
 
+  html:not([dir="rtl"]) .hero-content p {
+    font-size: 1rem;
+  }
+
   #objectives .section-title h2 { font-size: 2rem; }
 
   #objectives .section-title p,
@@ -2062,6 +2066,10 @@ body.directory-page {
   .hero-content p {
     font-size: 0.9rem;
     line-height: 1.72;
+  }
+
+  html:not([dir="rtl"]) .hero-content p {
+    font-size: 0.9rem;
   }
 
   #submit-waste { padding: 10px 4% 28px !important; }
