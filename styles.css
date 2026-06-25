@@ -405,10 +405,10 @@ body.landing-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(280px, 38vw, 460px);
+  min-height: clamp(245px, 33vw, 400px);
   overflow: visible;
   margin-bottom: 56px;
-  padding: 64px 7%;
+  padding: 52px 7%;
   background: #0f3d2e;
   border-bottom: none;
 }
@@ -490,7 +490,7 @@ body.landing-page {
   justify-content: center;
   gap: 11px;
   position: absolute;
-  bottom: -46px;
+  bottom: -142px;
   left: 50%;
   z-index: 3;
   margin-top: 0;

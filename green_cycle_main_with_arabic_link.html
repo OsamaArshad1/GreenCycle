@@ -61,9 +61,36 @@
   </header>
 
   <section class="hero" id="home">
+    <div class="hero-carousel" aria-hidden="true">
+      <div class="hero-slide hero-slide-city active" style="background-image: url('carousel/ahmad-mohammed-6MafHMTYgxk-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-waterfront" style="background-image: url('carousel/shashi-ghosh-4nVP4WLheEU-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-earth" style="background-image: url('carousel/bhautik-patel-rK-MCUCezNk-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-smoke" style="background-image: url('carousel/collab-media-GmqezLxud8g-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-landfill" style="background-image: url('carousel/WhatsApp Image 2026-06-25 at 9.33.39 PM (1).jpeg');"></div>
+    </div>
     <div class="hero-content">
-      <p>
-Now, individuals, companies and corporates can submit their waste through the "Green Cycle" platform and receive a variety of valuable incentives. This platform also helps corporates fulfill their social and environmental responsibilities professionally and effectively. It's a professional platform dedicated to the recycling sector, aiming to transform waste into valuable resources and energy sources through value-based circular systems and environmental sustainability.      </p>
+      <p class="hero-copy active">
+Now, individuals, companies, and corporates can submit their waste through the Green Cycle platform and receive a variety of valuable incentives.
+      </p>
+      <p class="hero-copy">
+Green Cycle is a professional recycling-sector platform in Kuwait, connecting the community with specialized companies to turn waste into useful resources.
+      </p>
+      <p class="hero-copy">
+Through value-based circular systems, we help reduce waste, protect the environment, and support a cleaner future for people and organizations.
+      </p>
+      <p class="hero-copy">
+Every waste submission helps reduce pressure on landfills and redirect recyclable materials into environmental and economic value.
+      </p>
+      <p class="hero-copy">
+We help companies and institutions show their environmental impact through clear, responsible participation in the recycling ecosystem.
+      </p>
+      <div class="hero-dots" aria-label="Hero slides">
+        <button type="button" class="hero-dot active" aria-label="Slide one"></button>
+        <button type="button" class="hero-dot" aria-label="Slide two"></button>
+        <button type="button" class="hero-dot" aria-label="Slide three"></button>
+        <button type="button" class="hero-dot" aria-label="Slide four"></button>
+        <button type="button" class="hero-dot" aria-label="Slide five"></button>
+      </div>
     </div>
   </section>
 
@@ -80,13 +107,13 @@ Now, individuals, companies and corporates can submit their waste through the "G
       <p>Select the type of submission below and provide the required waste details so the right collection or recycling process can be assigned.</p>
 
       <div class="form-type-switcher" id="formTypeSwitcher">
-        <button type="button" class="type-tab active" data-target="individualForm">Wastes By Individuals / Homes / etc</button>
-        <button type="button" class="type-tab" data-target="corporateForm">Wastes By Corporates / Shops / etc</button>
+        <button type="button" class="type-tab" data-target="individualForm">Click here to submit wastes by individuals / homes / etc</button>
+        <button type="button" class="type-tab" data-target="corporateForm">Click here to submit wastes by corporates / shops / etc</button>
       </div>
-      <div class="form-note">Fields marked with * are mandatory.</div>
+      <div class="form-note" id="wasteFormNote" hidden>Fields marked with * are mandatory.</div>
 
-      <form id="wasteForm" data-form-type="individual">
-      <div class="form-panel active" id="individualForm">
+      <form id="wasteForm" data-form-type="" hidden>
+      <div class="form-panel" id="individualForm">
         <div class="form-grid">
           <div class="field">
             <label for="individualPhone">Phone Number *</label>
@@ -574,6 +601,7 @@ Now, individuals, companies and corporates can submit their waste through the "G
     const addIndividualWasteImage = document.getElementById('addIndividualWasteImage');
     const addCompanyWasteImage = document.getElementById('addCompanyWasteImage');
     const wasteForm = document.getElementById('wasteForm');
+    const wasteFormNote = document.getElementById('wasteFormNote');
     const wasteSubmitButton = document.getElementById('wasteSubmitButton');
     const successMessage = document.getElementById('successMessage');
     const recyclerTargetFields = document.querySelectorAll('.recycler-target-field');
@@ -584,6 +612,9 @@ Now, individuals, companies and corporates can submit their waste through the "G
     const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
     const menuToggle = document.querySelector('.menu-toggle');
     const navbar = document.querySelector('.navbar');
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    const heroCopies = document.querySelectorAll('.hero-copy');
+    const heroDots = document.querySelectorAll('.hero-dot');
     let pendingLoginEmail = '';
     let wastePrefillTimer = null;
     let recyclerCompanies = [];
@@ -600,6 +631,34 @@ Now, individuals, companies and corporates can submit their waste through the "G
       window.location.hostname === '127.0.0.1';
     const apiOrigin = configuredApiOrigin || (isBackendHost ? '' : 'http://localhost:5294');
     const apiIsMissing = !configuredApiOrigin && !isBackendHost && !isLocalPage;
+
+    if (heroSlides.length > 1) {
+      let activeHeroSlide = 0;
+
+      function showHeroSlide(index) {
+        heroSlides[activeHeroSlide].classList.remove('active');
+        heroCopies[activeHeroSlide]?.classList.remove('active');
+        heroDots[activeHeroSlide]?.classList.remove('active');
+        activeHeroSlide = index;
+        heroSlides[activeHeroSlide].classList.add('active');
+        heroCopies[activeHeroSlide]?.classList.add('active');
+        heroDots[activeHeroSlide]?.classList.add('active');
+      }
+
+      let heroCarouselTimer = setInterval(() => {
+        showHeroSlide((activeHeroSlide + 1) % heroSlides.length);
+      }, 5200);
+
+      heroDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          clearInterval(heroCarouselTimer);
+          showHeroSlide(index);
+          heroCarouselTimer = setInterval(() => {
+            showHeroSlide((activeHeroSlide + 1) % heroSlides.length);
+          }, 5200);
+        });
+      });
+    }
 
     function apiUrl(path) {
       if (apiIsMissing) {
@@ -677,7 +736,7 @@ Now, individuals, companies and corporates can submit their waste through the "G
     }
 
     function getWasteFormType() {
-      return wasteForm.getAttribute('data-form-type') || 'individual';
+      return wasteForm.getAttribute('data-form-type') || '';
     }
 
     function getActiveWastePanel() {
@@ -700,7 +759,7 @@ Now, individuals, companies and corporates can submit their waste through the "G
 
     function updateWasteSubmitState() {
       const formType = getWasteFormType();
-      wasteSubmitButton.disabled = !wasteOtpState[formType].token;
+      wasteSubmitButton.disabled = !formType || !wasteOtpState[formType]?.token;
     }
 
     async function requestWasteOtp(button) {
@@ -1393,12 +1452,24 @@ Now, individuals, companies and corporates can submit their waste through the "G
     typeTabs.forEach(tab => {
       tab.addEventListener('click', function () {
         const targetId = this.getAttribute('data-target');
+        const isActiveTab = this.classList.contains('active');
 
         typeTabs.forEach(btn => btn.classList.remove('active'));
         formPanels.forEach(panel => panel.classList.remove('active'));
 
+        if (isActiveTab) {
+          wasteForm.hidden = true;
+          wasteFormNote.hidden = true;
+          wasteForm.setAttribute('data-form-type', '');
+          syncWastePanelFields();
+          updateWasteSubmitState();
+          return;
+        }
+
         this.classList.add('active');
         document.getElementById(targetId).classList.add('active');
+        wasteForm.hidden = false;
+        wasteFormNote.hidden = false;
         wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
         syncWastePanelFields();
         updateWasteSubmitState();
