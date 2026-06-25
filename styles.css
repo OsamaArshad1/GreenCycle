@@ -407,7 +407,7 @@ body.landing-page {
   justify-content: center;
   min-height: clamp(280px, 38vw, 460px);
   overflow: visible;
-  margin-bottom: 96px;
+  margin-bottom: 56px;
   padding: 64px 7%;
   background: #0f3d2e;
   border-bottom: none;
@@ -490,7 +490,7 @@ body.landing-page {
   justify-content: center;
   gap: 11px;
   position: absolute;
-  bottom: -84px;
+  bottom: -46px;
   left: 50%;
   z-index: 3;
   margin-top: 0;
@@ -530,7 +530,7 @@ html:not([dir="rtl"]) .hero-copy {
 }
 
 section.recent-transactions-section {
-  margin-top: -30px;
+  margin-top: -42px;
   padding: 0 7% 16px;
 }
 
