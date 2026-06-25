@@ -2037,7 +2037,19 @@ body.directory-page {
   .modal { padding: 22px; }
 
   .hero {
-    padding: 18px 5% 4px;
+    margin-bottom: 16px;
+    padding: 18px 5% 42px;
+  }
+
+  .hero-dots {
+    bottom: 12px;
+    gap: 8px;
+    padding: 7px 10px;
+  }
+
+  .hero-dot {
+    width: 10px;
+    height: 10px;
   }
 
   .hero-content {
@@ -2192,7 +2204,14 @@ body.directory-page {
     height: 44px;
   }
 
-  .hero { padding: 14px 4% 18px; }
+  .hero {
+    margin-bottom: 14px;
+    padding: 14px 4% 40px;
+  }
+
+  .hero-dots {
+    bottom: 10px;
+  }
 
   .hero-copy {
     font-size: 0.82rem;
