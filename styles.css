@@ -406,9 +406,9 @@ body.landing-page {
   align-items: center;
   justify-content: center;
   min-height: clamp(245px, 33vw, 400px);
-  overflow: visible;
-  margin-bottom: 56px;
-  padding: 52px 7%;
+  overflow: hidden;
+  margin-bottom: 16px;
+  padding: 52px 7% 70px;
   background: #0f3d2e;
   border-bottom: none;
 }
@@ -490,7 +490,7 @@ body.landing-page {
   justify-content: center;
   gap: 11px;
   position: absolute;
-  bottom: -142px;
+  bottom: 18px;
   left: 50%;
   z-index: 3;
   margin-top: 0;
@@ -530,8 +530,10 @@ html:not([dir="rtl"]) .hero-copy {
 }
 
 section.recent-transactions-section {
-  margin-top: -42px;
-  padding: 0 7% 16px;
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+  padding: 18px 7% 16px;
 }
 
 .recent-transactions-page section.recent-transactions-section {
@@ -1575,8 +1577,19 @@ body.directory-page {
 }
 
 .directory-page .hero {
+  position: relative;
   display: block;
-  padding: 56px 6% 28px;
+  min-height: auto;
+  overflow: visible;
+  margin-bottom: 0;
+  padding: 64px 6% 34px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(134, 239, 172, 0.42), transparent 28%),
+    linear-gradient(135deg, #e6f8ed 0%, #f7fff8 48%, #d9f7e6 100%);
+}
+
+.directory-page .hero::after {
+  content: none;
 }
 
 .directory-page .hero-panel {
@@ -1586,10 +1599,11 @@ body.directory-page {
   padding: 34px;
   border-radius: 28px;
   background:
-    linear-gradient(135deg, rgba(15, 61, 46, 0.94), rgba(31, 122, 76, 0.9)),
-    #114531;
+    linear-gradient(135deg, rgba(7, 44, 31, 0.98), rgba(31, 122, 76, 0.94)),
+    #0b3d2b;
   color: #fff;
-  box-shadow: 0 18px 48px rgba(15, 61, 46, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 24px 58px rgba(15, 61, 46, 0.22);
 }
 
 .directory-page .eyebrow {
@@ -1613,8 +1627,9 @@ body.directory-page {
 
 .directory-page .hero p {
   max-width: 840px;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.08rem;
+  font-weight: 650;
 }
 
 .directory-page .chips {
@@ -2038,11 +2053,11 @@ body.directory-page {
 
   .hero {
     margin-bottom: 16px;
-    padding: 18px 5% 42px;
+    padding: 18px 5% 54px;
   }
 
   .hero-dots {
-    bottom: 12px;
+    bottom: 14px;
     gap: 8px;
     padding: 7px 10px;
   }
@@ -2206,11 +2221,11 @@ body.directory-page {
 
   .hero {
     margin-bottom: 14px;
-    padding: 14px 4% 40px;
+    padding: 14px 4% 50px;
   }
 
   .hero-dots {
-    bottom: 10px;
+    bottom: 12px;
   }
 
   .hero-copy {
