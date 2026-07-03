@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Green Cycle Platform</title>
+  <meta name="description" content="Green Cycle Platform provides smart recycling and waste management services for homes, businesses, and recycling companies." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -17,9 +18,7 @@
         <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
       </div>
       <div class="logo-links" aria-label="Brand links">
-        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
-        <br />
-        <a href="recycling-companies.html">Green Cycle Platform</a>
+        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<span class="brand-registration">Registered at Kuwait MOCI</span></a>
       </div>
     </div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
@@ -60,11 +59,28 @@
     </div>
   </header>
 
+  <div class="platform-news-ticker" role="region" aria-label="Green Cycle latest news">
+    <strong class="platform-news-label">LATEST NEWS</strong>
+    <div class="platform-news-window">
+      <div class="platform-news-track">
+        <div class="platform-news-group">
+          <span>Green Cycle Platform connects individuals and businesses with recycling opportunities across Kuwait.</span>
+          <span>Track your waste requests through your dashboard and view completed transactions at any time.</span>
+        </div>
+        <div class="platform-news-group" aria-hidden="true">
+          <span>Green Cycle Platform connects individuals and businesses with recycling opportunities across Kuwait.</span>
+          <span>Track your waste requests through your dashboard and view completed transactions at any time.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <section class="hero" id="home">
     <div class="hero-carousel" aria-hidden="true">
       <div class="hero-slide hero-slide-city active" style="background-image: url('carousel/ahmad-mohammed-6MafHMTYgxk-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-waterfront" style="background-image: url('carousel/shashi-ghosh-4nVP4WLheEU-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-earth" style="background-image: url('carousel/bhautik-patel-rK-MCUCezNk-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-platform" style="background-image: url('carousel/4.jpeg');"></div>
       <div class="hero-slide hero-slide-smoke" style="background-image: url('carousel/collab-media-GmqezLxud8g-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-landfill" style="background-image: url('carousel/WhatsApp Image 2026-06-25 at 9.33.39 PM (1).jpeg');"></div>
     </div>
@@ -79,6 +95,9 @@ Green Cycle is a professional recycling-sector platform in Kuwait, connecting th
 Through value-based circular systems, we help reduce waste, protect the environment, and support a cleaner future for people and organizations.
       </p>
       <p class="hero-copy">
+The platform also helps companies and institutions achieve effective waste management through our professional tools and internationally recognized standards.
+      </p>
+      <p class="hero-copy">
 Every waste submission helps reduce pressure on landfills and redirect recyclable materials into environmental and economic value.
       </p>
       <p class="hero-copy">
@@ -91,6 +110,7 @@ We help companies and institutions show their environmental impact through clear
       <button type="button" class="hero-dot" aria-label="Slide three"></button>
       <button type="button" class="hero-dot" aria-label="Slide four"></button>
       <button type="button" class="hero-dot" aria-label="Slide five"></button>
+      <button type="button" class="hero-dot" aria-label="Slide six"></button>
     </div>
   </section>
 
@@ -306,17 +326,17 @@ We help companies and institutions show their environmental impact through clear
 
       <label class="terms-check">
         <input type="checkbox" id="termsCheckbox" required />
-        <span>I agree to the terms and conditions.</span>
+        <span>I accept to register in Green Cycle Platform and receive its newsletter, as well as the <a href="Terms and Conditions updated.pdf" target="_blank" rel="noopener">Terms &amp; Conditions</a> and <a href="Privacy Policy updated.pdf" target="_blank" rel="noopener">Privacy Policy</a>, by joining Green Cycle Platform.</span>
       </label>
 
       <button type="submit" class="btn btn-primary" id="wasteSubmitButton" style="width:100%; margin-top: 8px;" disabled>Submit</button>
-      <div class="success-message" id="successMessage">Your waste material submission has been received successfully.</div>
+      <div class="success-message" id="successMessage">Thank you for contributing with us. You can now track the status of your request through your dashboard in the main menu. You can also view it at any time later by logging in.</div>
     </form>
   </div>
 </div>
 </section>
 
-<section class="section" id="ads">
+<section class="section" id="ads" hidden>
   <div class="section-title">
     <h2>Featured Advertisements</h2>
     <p>Explore services and products supporting sustainability and circular economy.</p>
@@ -400,7 +420,7 @@ We help companies and institutions show their environmental impact through clear
     </div>
   </section> -->
 
-  <!-- <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
+  <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
     <div class="section-title">
       <h2>Latest News</h2>
       <p>This section is ready for future dynamic news updates, announcements, and sustainability highlights.</p>
@@ -423,7 +443,27 @@ We help companies and institutions show their environmental impact through clear
         <p>Feature success stories showing how waste is redirected into reuse, recovery, and responsible value chains.</p>
       </div>
     </div>
-  </section> -->
+    <details class="news-more-details">
+      <summary class="btn btn-outline">View More News</summary>
+      <div class="news-grid news-grid-more">
+        <div class="news-card">
+          <span>Waste Management</span>
+          <h4>Better Sorting Improves Recycling Quality</h4>
+          <p>Separating paper, plastics, metals, and organic waste at the source helps reduce contamination and recover more useful materials.</p>
+        </div>
+        <div class="news-card">
+          <span>E-Waste</span>
+          <h4>Responsible Electronics Recovery</h4>
+          <p>Phones, computers, batteries, and other electronic items require specialized collection to recover valuable materials safely.</p>
+        </div>
+        <div class="news-card">
+          <span>Organic Waste</span>
+          <h4>Turning Food Waste into Resources</h4>
+          <p>Food and organic waste can be diverted from landfills through composting and other recovery solutions that support a circular economy.</p>
+        </div>
+      </div>
+    </details>
+  </section>
 
   <section class="section" id="contact">
     <div class="section-title">
@@ -606,6 +646,7 @@ We help companies and institutions show their environmental impact through clear
     const successMessage = document.getElementById('successMessage');
     const recyclerTargetFields = document.querySelectorAll('.recycler-target-field');
     const maxWasteImages = 5;
+    const maxWasteImageBytes = 3 * 1024 * 1024;
     const typeTabs = document.querySelectorAll('#formTypeSwitcher .type-tab');
     const formPanels = document.querySelectorAll('#individualForm, #corporateForm');
     const otpButtons = document.querySelectorAll('.otp-btn');
@@ -890,6 +931,13 @@ We help companies and institutions show their environmental impact through clear
 
     function validateWasteImageInput(input) {
       const imageList = input.closest('.waste-image-list');
+      const oversizedImage = Array.from(input.files).find(file => file.size > maxWasteImageBytes);
+      if (oversizedImage) {
+        alert(`Image "${oversizedImage.name}" exceeds the 3 MB limit per image.`);
+        input.value = '';
+        return false;
+      }
+
       if (!imageList || countWasteImages(imageList) <= maxWasteImages) return true;
 
       alert(`You can upload a maximum of ${maxWasteImages} images.`);
@@ -1511,10 +1559,9 @@ We help companies and institutions show their environmental impact through clear
           localStorage.setItem('greenCycleAuth', JSON.stringify(result.session));
           updateMainAuthActions();
         }
-        successMessage.textContent = result.session
-          ? 'Your waste material submission has been received successfully. You are signed in and can open the dashboard.'
-          : 'Your waste material submission has been received successfully.';
+        successMessage.textContent = 'Thank you for contributing with us. You can now track the status of your request through your dashboard in the main menu. You can also view it at any time later by logging in.';
         successMessage.style.display = 'block';
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const formType = getWasteFormType();
         const submittedPhone = wasteOtpState[formType].phone;
         wasteForm.reset();
@@ -1531,9 +1578,6 @@ We help companies and institutions show their environmental impact through clear
             ? 'This OTP was used for that request. Send a new OTP to submit another request.'
             : '';
         });
-        setTimeout(() => {
-          successMessage.style.display = 'none';
-        }, 4000);
       } catch (error) {
         alert(error.message);
       } finally {

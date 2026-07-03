@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>منصة جرين سايكل</title>
+  <title>Green Cycle Platform</title>
+  <meta name="description" content="Green Cycle Platform provides smart recycling and waste management services for homes, businesses, and recycling companies." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -17,9 +18,7 @@
         <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
       </div>
       <div class="logo-links" aria-label="Brand links" lang="en" dir="ltr">
-        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
-        <br />
-        <a href="recycling-companies.html">Green Cycle Platform</a>
+        <a href="index.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<span class="brand-registration">مسجلة لدى وزارة التجارة والصناعة الكويتية</span></a>
       </div>
     </div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="فتح قائمة التنقل">
@@ -60,11 +59,28 @@
     </div>
   </header>
 
+  <div class="platform-news-ticker" role="region" aria-label="آخر أخبار جرين سايكل">
+    <strong class="platform-news-label">آخر الأخبار</strong>
+    <div class="platform-news-window">
+      <div class="platform-news-track">
+        <div class="platform-news-group">
+          <span>تربط منصة جرين سايكل الأفراد والشركات بفرص إعادة التدوير في جميع أنحاء الكويت.</span>
+          <span>تابع طلبات تسليم النفايات من لوحة التحكم واطّلع على المعاملات المكتملة في أي وقت.</span>
+        </div>
+        <div class="platform-news-group" aria-hidden="true">
+          <span>تربط منصة جرين سايكل الأفراد والشركات بفرص إعادة التدوير في جميع أنحاء الكويت.</span>
+          <span>تابع طلبات تسليم النفايات من لوحة التحكم واطّلع على المعاملات المكتملة في أي وقت.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <section class="hero" id="home">
     <div class="hero-carousel" aria-hidden="true">
       <div class="hero-slide hero-slide-city active" style="background-image: url('carousel/ahmad-mohammed-6MafHMTYgxk-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-waterfront" style="background-image: url('carousel/shashi-ghosh-4nVP4WLheEU-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-earth" style="background-image: url('carousel/bhautik-patel-rK-MCUCezNk-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-platform" style="background-image: url('carousel/4.jpeg');"></div>
       <div class="hero-slide hero-slide-smoke" style="background-image: url('carousel/collab-media-GmqezLxud8g-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-landfill" style="background-image: url('carousel/WhatsApp Image 2026-06-25 at 9.33.39 PM (1).jpeg');"></div>
     </div>
@@ -79,6 +95,9 @@
 من خلال الأنظمة الدائرية القائمة على القيمة، نعمل على حفظ البيئة وتقليل النفايات ودعم مستقبل أنظف للأفراد والمؤسسات.
       </p>
       <p class="hero-copy">
+المنصة أيضاً تساهم في تحقيق أدوات إدارة النفايات للشركات والمؤسسات من خلال أدواتنا الاحترافية وبمعايير عالمية.
+      </p>
+      <p class="hero-copy">
 كل عملية تسليم للنفايات تساهم في تقليل الضغط على المرادم وتحويل المواد القابلة للتدوير إلى قيمة اقتصادية وبيئية.
       </p>
       <p class="hero-copy">
@@ -91,6 +110,7 @@
       <button type="button" class="hero-dot" aria-label="الشريحة الثالثة"></button>
       <button type="button" class="hero-dot" aria-label="الشريحة الرابعة"></button>
       <button type="button" class="hero-dot" aria-label="الشريحة الخامسة"></button>
+      <button type="button" class="hero-dot" aria-label="الشريحة السادسة"></button>
     </div>
   </section>
 
@@ -306,17 +326,17 @@
 
       <label class="terms-check">
         <input type="checkbox" id="termsCheckbox" required />
-        <span>الموافقة على القواعد والشروط</span>
+        <span>أوافق على التسجيل في منصة جرين سايكل وتلقي نشرتها الإخبارية، وكذلك على <a href="Terms and Conditions updated.pdf" target="_blank" rel="noopener">الشروط والأحكام</a> و<a href="Privacy Policy updated.pdf" target="_blank" rel="noopener">سياسة الخصوصية</a>، وذلك بانضمامي إلى منصة جرين سايكل.</span>
       </label>
 
       <button type="submit" class="btn btn-primary" id="wasteSubmitButton" style="width:100%; margin-top: 8px;" disabled>ارسال</button>
-      <div class="success-message" id="successMessage">تم استلام طلب تسليم النفايات بنجاح.</div>
+      <div class="success-message" id="successMessage">شكراً على مساهمتك معنا، يمكنك الآن متابعة حالة الطلب من خلال لوحة التحكم الخاصة بك والموجودة في القائمة الرئيسية، كما يمكن الاطلاع عليها في أي وقت لاحق عند تسجيل الدخول.</div>
     </form>
   </div>
 </div>
 </section>
 
-<section class="section" id="ads">
+<section class="section" id="ads" hidden>
   <div class="section-title">
     <h2>الإعلانات المميزة والمشاركة معنا</h2>
     <p>استكشف الخدمات والمنتجات الداعمة للاستدامة والاقتصاد الدائري.</p>
@@ -400,7 +420,7 @@
     </div>
   </section> -->
 
-  <!-- <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
+  <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
     <div class="section-title">
       <h2>أحدث الاخبار المتعلقة في الاقتصاد الدائري وإدارة النفايات</h2>
       <p>هذا القسم جاهز لإضافة الأخبار والتحديثات والإعلانات المتعلقة بإدارة النفايات والاقتصاد الدائري.</p>
@@ -423,7 +443,27 @@
         <p>اعرض قصص النجاح التي توضح كيف يتم تحويل النفايات إلى مسارات إعادة استخدام واسترداد وقيمة مسؤولة.</p>
       </div>
     </div>
-  </section> -->
+    <details class="news-more-details">
+      <summary class="btn btn-outline">عرض المزيد من الأخبار</summary>
+      <div class="news-grid news-grid-more">
+        <div class="news-card">
+          <span>إدارة النفايات</span>
+          <h4>الفرز الأفضل يرفع جودة إعادة التدوير</h4>
+          <p>يساعد فصل الورق والبلاستيك والمعادن والنفايات العضوية من المصدر على تقليل التلوث واسترداد المزيد من المواد النافعة.</p>
+        </div>
+        <div class="news-card">
+          <span>النفايات الإلكترونية</span>
+          <h4>الاسترداد المسؤول للأجهزة الإلكترونية</h4>
+          <p>تحتاج الهواتف وأجهزة الحاسوب والبطاريات وغيرها من الأجهزة الإلكترونية إلى جمع متخصص لاسترداد المواد القيّمة بطريقة آمنة.</p>
+        </div>
+        <div class="news-card">
+          <span>النفايات العضوية</span>
+          <h4>تحويل مخلفات الطعام إلى موارد</h4>
+          <p>يمكن تحويل مخلفات الطعام والنفايات العضوية بعيداً عن المرادم عبر التسميد وحلول الاسترداد الأخرى الداعمة للاقتصاد الدائري.</p>
+        </div>
+      </div>
+    </details>
+  </section>
 
   <section class="section" id="contact">
     <div class="section-title">
@@ -606,6 +646,7 @@
     const successMessage = document.getElementById('successMessage');
     const recyclerTargetFields = document.querySelectorAll('.recycler-target-field');
     const maxWasteImages = 5;
+    const maxWasteImageBytes = 3 * 1024 * 1024;
     const typeTabs = document.querySelectorAll('#formTypeSwitcher .type-tab');
     const formPanels = document.querySelectorAll('#individualForm, #corporateForm');
     const otpButtons = document.querySelectorAll('.otp-btn');
@@ -886,6 +927,13 @@
 
     function validateWasteImageInput(input) {
       const imageList = input.closest('.waste-image-list');
+      const oversizedImage = Array.from(input.files).find(file => file.size > maxWasteImageBytes);
+      if (oversizedImage) {
+        alert(`حجم الصورة "${oversizedImage.name}" أكبر من الحد المسموح (3 ميجابايت لكل صورة).`);
+        input.value = '';
+        return false;
+      }
+
       if (!imageList || countWasteImages(imageList) <= maxWasteImages) return true;
 
       alert(`يمكنك ارفاق ${maxWasteImages} صور كحد أقصى.`);
@@ -1507,10 +1555,9 @@
           localStorage.setItem('greenCycleAuth', JSON.stringify(result.session));
           updateMainAuthActions();
         }
-        successMessage.textContent = result.session
-          ? 'تم استلام طلب تسليم النفايات بنجاح. تم تسجيل دخولك ويمكنك فتح لوحة التحكم.'
-          : 'تم استلام طلب تسليم النفايات بنجاح.';
+        successMessage.textContent = 'شكراً على مساهمتك معنا، يمكنك الآن متابعة حالة الطلب من خلال لوحة التحكم الخاصة بك والموجودة في القائمة الرئيسية، كما يمكن الاطلاع عليها في أي وقت لاحق عند تسجيل الدخول.';
         successMessage.style.display = 'block';
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const formType = getWasteFormType();
         const submittedPhone = wasteOtpState[formType].phone;
         wasteForm.reset();
@@ -1526,9 +1573,6 @@
             ? 'تم استخدام رمز OTP لهذا الطلب. أرسل رمزاً جديداً لتقديم طلب آخر.'
             : '';
         });
-        setTimeout(() => {
-          successMessage.style.display = 'none';
-        }, 4000);
       } catch (error) {
         alert(error.message);
       } finally {

@@ -53,6 +53,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 var siteRoot = FindSiteRoot(apiRoot);
+
 await app.Services.GetRequiredService<UserStore>().InitializeAsync();
 
 app.Use(async (context, next) =>
@@ -71,6 +72,7 @@ app.Use(async (context, next) =>
 
     await next();
 });
+
 
 app.UseDefaultFiles(new DefaultFilesOptions
 {
@@ -200,6 +202,13 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
     if (imageFiles.Length > 5)
     {
         return Results.BadRequest(new ApiError("A maximum of 5 waste images can be uploaded."));
+    }
+
+    const long maxImageBytes = 3 * 1024 * 1024;
+    var oversizedImage = imageFiles.FirstOrDefault(file => file.Length > maxImageBytes);
+    if (oversizedImage is not null)
+    {
+        return Results.BadRequest(new ApiError($"Image '{oversizedImage.FileName}' exceeds the 3 MB limit per image."));
     }
 
     var images = await SaveWasteImagesAsync(imageFiles, siteRoot, submissionId);
@@ -512,10 +521,10 @@ app.MapGet("/api/waste/submissions", async (string? email, UserStore store) =>
         submission.Images.Select(ToImageSummary).ToArray())));
 });
 
-app.MapGet("/api/waste/recent-transactions", async (int? limit, UserStore store) =>
+app.MapGet("/api/waste/recent-transactions", async (int? limit, string? status, UserStore store) =>
 {
     var take = Math.Clamp(limit.GetValueOrDefault(25), 1, 50);
-    var submissions = await store.GetRecentWasteTransactionsAsync(take);
+    var submissions = await store.GetRecentWasteTransactionsAsync(take, status);
     return Results.Ok(submissions.Select(submission => new RecentWasteTransactionSummary(
         submission.Id,
         submission.WasteCategory,
@@ -2257,7 +2266,7 @@ public sealed class UserStore
         }
     }
 
-    public async Task<IReadOnlyList<WasteSubmission>> GetRecentWasteTransactionsAsync(int limit)
+    public async Task<IReadOnlyList<WasteSubmission>> GetRecentWasteTransactionsAsync(int limit, string? status = null)
     {
         await gate.WaitAsync();
         try
@@ -2280,10 +2289,12 @@ public sealed class UserStore
                     status,
                     created_at_utc
                 FROM waste_submissions
+                WHERE ($status IS NULL OR status = $status)
                 ORDER BY created_at_utc DESC
                 LIMIT $limit;
                 """;
             command.Parameters.AddWithValue("$limit", Math.Clamp(limit, 1, 50));
+            command.Parameters.AddWithValue("$status", string.IsNullOrWhiteSpace(status) ? DBNull.Value : status.Trim().ToLowerInvariant());
 
             var submissions = new List<WasteSubmission>();
             await using var reader = await command.ExecuteReaderAsync();

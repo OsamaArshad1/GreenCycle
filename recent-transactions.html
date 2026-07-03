@@ -16,9 +16,7 @@
         <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
       </a>
       <div class="brand-links" aria-label="Brand links">
-        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
-        <br />
-        <a href="recycling-companies.html">Green Cycle Platform</a>
+        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<span class="brand-registration">Registered at Kuwait MOCI</span></a>
       </div>
     </div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
@@ -40,7 +38,7 @@
     <section class="section recent-transactions-section">
       <div class="section-title">
         <h1>Recent Waste Submission Transactions</h1>
-        <p>Latest waste submissions with their status, waste category, and uploaded image.</p>
+        <p>Completed waste submissions by waste category and uploaded image.</p>
       </div>
       <div class="recent-transactions-grid" id="recentTransactionsList">
         <div class="recent-transactions-state">Loading recent transactions...</div>
@@ -182,11 +180,12 @@
       try {
         list.innerHTML = '<div class="recent-transactions-state">Loading recent transactions...</div>';
         moreButton.hidden = true;
-        recentTransactions = await getJson('/api/waste/recent-transactions?limit=50');
+        const transactions = await getJson('/api/waste/recent-transactions?limit=50&status=completed');
+        recentTransactions = transactions.filter(item => item.status === 'completed');
         recentTransactionsVisible = 5;
 
         if (!recentTransactions.length) {
-          list.innerHTML = '<div class="recent-transactions-state">No recent transactions yet.</div>';
+          list.innerHTML = '<div class="recent-transactions-state">No completed requests yet.</div>';
           return;
         }
 

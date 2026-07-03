@@ -157,9 +157,7 @@
         <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
       </a>
       <div class="brand-links" aria-label="Brand links">
-        <a href="green_cycle_main_with_arabic_link.html">Waste Trade / Recycle Hub</a>
-        <br />
-        <a href="recycling-companies.html">Green Cycle Platform</a>
+        <a href="index.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<span class="brand-registration">مسجلة لدى وزارة التجارة والصناعة الكويتية</span></a>
       </div>
     </div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="فتح قائمة التنقل">
@@ -174,7 +172,6 @@
         <div class="nav-dropdown">
           <a class="nav-dropdown-toggle" href="recycling-companies-ar.html">قائمة شركات إعادة التدوير</a>
           <div class="nav-dropdown-menu">
-            <a href="#registered-companies">الشركات المسجلة</a>
             <a href="#plastic">النفايات البلاستيكية</a>
             <a href="#metals">النفايات المعدنية</a>
             <a href="#paper">الورق والكرتون</a>
@@ -204,7 +201,6 @@
       </p>
     </div>
     <div class="chips" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;">
-      <a class="chip" href="#registered-companies">الشركات المسجلة</a>
       <a class="chip" href="#plastic">البلاستيك</a>
       <a class="chip" href="#paper">الورق والكرتون</a>
       <a class="chip" href="#wood">الخشب</a>
@@ -471,19 +467,8 @@
       });
     }
 
-    async function loadCompanies() {
-      try {
-        document.querySelectorAll('.directory-grid').forEach(grid => {
-          grid.innerHTML = '<div class="directory-status">جاري تحميل الشركات المسجلة...</div>';
-        });
-        const response = await fetch(apiUrl('/api/companies'));
-        const companies = await readApiResponse(response);
-        fillDirectorySections(companies);
-      } catch (error) {
-        document.querySelectorAll('.directory-grid').forEach(grid => {
-          grid.innerHTML = `<div class="directory-empty">${escapeHtml(error.message)}</div>`;
-        });
-      }
+    function loadCompanies() {
+      fillDirectorySections([]);
     }
 
     if (reviewModal && reviewForm) {
