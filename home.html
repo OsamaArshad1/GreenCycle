@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Cycle Platform</title>
+  <meta name="description" content="Green Cycle Platform provides smart recycling and waste management services for homes, businesses, and recycling companies." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="landing-page">
+  <header class="navbar navbar-home">
+    <div class="logo">
+      <div class="logo-mark">
+        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
+      </div>
+      <div class="logo-links" aria-label="Brand links">
+        <a href="home.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<!-- <span class="brand-registration">Registered at Kuwait MOCI</span> --></a>
+      </div>
+    </div>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="nav-menu">
+      <nav class="nav-links nav-links-home">
+        <a href="home.html">Home</a>
+        <a href="#objectives">Objectives</a>
+        <!-- <a href="#sponsors">Sponsors</a> -->
+        <!-- <a href="#incentives">Incentives Providers</a> -->
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-toggle" href="recycling-companies.html">Recycling Companies List</a>
+          <div class="nav-dropdown-menu">
+            <a href="recycling-companies.html#plastic">Plastic Waste</a>
+            <a href="recycling-companies.html#paper">Paper & Cardboard</a>
+            <a href="recycling-companies.html#metal-scrap">Metal Scrap</a>
+            <a href="recycling-companies.html#glass">Glass Waste</a>
+            <a href="recycling-companies.html#electronic">Electronic Waste</a>
+            <a href="recycling-companies.html#organic">Organic Waste</a>
+            <a href="recycling-companies.html#textile">Textile Waste</a>
+            <a href="recycling-companies.html#construction">Construction Debris</a>
+            <a href="recycling-companies.html#wood">Wood Waste</a>
+            <a href="recycling-companies.html#battery">Battery Waste</a>
+            <a href="recycling-companies.html#tires">Used Tires</a>
+            <a href="recycling-companies.html#agricultural">Agricultural Waste</a>
+            <a href="recycling-companies.html#cooking-oil">Used Cooking Oil</a>
+            <a href="recycling-companies.html#engine-oil">Used Engine Oil</a>
+            <a href="recycling-companies.html#electrical-devices">Electrical Devices Waste</a>
+            <a href="recycling-companies.html#solar-pv">Waste of Solar PV Panels</a>
+            <a href="recycling-companies.html#mobile-electronic">Mobile and Electronic Waste</a>
+            <a href="recycling-companies.html#cables-wires">Cables and Wires Waste</a>
+            <a href="recycling-companies.html#toys">Toys Waste</a>
+            <a href="recycling-companies.html#air-filters">Used Air Filters</a>
+            <a href="recycling-companies.html#oil-filters">Used Oil Filters</a>
+            <a href="recycling-companies.html#water-filters">Used Water Filters</a>
+            <a href="recycling-companies.html#mixed-multiple">Mixed and Multiple Waste</a>
+            <a href="recycling-companies.html#other">Other Waste</a>
+          </div>
+        </div>
+        <a href="#contact">Contact</a>
+        <a href="index.html" class="lang-switch" lang="ar">العربية</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-outline" id="mainDashboardLink" href="dashboard-en.html" hidden>Dashboard</a>
+        <button class="btn btn-outline" id="mainLogoutButton" hidden>Logout</button>
+        <button class="btn btn-outline" id="openLoginModal">Login</button>
+        <button class="btn btn-primary" id="openSignupModal">Free Registration for new recycler companies and scrap managers</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="platform-news-ticker" role="region" aria-label="آخر الأخبار">
+    <a class="platform-news-label" href="#news" lang="ar" dir="rtl">آخر الأخبار</a>
+    <div class="platform-news-window">
+      <div class="platform-news-track">
+        <div class="platform-news-group">
+          <a href="#news" lang="ar" dir="rtl">مشروع إنتاج الكهرباء من النفايات وأهميته في الكويت</a>
+          <a href="#news" lang="en" dir="ltr">Producing Electricity from Waste and Its Importance for Kuwait</a>
+          <a href="#news" lang="ar" dir="rtl">مستقبل نفايات الألواح الشمسية الكهروضوئية</a>
+          <a href="#news" lang="en" dir="ltr">The Future of Solar Panel Waste</a>
+          <a href="#news" lang="ar" dir="rtl">الاستراتيجية الوطنية الكويتية لإدارة النفايات 2040</a>
+          <a href="#news" lang="en" dir="ltr">Kuwait National Waste Management Strategy 2040</a>
+        </div>
+        <div class="platform-news-group" aria-hidden="true">
+          <a href="#news" lang="ar" dir="rtl">مشروع إنتاج الكهرباء من النفايات وأهميته في الكويت</a>
+          <a href="#news" lang="en" dir="ltr">Producing Electricity from Waste and Its Importance for Kuwait</a>
+          <a href="#news" lang="ar" dir="rtl">مستقبل نفايات الألواح الشمسية الكهروضوئية</a>
+          <a href="#news" lang="en" dir="ltr">The Future of Solar Panel Waste</a>
+          <a href="#news" lang="ar" dir="rtl">الاستراتيجية الوطنية الكويتية لإدارة النفايات 2040</a>
+          <a href="#news" lang="en" dir="ltr">Kuwait National Waste Management Strategy 2040</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="hero" id="home">
+    <div class="hero-carousel" aria-hidden="true">
+      <div class="hero-slide hero-slide-city active" style="background-image: url('carousel/ahmad-mohammed-6MafHMTYgxk-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-waterfront" style="background-image: url('carousel/shashi-ghosh-4nVP4WLheEU-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-earth" style="background-image: url('carousel/bhautik-patel-rK-MCUCezNk-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-platform" style="background-image: url('carousel/5.png');"></div>
+      <div class="hero-slide hero-slide-smoke" style="background-image: url('carousel/collab-media-GmqezLxud8g-unsplash.jpg.jpeg');"></div>
+      <div class="hero-slide hero-slide-landfill" style="background-image: url('carousel/WhatsApp Image 2026-06-25 at 9.33.39 PM (1).jpeg');"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-copy active">
+Now, individuals, companies, and corporates can submit their waste through the Green Cycle platform and receive a variety of valuable incentives.
+      </p>
+      <p class="hero-copy">
+Green Cycle is a professional recycling-sector platform in Kuwait, connecting the community with specialized companies to turn waste into useful resources.
+      </p>
+      <p class="hero-copy">
+Through value-based circular systems, we help reduce waste, protect the environment, and support a cleaner future for people and organizations.
+      </p>
+      <p class="hero-copy">
+The platform also helps companies and institutions achieve effective waste management through our professional tools and internationally recognized standards.
+      </p>
+      <p class="hero-copy">
+Every waste submission helps reduce pressure on landfills and redirect recyclable materials into environmental and economic value.
+      </p>
+      <p class="hero-copy">
+We help companies and institutions show their environmental impact through clear, responsible participation in the recycling ecosystem.
+      </p>
+    </div>
+    <div class="hero-dots" aria-label="Hero slides">
+      <button type="button" class="hero-dot active" aria-label="Slide one"></button>
+      <button type="button" class="hero-dot" aria-label="Slide two"></button>
+      <button type="button" class="hero-dot" aria-label="Slide three"></button>
+      <button type="button" class="hero-dot" aria-label="Slide four"></button>
+      <button type="button" class="hero-dot" aria-label="Slide five"></button>
+      <button type="button" class="hero-dot" aria-label="Slide six"></button>
+    </div>
+  </section>
+
+  <section class="section recent-transactions-section" id="recent-transactions">
+    <div class="section-title">
+      <a class="btn btn-primary recent-transactions-cta" href="recent-transactions.html">Click here to view the recent waste submission transactions</a>
+    </div>
+  </section>
+
+  <section class="section" id="submit-waste">
+    <div class="submit-panel">
+      <div class="hero-card">
+        <h2>Waste Material Submission</h2>
+      <p>Select the type of submission below and provide the required waste details so the right collection or recycling process can be assigned.</p>
+
+      <div class="form-type-switcher" id="formTypeSwitcher">
+        <button type="button" class="type-tab" data-target="individualForm">Click here to submit wastes by individuals / homes / etc</button>
+        <button type="button" class="type-tab" data-target="corporateForm">Click here to submit wastes by corporates / shops / etc</button>
+      </div>
+      <div class="form-note" id="wasteFormNote" hidden>Fields marked with * are mandatory.</div>
+
+      <form id="wasteForm" data-form-type="" hidden>
+      <div class="form-panel" id="individualForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="individualPhone">Phone Number *</label>
+            <input type="tel" id="individualPhone" placeholder="Enter your phone number" required />
+          </div>
+
+          <div class="field">
+            <label for="individualName">Full Name *</label>
+            <input type="text" id="individualName" placeholder="Enter your full name" required />
+          </div>
+
+          <div class="field">
+            <label for="individualEmail">Email Address *</label>
+            <input type="email" id="individualEmail" placeholder="Enter your email address" required />
+          </div>
+
+          <div class="field">
+            <label for="individualCity">City *</label>
+            <input type="text" id="individualCity" placeholder="Enter your city" required />
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteCategory">Waste Category *</label>
+            <div class="signup-category-list waste-category-list" id="individualWasteCategoryList">
+              <select id="individualWasteCategory" name="individualWasteCategory[]" required>
+                <option value="">Select waste category</option>
+                <option>Plastic Waste</option>
+                <option>Paper & Cardboard</option>
+                <option>Metal Scrap</option>
+                <option>Glass Waste</option>
+                <option>Electronic Waste</option>
+                <option>Organic Waste</option>
+                <option>Textile Waste</option>
+                <option>Construction Debris</option>
+                <option>Wood Waste</option>
+                <option>Battery Waste</option>
+                <option>Used Tires</option>
+                <option>Agricultural Waste</option>
+                <option>Used Cooking Oil</option>
+                <option>Used Engine Oil</option>
+                <option>Electrical Devices Waste</option>
+                <option>Waste of Solar PV Panels</option>
+                <option>Mobile and Electronic Waste</option>
+                <option>Cables and Wires Waste</option>
+                <option>Toys Waste</option>
+                <option>Used Air Filters</option>
+                <option>Used Oil Filters</option>
+                <option>Used Water Filters</option>
+                <option>Mixed and Multiple Waste</option>
+                <option>Other Waste</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-outline add-category-btn" id="addIndividualWasteCategory">Add waste category</button>
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteImages">Waste Images *</label>
+            <div class="signup-category-list waste-image-list" id="individualWasteImageList">
+              <input type="file" id="individualWasteImages" accept="image/*" multiple />
+            </div>
+            <button type="button" class="btn btn-outline add-category-btn" id="addIndividualWasteImage">Add another image</button>
+            <div class="form-note">You can upload up to 5 images of the waste materials.</div>
+          </div>
+
+          <div class="field full">
+            <label for="individualWasteNotes">Additional Details (Optional)</label>
+            <textarea id="individualWasteNotes" placeholder="Add notes such as quantity, pickup location, or special handling details..."></textarea>
+          </div>
+
+          <div class="field full recycler-target-field">
+            <label class="recycler-send-all">
+              <input type="checkbox" class="recycler-send-all-input" checked />
+              <span>Send to all registered recycler companies *</span>
+            </label>
+            <div class="recycler-target-list" data-empty-message="Loading recycler companies..."></div>
+            <small class="recycler-target-hint">Uncheck send to all if you want to choose specific companies.</small>
+          </div>
+
+          <div class="field full otp-row">
+            <div class="otp-actions">
+              <button type="button" class="btn btn-outline otp-btn" data-channel="email">Click here to get the email verification code</button>
+              <!-- <button type="button" class="btn btn-outline otp-btn" data-channel="whatsapp">Send OTP to WhatsApp</button> -->
+            </div>
+            <div class="otp-input-wrap" hidden>
+              <label for="individualOtp">OTP Verification *</label>
+              <input type="text" id="individualOtp" placeholder="Enter the OTP you received" />
+              <small class="otp-hint" style="color:#5b7566;"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel" id="corporateForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="companyPhone">Phone Number *</label>
+            <input type="tel" id="companyPhone" placeholder="Enter company phone number" />
+          </div>
+
+          <div class="field">
+            <label for="companyName">Company Name *</label>
+            <input type="text" id="companyName" placeholder="Enter company name" />
+          </div>
+
+          <div class="field">
+            <label for="companyEmail">Email Address *</label>
+            <input type="email" id="companyEmail" placeholder="Enter company email address" />
+          </div>
+
+          <div class="field">
+            <label for="companyCity">City *</label>
+            <input type="text" id="companyCity" placeholder="Enter city" />
+          </div>
+
+          <div class="field">
+            <label for="contactPerson">Contact Person *</label>
+            <input type="text" id="contactPerson" placeholder="Enter contact person name" />
+          </div>
+
+          <div class="field">
+            <label for="companyWasteCategory">Waste Category *</label>
+            <div class="signup-category-list waste-category-list" id="companyWasteCategoryList">
+              <select id="companyWasteCategory" name="companyWasteCategory[]" required>
+                <option value="">Select waste category</option>
+                <option>Plastic Waste</option>
+                <option>Paper & Cardboard</option>
+                <option>Metal Scrap</option>
+                <option>Glass Waste</option>
+                <option>Electronic Waste</option>
+                <option>Organic Waste</option>
+                <option>Textile Waste</option>
+                <option>Construction Debris</option>
+                <option>Wood Waste</option>
+                <option>Battery Waste</option>
+                <option>Used Tires</option>
+                <option>Agricultural Waste</option>
+                <option>Used Cooking Oil</option>
+                <option>Used Engine Oil</option>
+                <option>Electrical Devices Waste</option>
+                <option>Waste of Solar PV Panels</option>
+                <option>Mobile and Electronic Waste</option>
+                <option>Cables and Wires Waste</option>
+                <option>Toys Waste</option>
+                <option>Used Air Filters</option>
+                <option>Used Oil Filters</option>
+                <option>Used Water Filters</option>
+                <option>Mixed and Multiple Waste</option>
+                <option>Other Waste</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-outline add-category-btn" id="addCompanyWasteCategory">Add waste category</button>
+          </div>
+
+          <div class="field full">
+            <label for="companyWasteImages">Waste Images *</label>
+            <div class="signup-category-list waste-image-list" id="companyWasteImageList">
+              <input type="file" id="companyWasteImages" accept="image/*" multiple />
+            </div>
+            <button type="button" class="btn btn-outline add-category-btn" id="addCompanyWasteImage">Add another image</button>
+            <div class="form-note">You can upload up to 5 images of the waste materials.</div>
+          </div>
+
+          <div class="field full">
+            <label for="companyWasteNotes">Additional Details (Optional)</label>
+            <textarea id="companyWasteNotes" placeholder="Add quantity, pickup location, operating hours, or handling details..."></textarea>
+          </div>
+
+          <div class="field full recycler-target-field">
+            <label class="recycler-send-all">
+              <input type="checkbox" class="recycler-send-all-input" checked />
+              <span>Send to all registered recycler companies *</span>
+            </label>
+            <div class="recycler-target-list" data-empty-message="Loading recycler companies..."></div>
+            <small class="recycler-target-hint">Uncheck send to all if you want to choose specific companies.</small>
+          </div>
+
+          <div class="field full otp-row">
+            <div class="otp-actions">
+              <button type="button" class="btn btn-outline otp-btn" data-channel="email">Click here to get the email verification code</button>
+              <!-- <button type="button" class="btn btn-outline otp-btn" data-channel="whatsapp">Send OTP to WhatsApp</button> -->
+            </div>
+            <div class="otp-input-wrap" hidden>
+              <label for="companyOtp">OTP Verification *</label>
+              <input type="text" id="companyOtp" placeholder="Enter the OTP you received" />
+              <small class="otp-hint" style="color:#5b7566;"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <label class="terms-check">
+        <input type="checkbox" id="termsCheckbox" required />
+        <span>I accept to register in Green Cycle Platform and receive its newsletter, as well as the <a href="terms-and-conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a> and <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>, by joining Green Cycle Platform.</span>
+      </label>
+
+      <button type="submit" class="btn btn-primary" id="wasteSubmitButton" style="width:100%; margin-top: 8px;" disabled>Submit</button>
+      <div class="success-message" id="successMessage">Thank you for contributing with us. You can now track the status of your request through your dashboard in the main menu. You can also view it at any time later by logging in.</div>
+    </form>
+  </div>
+</div>
+</section>
+
+<section class="section building-services-section" id="building-services">
+  <div class="building-services-grid">
+    <div class="hero-card building-service-card">
+      <span class="btn btn-outline building-service-action coming-soon-action" aria-disabled="true">Click here - Coming soon</span>
+      <p>To learn about the steps for obtaining the Green Cycle Gold Building Accreditation for a building (company, bank, hotel, hospital, school, etc.) in sustainability practices and environmental quality standards.</p>
+    </div>
+    <div class="hero-card building-service-card">
+      <span class="btn btn-outline building-service-action coming-soon-action" aria-disabled="true">Click here - Coming soon</span>
+      <p>To learn about the steps for evaluating building energy performance, improving it, and achieving optimal energy efficiency.</p>
+    </div>
+    <div class="hero-card building-service-card">
+      <span class="btn btn-outline building-service-action coming-soon-action" aria-disabled="true">Click here - Coming soon</span>
+      <p>To learn about the steps for evaluating building water consumption, improving it, and achieving optimal water conservation efficiency.</p>
+    </div>
+    <div class="hero-card building-service-card">
+      <span class="btn btn-outline building-service-action coming-soon-action" aria-disabled="true">Click here - Coming soon</span>
+      <p>To learn about the steps for evaluating indoor air quality in the building, improving it, and achieving optimal air quality.</p>
+    </div>
+    <div class="hero-card building-service-card">
+      <span class="btn btn-outline building-service-action coming-soon-action" aria-disabled="true">Click here - Coming soon</span>
+      <p>To learn about the steps for improving the building security and safety system.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="ads" hidden>
+  <div class="section-title">
+    <h2>Featured Advertisements</h2>
+    <p>Explore services and products supporting sustainability and circular economy.</p>
+  </div>
+
+  <div class="ads-grid" id="adsContainer"></div>
+</section>
+
+<section class="section" id="objectives">
+  <div class="section-title">
+    <h2>Our Objectives</h2>
+  </div>
+  <div class="objectives-grid">
+    <div class="objective-card">
+      <p>To create financial incentives to encourage the public to dispose of their waste properly. Consumers can receive various incentives when they dispose of their waste, either personally or through their businesses, via our platform, Green Cycle Platform.</p>
+    </div>
+    <div class="objective-card">
+      <p>To support leading companies in achieving their corporate social responsibility (CSR) ambitions. Our platform can enhance CSR through statistics and performance reports on waste sustainability management.</p>
+    </div>
+    <div class="objective-card">
+      <p>Over 20 million tons of waste are sent to landfills in Kuwait annually. With your participation, we can reduce the amount of waste in Kuwait's landfills by 20% in 2028 and by 100% in 2040.</p>
+    </div>
+    <div class="objective-card">
+      <p>To Enhance awareness of waste reduction in Kuwait's landfills by issuing an international certificate for preserving Kuwait's landfills to every individual and institution participating in the Green Cycle platform.</p>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="section" id="sponsors">
+    <div class="section-title">
+      <h2>Our Sponsors</h2>
+      <p>Organizations that support environmental innovation, responsible waste handling, recycling infrastructure, and circular economy growth.</p>
+    </div>
+
+    <div class="sponsor-grid">
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=900&q=80" alt="EcoRenew Ltd.">
+        <h4>EcoRenew Ltd.</h4>
+        <p>Recycling and material recovery partner.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="GreenGrid">
+        <h4>GreenGrid</h4>
+        <p>Supports clean operations and sustainability networks.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=900&q=80" alt="Circular Works">
+        <h4>Circular Works</h4>
+        <p>Circular supply chain and reuse systems partner.</p>
+      </div>
+      <div class="sponsor-card">
+        <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=900&q=80" alt="Clean Earth Co.">
+        <h4>Clean Earth Co.</h4>
+        <p>Environmental stewardship and waste safety sponsor.</p>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- <section class="section" id="incentives" style="background: rgba(255,255,255,0.7);">
+    <div class="section-title">
+      <h2>Sectors Participating in Incentives</h2>
+      <p>Encourage users, businesses, and institutions to join the platform with benefits that create both environmental and commercial value.</p>
+    </div>
+
+    <div class="cards">
+      <div class="info-card">
+        <div class="benefit-icon">♻️</div>
+        <h3>Green Recognition</h3>
+        <p>Build a trusted sustainability profile with verified participation and environmental impact visibility.</p>
+      </div>
+      <div class="info-card">
+        <div class="benefit-icon">💰</div>
+        <h3>Cost Reduction</h3>
+        <p>Lower waste handling expenses by redirecting materials into more efficient reuse and recovery channels.</p>
+      </div>
+      <div class="info-card">
+        <div class="benefit-icon">📊</div>
+        <h3>Impact Analytics</h3>
+        <p>Track performance, diversion rates, and circular progress through simple digital dashboards.</p>
+      </div>
+    </div>
+  </section> -->
+
+  <section class="section" id="news" style="background: rgba(255,255,255,0.72);">
+    <div class="section-title">
+      <h2>Latest News</h2>
+      <p>Insights and articles on waste management, recycling, and circular economy opportunities in Kuwait and the region.</p>
+    </div>
+
+    <div class="news-grid">
+      <div class="news-card">
+        <span>Waste to Energy</span>
+        <h4>Producing Electricity from Waste and Its Importance for Kuwait</h4>
+        <p>Lessons from Dubai's Warsan waste-to-energy project and why similar projects could help Kuwait reduce landfills while producing reliable power.</p>
+        <a class="btn btn-outline news-detail-link" href="article-one.html">View in detail</a>
+      </div>
+      <div class="news-card">
+        <span>Solar PV Waste</span>
+        <h4>The Future of Solar Panel Waste</h4>
+        <p>As solar deployment grows across the Gulf, photovoltaic panel waste brings both pollution risks and valuable resource recovery opportunities.</p>
+        <a class="btn btn-outline news-detail-link" href="article-two.html">View in detail</a>
+      </div>
+      <div class="news-card">
+        <span>Kuwait Strategy 2040</span>
+        <h4>Kuwait National Waste Management Strategy 2040</h4>
+        <p>A look at Kuwait's national strategy, its five core objectives, and how digital platforms can support better waste flow and recycling oversight.</p>
+        <a class="btn btn-outline news-detail-link" href="article-three.html">View in detail</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="section-title">
+      <h2>Contact Us</h2>
+      <p>Make it easy for users, partners, and sponsors to reach Green Cycle Platform.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>General Contact</h3>
+        <strong>Email</strong>
+        <p>info@greencycleplatform.com</p>
+      </div>
+      <div class="contact-card">
+        <h3>Support Line</h3>
+        <strong>Phone</strong>
+        <p>+965 6772 7786 </p>
+      </div>
+      <div class="contact-card">
+        <h3>Office Address</h3>
+        <strong>Location</strong>
+        <p>Green Cycle Platform, Kuwait City, Kuwait</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-wrap">
+      <p><strong>Green Cycle Platform</strong> — Circular waste solutions platform</p>
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#home">Submit Waste</a>
+        <a href="#sponsors">Sponsors</a>
+        <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+      </div>
+      <p>© 2026 All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="close-btn" id="closeLoginModal">×</button>
+      <h2 style="color: var(--green-900); margin-bottom: 8px;">Login</h2>
+      <p style="color:#5b7566; margin-bottom: 18px;">Access your Green Cycle account</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email" required />
+        </div>
+
+        <div class="login-otp-actions">
+          <button type="button" class="btn btn-outline" id="loginSendOtpButton" data-channel="email">Click here to get the email verification code</button>
+          <!-- <button type="button" class="btn btn-outline" id="loginSendWhatsAppOtpButton" data-channel="whatsapp">Send OTP to WhatsApp</button> -->
+        </div>
+        <div class="login-feedback success" id="loginOtpStatus"></div>
+
+        <div class="field" id="loginOtpField" hidden>
+          <label for="loginOtp">OTP Code</label>
+          <input type="text" id="loginOtp" inputmode="numeric" maxlength="6" placeholder="Enter OTP code" />
+          <small id="loginOtpHint" style="color:#5b7566;"></small>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginVerifyButton" style="width:100%;" disabled>Verify and Login</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="signupModal">
+    <div class="modal signup-modal">
+      <button class="close-btn" id="closeSignupModal">×</button>
+      <h2 style="color: var(--green-900); margin-bottom: 18px;">Recycle Companies Registration</h2>
+
+      <form id="signupForm">
+        <div class="form-panel active" id="companySignupPanel">
+          <div class="form-grid signup-form-grid">
+            <div class="field">
+              <label for="signupCompanyName">Company Name *</label>
+              <input type="text" id="signupCompanyName" placeholder="Enter company name" required />
+            </div>
+
+            <div class="field">
+              <label for="signupMobile">Mobile *</label>
+              <input type="tel" id="signupMobile" placeholder="Enter mobile number" required />
+            </div>
+
+            <div class="field">
+              <label for="signupAddress">Address (Optional)</label>
+              <input type="text" id="signupAddress" placeholder="Enter company address" />
+            </div>
+
+            <div class="field">
+              <label for="signupLogo">Logo (Optional)</label>
+              <input type="file" id="signupLogo" accept="image/*" />
+            </div>
+
+            <div class="field">
+              <label for="signupWebsite">Company Website (Optional)</label>
+              <input type="url" id="signupWebsite" placeholder="https://example.com" />
+            </div>
+
+            <div class="field full">
+              <label for="signupWasteCategory1">Waste Category *</label>
+              <div class="signup-category-list" id="signupCategoryList">
+                <select id="signupWasteCategory1" name="signupWasteCategory[]" required>
+                  <option value="">Select waste category</option>
+                  <option>Plastic Waste</option>
+                  <option>Paper & Cardboard</option>
+                  <option>Metal Scrap</option>
+                  <option>Glass Waste</option>
+                  <option>Electronic Waste</option>
+                  <option>Organic Waste</option>
+                  <option>Textile Waste</option>
+                  <option>Construction Debris</option>
+                  <option>Wood Waste</option>
+                  <option>Battery Waste</option>
+                  <option>Used Tires</option>
+                  <option>Agricultural Waste</option>
+                  <option>Used Cooking Oil</option>
+                  <option>Used Engine Oil</option>
+                  <option>Electrical Devices Waste</option>
+                  <option>Waste of Solar PV Panels</option>
+                  <option>Mobile and Electronic Waste</option>
+                  <option>Cables and Wires Waste</option>
+                  <option>Toys Waste</option>
+                  <option>Used Air Filters</option>
+                  <option>Used Oil Filters</option>
+                  <option>Used Water Filters</option>
+                  <option>Mixed and Multiple Waste</option>
+                  <option>Other Waste</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-outline add-category-btn" id="addSignupCategory">Add waste category</button>
+            </div>
+
+            <div class="field">
+              <label for="signupEmailModal">Email *</label>
+              <input type="email" id="signupEmailModal" placeholder="Enter company email" required />
+            </div>
+
+            <div class="field">
+              <label for="signupOtp">Click to get the email verification code *</label>
+              <div class="otp-actions">
+                <button type="button" class="btn btn-outline" id="signupSendOtpButton">Click here to get the email verification code</button>
+              </div>
+              <input type="text" id="signupOtp" inputmode="numeric" maxlength="6" placeholder="Enter the 6-digit OTP" required />
+              <small id="signupOtpStatus" style="color:#5b7566;"></small>
+            </div>
+
+            <div class="field full">
+              <label class="terms-check">
+                <input type="checkbox" id="signupTermsCheckbox" required />
+                <span>I accept to register in Green Cycle Platform and receive its newsletter, as well as the <a href="terms-and-conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a> and <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>, by joining Green Cycle Platform.</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="signupSubmitButton" style="width:100%;" disabled>Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="site-config.js"></script>
+  <script>
+    const loginModal = document.getElementById('loginModal');
+    const signupModal = document.getElementById('signupModal');
+    const openLoginModal = document.getElementById('openLoginModal');
+    const openSignupModal = document.getElementById('openSignupModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const closeSignupModal = document.getElementById('closeSignupModal');
+    const loginForm = document.getElementById('loginForm');
+    const loginSendOtpButton = document.getElementById('loginSendOtpButton');
+    // const loginSendWhatsAppOtpButton = document.getElementById('loginSendWhatsAppOtpButton');
+    const loginOtpActionButtons = document.querySelectorAll('.login-otp-actions button');
+    const loginVerifyButton = document.getElementById('loginVerifyButton');
+    const loginOtpField = document.getElementById('loginOtpField');
+    const loginOtpInput = document.getElementById('loginOtp');
+    const loginOtpHint = document.getElementById('loginOtpHint');
+    const loginOtpStatus = document.getElementById('loginOtpStatus');
+    const mainDashboardLink = document.getElementById('mainDashboardLink');
+    const mainLogoutButton = document.getElementById('mainLogoutButton');
+    const signupForm = document.getElementById('signupForm');
+    const signupCategoryList = document.getElementById('signupCategoryList');
+    const addSignupCategory = document.getElementById('addSignupCategory');
+    const signupEmailInput = document.getElementById('signupEmailModal');
+    const signupSendOtpButton = document.getElementById('signupSendOtpButton');
+    const signupOtpInput = document.getElementById('signupOtp');
+    const signupOtpStatus = document.getElementById('signupOtpStatus');
+    const signupTermsCheckbox = document.getElementById('signupTermsCheckbox');
+    const signupSubmitButton = document.getElementById('signupSubmitButton');
+    const individualWasteCategoryList = document.getElementById('individualWasteCategoryList');
+    const companyWasteCategoryList = document.getElementById('companyWasteCategoryList');
+    const addIndividualWasteCategory = document.getElementById('addIndividualWasteCategory');
+    const addCompanyWasteCategory = document.getElementById('addCompanyWasteCategory');
+    const individualWasteImageList = document.getElementById('individualWasteImageList');
+    const companyWasteImageList = document.getElementById('companyWasteImageList');
+    const addIndividualWasteImage = document.getElementById('addIndividualWasteImage');
+    const addCompanyWasteImage = document.getElementById('addCompanyWasteImage');
+    const wasteForm = document.getElementById('wasteForm');
+    const wasteFormNote = document.getElementById('wasteFormNote');
+    const wasteSubmitButton = document.getElementById('wasteSubmitButton');
+    const successMessage = document.getElementById('successMessage');
+    const recyclerTargetFields = document.querySelectorAll('.recycler-target-field');
+    const maxWasteImages = 5;
+    const maxWasteImageBytes = 10 * 1024 * 1024;
+    const typeTabs = document.querySelectorAll('#formTypeSwitcher .type-tab');
+    const formPanels = document.querySelectorAll('#individualForm, #corporateForm');
+    const otpButtons = document.querySelectorAll('.otp-btn');
+    const otpInputWraps = document.querySelectorAll('.otp-input-wrap');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navbar = document.querySelector('.navbar');
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    const heroCopies = document.querySelectorAll('.hero-copy');
+    const heroDots = document.querySelectorAll('.hero-dot');
+    let pendingLoginEmail = '';
+    let signupOtpState = { email: '', token: '' };
+    let wastePrefillTimer = null;
+    let recyclerCompanies = [];
+    let recentTransactions = [];
+    let recentTransactionsVisible = 5;
+    const wasteOtpState = {
+      individual: { phone: '', token: '' },
+      corporate: { phone: '', token: '' }
+    };
+    const configuredApiOrigin = (window.GreenCycleConfig?.apiBaseUrl || '').replace(/\/$/, '');
+    const isBackendHost = window.location.port === '5294';
+    const isLocalPage = window.location.protocol === 'file:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+    const apiOrigin = isBackendHost ? '' : (isLocalPage ? 'http://localhost:5294' : configuredApiOrigin);
+    const apiIsMissing = !configuredApiOrigin && !isBackendHost && !isLocalPage;
+
+    if (heroSlides.length > 1) {
+      let activeHeroSlide = 0;
+
+      function showHeroSlide(index) {
+        heroSlides[activeHeroSlide].classList.remove('active');
+        heroCopies[activeHeroSlide]?.classList.remove('active');
+        heroDots[activeHeroSlide]?.classList.remove('active');
+        activeHeroSlide = index;
+        heroSlides[activeHeroSlide].classList.add('active');
+        heroCopies[activeHeroSlide]?.classList.add('active');
+        heroDots[activeHeroSlide]?.classList.add('active');
+      }
+
+      let heroCarouselTimer = setInterval(() => {
+        showHeroSlide((activeHeroSlide + 1) % heroSlides.length);
+      }, 5200);
+
+      heroDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          clearInterval(heroCarouselTimer);
+          showHeroSlide(index);
+          heroCarouselTimer = setInterval(() => {
+            showHeroSlide((activeHeroSlide + 1) % heroSlides.length);
+          }, 5200);
+        });
+      });
+    }
+
+    function apiUrl(path) {
+      if (apiIsMissing) {
+        throw new Error('The live website needs a hosted backend API URL before verification codes can be sent.');
+      }
+
+      return `${apiOrigin}${path}`;
+    }
+
+    function showLoginModal() {
+      loginModal.classList.add('active');
+    }
+
+    function hideLoginModal() {
+      loginModal.classList.remove('active');
+      loginForm.reset();
+      pendingLoginEmail = '';
+      loginOtpField.hidden = true;
+      loginOtpInput.required = false;
+      loginVerifyButton.disabled = true;
+      loginOtpHint.textContent = '';
+      loginOtpStatus.textContent = '';
+      loginOtpStatus.className = 'login-feedback success';
+      loginOtpStatus.style.display = 'none';
+    }
+
+    function showSignupModal() {
+      signupModal.classList.add('active');
+      updateSignupSubmitState();
+    }
+
+    function hideSignupModal() {
+      signupModal.classList.remove('active');
+      signupOtpState = { email: '', token: '' };
+      signupOtpStatus.textContent = '';
+      updateSignupSubmitState();
+    }
+
+    function updateSignupSubmitState() {
+      const emailVerified = Boolean(signupOtpState.token) && signupOtpState.email === signupEmailInput.value.trim();
+      signupSubmitButton.disabled = !emailVerified || !signupTermsCheckbox.checked;
+    }
+
+    function getStoredAuthSession() {
+      try {
+        return JSON.parse(localStorage.getItem('greenCycleAuth') || 'null');
+      } catch {
+        localStorage.removeItem('greenCycleAuth');
+        return null;
+      }
+    }
+
+    function updateMainAuthActions() {
+      const session = getStoredAuthSession();
+      const isLoggedIn = Boolean(session?.token);
+
+      mainDashboardLink.hidden = !isLoggedIn;
+      mainLogoutButton.hidden = !isLoggedIn;
+      openLoginModal.hidden = isLoggedIn;
+      openSignupModal.hidden = isLoggedIn;
+
+      return session;
+    }
+
+    function applyLoggedInWasteDefaults(session) {
+      if (!session?.token) return;
+
+      const corporateTab = document.querySelector('[data-target="corporateForm"]');
+      if (corporateTab && getWasteFormType() !== 'corporate') {
+        corporateTab.click();
+      }
+
+      const activePanel = getActiveWastePanel();
+      const emailInput = activePanel?.querySelector('input[type="email"]');
+      const companyNameInput = document.getElementById('companyName');
+
+      if (emailInput && !emailInput.value) emailInput.value = session.email || '';
+      if (companyNameInput && !companyNameInput.value) companyNameInput.value = session.companyName || '';
+    }
+
+    function getActiveOtpInput() {
+      const activePanel = wasteForm.querySelector('.form-panel.active');
+      return activePanel ? activePanel.querySelector('.otp-input-wrap input') : null;
+    }
+
+    function getWasteFormType() {
+      return wasteForm.getAttribute('data-form-type') || '';
+    }
+
+    function getActiveWastePanel() {
+      return wasteForm.querySelector('.form-panel.active');
+    }
+
+    function getActiveWastePhoneInput() {
+      const activePanel = getActiveWastePanel();
+      return activePanel ? activePanel.querySelector('input[type="tel"]') : null;
+    }
+
+    function syncWastePanelFields() {
+      formPanels.forEach(panel => {
+        const isActive = panel.classList.contains('active');
+        panel.querySelectorAll('input, select, textarea, button').forEach(control => {
+          control.disabled = !isActive;
+        });
+      });
+    }
+
+    function updateWasteSubmitState() {
+      const formType = getWasteFormType();
+      wasteSubmitButton.disabled = !formType || !wasteOtpState[formType]?.token;
+    }
+
+    async function requestWasteOtp(button) {
+      const otpRow = button.closest('.otp-row');
+      const otpInputWrap = otpRow.querySelector('.otp-input-wrap');
+      const otpInput = otpInputWrap.querySelector('input');
+      const hint = otpInputWrap.querySelector('.otp-hint');
+      const channel = button.dataset.channel || 'email';
+      const isWhatsApp = channel === 'whatsapp';
+      const buttonText = button.textContent;
+      const phoneInput = getActiveWastePhoneInput();
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const emailInput = getActiveWastePanel()?.querySelector('input[type="email"]');
+      const email = emailInput ? emailInput.value.trim() : '';
+      const formType = getWasteFormType();
+
+      if (!phone) {
+        alert('Please enter the phone number first.');
+        phoneInput && phoneInput.focus();
+        return;
+      }
+
+      if (!isWhatsApp && !email) {
+        alert('Please enter the email address first.');
+        emailInput && emailInput.focus();
+        return;
+      }
+
+      if (!validateRecyclerTargetSelection()) {
+        return;
+      }
+
+      wasteOtpState[formType] = { phone, token: '' };
+      updateWasteSubmitState();
+
+      try {
+        button.disabled = true;
+        button.textContent = 'Getting verification code...';
+        hint.textContent = isWhatsApp
+          ? 'Sending OTP to WhatsApp...'
+          : 'Getting the email verification code...';
+        const result = await postJson('/api/waste/request-otp', { phone, email, channel });
+        otpInput.value = '';
+        otpInputWrap.hidden = false;
+        otpInput.required = true;
+        otpInput.focus();
+        hint.textContent = result.message || (isWhatsApp
+          ? `OTP sent by WhatsApp to ${phone}.`
+          : `Verification code sent to ${email}.`);
+      } catch (error) {
+        hint.textContent = error.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = buttonText;
+      }
+    }
+
+    async function verifyWasteOtp(input) {
+      const otp = input.value.trim();
+      const formType = getWasteFormType();
+      const state = wasteOtpState[formType];
+      const hint = input.closest('.otp-input-wrap').querySelector('.otp-hint');
+
+      if (otp.length !== 6 || !state.phone || state.token) return;
+
+      try {
+        const result = await postJson('/api/waste/verify-otp', {
+          phone: state.phone,
+          otp
+        });
+        wasteOtpState[formType].token = result.verificationToken;
+        hint.textContent = 'OTP verified. You can submit the form now.';
+        updateWasteSubmitState();
+      } catch (error) {
+        wasteOtpState[formType].token = '';
+        hint.textContent = error.message;
+        updateWasteSubmitState();
+      }
+    }
+
+    function addSignupWasteCategory() {
+      const firstCategory = signupCategoryList.querySelector('select');
+      const categoryCount = signupCategoryList.querySelectorAll('select').length + 1;
+      const row = createRemovableCategoryRow(firstCategory, `signupWasteCategory${categoryCount}`);
+      const newCategory = row.querySelector('select');
+
+      signupCategoryList.appendChild(row);
+      newCategory.focus();
+    }
+
+    function addWasteCategory(categoryList, prefix) {
+      const firstCategory = categoryList.querySelector('select');
+      const categoryCount = categoryList.querySelectorAll('select').length + 1;
+      const row = createRemovableCategoryRow(firstCategory, `${prefix}WasteCategory${categoryCount}`);
+      const newCategory = row.querySelector('select');
+
+      categoryList.appendChild(row);
+      newCategory.focus();
+    }
+
+    function createRemovableCategoryRow(sourceSelect, selectId) {
+      const row = document.createElement('div');
+      const newCategory = sourceSelect.cloneNode(true);
+      const removeButton = document.createElement('button');
+
+      row.className = 'removable-category-row';
+      newCategory.id = selectId;
+      newCategory.value = '';
+      newCategory.required = false;
+      removeButton.type = 'button';
+      removeButton.className = 'remove-category-btn';
+      removeButton.setAttribute('aria-label', 'Remove waste category');
+      removeButton.title = 'Remove waste category';
+      removeButton.textContent = '×';
+      removeButton.addEventListener('click', function () {
+        row.remove();
+      });
+
+      row.appendChild(newCategory);
+      row.appendChild(removeButton);
+      return row;
+    }
+
+    function countWasteImages(imageList) {
+      return Array.from(imageList.querySelectorAll('input[type="file"]'))
+        .reduce((total, input) => total + input.files.length, 0);
+    }
+
+    function validateWasteImageInput(input) {
+      const imageList = input.closest('.waste-image-list');
+      const oversizedImage = Array.from(input.files).find(file => file.size > maxWasteImageBytes);
+      if (oversizedImage) {
+        alert(`Image "${oversizedImage.name}" exceeds the 10 MB limit per image.`);
+        input.value = '';
+        return false;
+      }
+
+      if (!imageList || countWasteImages(imageList) <= maxWasteImages) return true;
+
+      alert(`You can upload a maximum of ${maxWasteImages} images.`);
+      input.value = '';
+      return false;
+    }
+
+    function addWasteImageInput(imageList, prefix) {
+      if (countWasteImages(imageList) >= maxWasteImages) {
+        alert(`You can upload a maximum of ${maxWasteImages} images.`);
+        return;
+      }
+
+      const imageCount = imageList.querySelectorAll('input[type="file"]').length + 1;
+      const row = createRemovableImageRow(`${prefix}WasteImages${imageCount}`);
+      const input = row.querySelector('input');
+
+      imageList.appendChild(row);
+      input.focus();
+    }
+
+    function createRemovableImageRow(inputId) {
+      const row = document.createElement('div');
+      const input = document.createElement('input');
+      const removeButton = document.createElement('button');
+
+      row.className = 'removable-image-row';
+      input.type = 'file';
+      input.id = inputId;
+      input.accept = 'image/*';
+      input.multiple = true;
+      input.addEventListener('change', function () {
+        validateWasteImageInput(this);
+      });
+      removeButton.type = 'button';
+      removeButton.className = 'remove-image-btn';
+      removeButton.setAttribute('aria-label', 'Remove waste image');
+      removeButton.title = 'Remove waste image';
+      removeButton.textContent = '×';
+      removeButton.addEventListener('click', function () {
+        row.remove();
+      });
+
+      row.appendChild(input);
+      row.appendChild(removeButton);
+      return row;
+    }
+
+    async function readApiResponse(response) {
+      const contentType = response.headers.get('content-type') || '';
+      const data = contentType.includes('application/json')
+        ? await response.json().catch(() => ({}))
+        : {};
+      if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error('The attached images exceed the total request limit. Reduce their size and try again.');
+        }
+        throw new Error(data.message || data.detail || data.title || 'The request could not be completed.');
+      }
+      return data;
+    }
+
+    async function postJson(url, body) {
+      const response = await fetch(apiUrl(url), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return readApiResponse(response);
+    }
+
+    async function getJson(url) {
+      const response = await fetch(apiUrl(url));
+      return readApiResponse(response);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+
+    function resolveAssetUrl(url) {
+      if (!url) return '';
+      if (/^https?:\/\//i.test(url)) return url;
+      return `${apiOrigin}${url.startsWith('/') ? url : `/${url}`}`;
+    }
+
+    function recentStatusLabel(status) {
+      return ({
+        received: 'Received',
+        bidding: 'Bids open',
+        pickup_pending: 'Accepted / pickup pending',
+        accepted: 'Accepted / pickup pending',
+        picked_up: 'Picked up',
+        completed: 'Completed',
+        rejected: 'Rejected'
+      })[status] || status || 'Received';
+    }
+
+    function recentStatusClass(status) {
+      return ({
+        received: 'open',
+        bidding: 'pending',
+        pickup_pending: 'accepted',
+        accepted: 'accepted',
+        picked_up: 'accepted',
+        completed: 'completed',
+        rejected: 'rejected'
+      })[status] || 'open';
+    }
+
+    function formatRecentDate(value) {
+      if (!value) return '';
+      return new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(value));
+    }
+
+    function renderRecentTransactions() {
+      const list = document.getElementById('recentTransactionsList');
+      const moreButton = document.getElementById('recentTransactionsMore');
+      if (!list) return;
+
+      const visibleItems = recentTransactions.slice(0, recentTransactionsVisible);
+      list.innerHTML = visibleItems.map(item => {
+        const images = Array.isArray(item.images) ? item.images.filter(image => image.url) : [];
+        const firstImage = images[0];
+        return `
+          <article class="recent-transaction-card">
+            <div class="recent-transaction-main">
+              <div class="recent-transaction-body">
+                <strong>${escapeHtml(item.wasteCategory)}</strong>
+                <div class="recent-transaction-meta">
+                  <span class="status-pill ${recentStatusClass(item.status)}">${escapeHtml(recentStatusLabel(item.status))}</span>
+                  <span class="recent-transaction-date">${escapeHtml(formatRecentDate(item.createdAtUtc))}</span>
+                </div>
+              </div>
+              ${firstImage
+                ? `<button class="btn btn-outline recent-image-toggle" type="button" aria-expanded="false">View image</button>`
+                : '<span class="recent-transaction-no-image">No image</span>'}
+            </div>
+            ${firstImage
+              ? `<div class="recent-transaction-image-panel" hidden>
+                  <img src="${escapeHtml(resolveAssetUrl(firstImage.url))}" alt="${escapeHtml(item.wasteCategory)}" loading="lazy">
+                </div>`
+              : ''}
+          </article>
+        `;
+      }).join('');
+
+      if (moreButton) {
+        moreButton.hidden = recentTransactionsVisible >= recentTransactions.length;
+      }
+    }
+
+    async function loadRecentTransactions() {
+      const list = document.getElementById('recentTransactionsList');
+      const moreButton = document.getElementById('recentTransactionsMore');
+      if (!list) return;
+
+      try {
+        list.innerHTML = '<div class="recent-transactions-state">Loading recent transactions...</div>';
+        if (moreButton) moreButton.hidden = true;
+        recentTransactions = await getJson('/api/waste/recent-transactions?limit=25');
+        recentTransactionsVisible = 5;
+        if (!recentTransactions.length) {
+          list.innerHTML = '<div class="recent-transactions-state">No recent transactions yet.</div>';
+          return;
+        }
+
+        renderRecentTransactions();
+      } catch (error) {
+        list.innerHTML = `<div class="recent-transactions-state">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function getActiveRecyclerTargetField() {
+      return getActiveWastePanel()?.querySelector('.recycler-target-field') || null;
+    }
+
+    function getRecyclerTargetSelection() {
+      const field = getActiveRecyclerTargetField();
+      const sendAllInput = field?.querySelector('.recycler-send-all-input');
+      const selectedIds = field
+        ? Array.from(field.querySelectorAll('.recycler-target-checkbox:checked')).map(input => input.value)
+        : [];
+
+      return {
+        sendAll: Boolean(sendAllInput?.checked),
+        selectedIds
+      };
+    }
+
+    function validateRecyclerTargetSelection() {
+      const selection = getRecyclerTargetSelection();
+      if (selection.sendAll || selection.selectedIds.length > 0) return true;
+
+      alert('Select at least one recycler company or choose send to all companies.');
+      const field = getActiveRecyclerTargetField();
+      field?.querySelector('.recycler-target-list')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+
+    function renderRecyclerTargets() {
+      recyclerTargetFields.forEach(field => {
+        const list = field.querySelector('.recycler-target-list');
+        const sendAllInput = field.querySelector('.recycler-send-all-input');
+        const sendAll = Boolean(sendAllInput?.checked);
+
+        list.innerHTML = '';
+        list.toggleAttribute('hidden', sendAll);
+
+        if (sendAll) return;
+
+        if (recyclerCompanies.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'recycler-target-empty';
+          empty.textContent = list.dataset.emptyMessage || 'No recycler companies are registered yet.';
+          list.appendChild(empty);
+          return;
+        }
+
+        recyclerCompanies.forEach(company => {
+          const label = document.createElement('label');
+          const checkbox = document.createElement('input');
+          const content = document.createElement('span');
+          const name = document.createElement('strong');
+          const meta = document.createElement('small');
+
+          label.className = 'recycler-target-option';
+          checkbox.type = 'checkbox';
+          checkbox.className = 'recycler-target-checkbox';
+          checkbox.value = company.id;
+          name.textContent = company.companyName || 'Recycler company';
+          meta.textContent = Array.isArray(company.wasteCategories) && company.wasteCategories.length > 0
+            ? company.wasteCategories.join(', ')
+            : company.email || 'Registered recycler';
+
+          content.appendChild(name);
+          content.appendChild(meta);
+          label.appendChild(checkbox);
+          label.appendChild(content);
+          list.appendChild(label);
+        });
+      });
+    }
+
+    async function loadRecyclerCompanies() {
+      try {
+        recyclerCompanies = await getJson('/api/companies/recyclers');
+        recyclerTargetFields.forEach(field => {
+          const list = field.querySelector('.recycler-target-list');
+          if (list) list.dataset.emptyMessage = 'No recycler companies are registered yet.';
+        });
+      } catch (error) {
+        recyclerCompanies = [];
+        recyclerTargetFields.forEach(field => {
+          const list = field.querySelector('.recycler-target-list');
+          if (list) list.dataset.emptyMessage = error.message;
+        });
+      } finally {
+        renderRecyclerTargets();
+      }
+    }
+
+    function categoryKey(value) {
+      const normalized = String(value || '').toLowerCase();
+      if (/plastic|بلاستيك/.test(normalized)) return 'plastic';
+      if (/paper|cardboard|ورق|كرتون/.test(normalized)) return 'paper';
+      if (/metal|scrap|معدن|خردة/.test(normalized)) return 'metal';
+      if (/glass|زجاج/.test(normalized)) return 'glass';
+      if (/electronic|electrical|mobile|device|إلكترون|كهرب|أجهزة/.test(normalized)) return 'electronics';
+      if (/organic|عضوية/.test(normalized)) return 'organic';
+      if (/textile|نسيج/.test(normalized)) return 'textile';
+      if (/construction|بناء/.test(normalized)) return 'construction';
+      if (/wood|خشب/.test(normalized)) return 'wood';
+      if (/battery|batteries|بطاريات/.test(normalized)) return 'battery';
+      if (/tire|tyre|إطارات|تواير/.test(normalized)) return 'tires';
+      if (/cooking oil|زيوت الطبخ/.test(normalized)) return 'cooking-oil';
+      if (/engine oil|زيت المحرك/.test(normalized)) return 'engine-oil';
+      if (/cable|wire|كيبل|واير/.test(normalized)) return 'cables';
+      if (/toy|ألعاب/.test(normalized)) return 'toys';
+      if (/filter|فلاتر/.test(normalized)) return 'filters';
+      if (/mixed|multiple|other|مختلطة|متنوعة|أخرى/.test(normalized)) return 'mixed';
+      return normalized.trim();
+    }
+
+    function setSelectToCategory(select, category) {
+      const wantedKey = categoryKey(category);
+      const option = Array.from(select.options).find(item =>
+        item.value === category ||
+        item.textContent === category ||
+        categoryKey(item.value || item.textContent) === wantedKey);
+
+      select.value = option ? option.value : category;
+    }
+
+    function setWasteCategoryValues(panel, categories) {
+      const categoryList = panel.querySelector('.waste-category-list');
+      if (!categoryList || !Array.isArray(categories) || categories.length === 0) return;
+
+      const selects = Array.from(categoryList.querySelectorAll('select'));
+      categoryList.querySelectorAll('.removable-category-row').forEach(row => row.remove());
+      selects.slice(1).forEach(select => select.remove());
+      const firstSelect = categoryList.querySelector('select');
+      if (!firstSelect) return;
+
+      categories.forEach((category, index) => {
+        const categoryCount = categoryList.querySelectorAll('select').length + 1;
+        const row = index === 0 ? null : createRemovableCategoryRow(firstSelect, `${firstSelect.id || 'wasteCategory'}${categoryCount}`);
+        const select = index === 0 ? firstSelect : row.querySelector('select');
+
+        setSelectToCategory(select, category);
+        select.required = index === 0;
+        if (index > 0) {
+          categoryList.appendChild(row);
+        }
+      });
+    }
+
+    function fillCurrentWastePanel(profile) {
+      if (profile.submitterType) {
+        const targetId = profile.submitterType === 'corporate' ? 'corporateForm' : 'individualForm';
+        const targetTab = document.querySelector(`[data-target="${targetId}"]`);
+        if (targetTab && getWasteFormType() !== profile.submitterType) {
+          targetTab.click();
+        }
+      }
+
+      const panel = getActiveWastePanel();
+      const formType = getWasteFormType();
+      const textInputs = Array.from(panel.querySelectorAll('input[type="text"]'));
+      const emailInput = panel.querySelector('input[type="email"]');
+      const notes = panel.querySelector('textarea');
+
+      if (emailInput && profile.email) emailInput.value = profile.email;
+      if (notes && profile.notes) notes.value = profile.notes;
+      setWasteCategoryValues(panel, profile.wasteCategories);
+
+      if (formType === 'individual') {
+        if (textInputs[0] && profile.submitterName) textInputs[0].value = profile.submitterName;
+        if (textInputs[1] && profile.address) textInputs[1].value = profile.address;
+      } else {
+        if (textInputs[0] && profile.companyName) textInputs[0].value = profile.companyName;
+        if (textInputs[1] && profile.address) textInputs[1].value = profile.address;
+        if (textInputs[2] && profile.submitterName) textInputs[2].value = profile.submitterName;
+      }
+    }
+
+    async function prefillWasteDetailsFromPhone(input) {
+      const phone = input.value.trim();
+      if (phone.length < 4) return;
+
+      try {
+        const profile = await getJson(`/api/waste/prefill?phone=${encodeURIComponent(phone)}`);
+        fillCurrentWastePanel(profile);
+      } catch (error) {
+        if (!/No saved details/i.test(error.message)) {
+          console.warn(error.message);
+        }
+      }
+    }
+
+    function buildSignupData() {
+      const data = new FormData();
+      const logoInput = document.getElementById('signupLogo');
+
+      data.append('companyName', document.getElementById('signupCompanyName').value.trim());
+      data.append('mobile', document.getElementById('signupMobile').value.trim());
+      data.append('email', document.getElementById('signupEmailModal').value.trim());
+      data.append('address', document.getElementById('signupAddress').value.trim());
+      data.append('website', document.getElementById('signupWebsite').value.trim());
+      data.append('verificationToken', signupOtpState.token);
+
+      if (logoInput.files[0]) {
+        data.append('logo', logoInput.files[0]);
+      }
+
+      signupCategoryList.querySelectorAll('select').forEach(select => {
+        if (select.value) {
+          data.append('wasteCategories', select.value);
+        }
+      });
+
+      return data;
+    }
+
+    function buildWasteSubmissionData() {
+      const formType = getWasteFormType();
+      const activePanel = getActiveWastePanel();
+      const state = wasteOtpState[formType];
+      const data = new FormData();
+      const textInputs = Array.from(activePanel.querySelectorAll('input[type="text"]'));
+      const emailInput = activePanel.querySelector('input[type="email"]');
+      const wasteCategories = Array.from(activePanel.querySelectorAll('.waste-category-list select'))
+        .map(select => select.value)
+        .filter(Boolean);
+      const notes = activePanel.querySelector('textarea');
+      const imageInputs = activePanel.querySelectorAll('.waste-image-list input[type="file"]');
+
+      data.append('submitterType', formType);
+      data.append('phone', state.phone);
+      data.append('email', emailInput ? emailInput.value.trim() : '');
+      data.append('address', formType === 'individual' ? (textInputs[1]?.value.trim() || '') : (textInputs[1]?.value.trim() || ''));
+      wasteCategories.forEach(category => data.append('wasteCategories', category));
+      data.append('wasteCategory', wasteCategories.join(', '));
+      data.append('notes', notes ? notes.value.trim() : '');
+      data.append('verificationToken', state.token);
+      const targetSelection = getRecyclerTargetSelection();
+      data.append('targetCompanyScope', targetSelection.sendAll ? 'all' : 'selected');
+      if (!targetSelection.sendAll) {
+        targetSelection.selectedIds.forEach(companyId => {
+          data.append('targetCompanyIds', companyId);
+        });
+      }
+
+      if (formType === 'individual') {
+        data.append('submitterName', document.getElementById('individualName').value.trim());
+      } else {
+        data.append('companyName', document.getElementById('companyName').value.trim());
+        data.append('submitterName', document.getElementById('contactPerson').value.trim());
+      }
+
+      imageInputs.forEach(input => {
+        Array.from(input.files || []).forEach(file => {
+          data.append('images', file);
+        });
+      });
+
+      return data;
+    }
+
+    openLoginModal.addEventListener('click', showLoginModal);
+    openSignupModal.addEventListener('click', showSignupModal);
+    if (window.location.hash === '#login') {
+      showLoginModal();
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else if (window.location.hash === '#signup') {
+      showSignupModal();
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    mainLogoutButton.addEventListener('click', function () {
+      localStorage.removeItem('greenCycleAuth');
+      window.location.href = 'home.html';
+    });
+    closeLoginModal.addEventListener('click', hideLoginModal);
+    closeSignupModal.addEventListener('click', hideSignupModal);
+    addSignupCategory.addEventListener('click', addSignupWasteCategory);
+    addIndividualWasteCategory.addEventListener('click', () => addWasteCategory(individualWasteCategoryList, 'individual'));
+    addCompanyWasteCategory.addEventListener('click', () => addWasteCategory(companyWasteCategoryList, 'company'));
+    addIndividualWasteImage.addEventListener('click', () => addWasteImageInput(individualWasteImageList, 'individual'));
+    addCompanyWasteImage.addEventListener('click', () => addWasteImageInput(companyWasteImageList, 'company'));
+
+    if (menuToggle && navbar) {
+      menuToggle.addEventListener('click', function () {
+        const isOpen = navbar.classList.toggle('nav-open');
+        menuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+
+    loginModal.addEventListener('click', function (e) {
+      if (e.target === loginModal) hideLoginModal();
+    });
+
+    signupModal.addEventListener('click', function (e) {
+      if (e.target === signupModal) hideSignupModal();
+    });
+
+    async function requestLoginOtp(button) {
+      const emailInput = loginForm.querySelector('input[type="email"]');
+      const channel = button.dataset.channel || 'email';
+      const isWhatsApp = channel === 'whatsapp';
+      const buttonText = button.textContent;
+      pendingLoginEmail = emailInput.value.trim();
+
+      if (!pendingLoginEmail) {
+        loginOtpStatus.textContent = 'Please enter your email first.';
+        loginOtpStatus.className = 'login-feedback error';
+        loginOtpStatus.style.display = 'block';
+        emailInput.focus();
+        return;
+      }
+
+      try {
+        loginOtpActionButtons.forEach(actionButton => {
+          actionButton.disabled = true;
+        });
+        button.textContent = 'Getting verification code...';
+        loginOtpStatus.textContent = isWhatsApp
+          ? 'Sending OTP to WhatsApp...'
+          : 'Getting the email verification code...';
+        loginOtpStatus.className = 'login-feedback success';
+        loginOtpStatus.style.display = 'block';
+        const result = await postJson('/api/auth/request-otp', { email: pendingLoginEmail, channel });
+        loginOtpInput.value = '';
+        loginOtpField.hidden = false;
+        loginOtpInput.required = true;
+        loginVerifyButton.disabled = false;
+        loginOtpInput.focus();
+        loginOtpStatus.textContent = result.message || (isWhatsApp
+          ? 'OTP sent to the registered WhatsApp phone number.'
+          : 'Verification code sent to your email address.');
+        loginOtpHint.textContent = isWhatsApp
+          ? 'Enter the code from WhatsApp to finish login.'
+          : 'Enter the code from your email to finish login.';
+      } catch (error) {
+        loginOtpStatus.textContent = error.message;
+        loginOtpStatus.className = 'login-feedback error';
+        loginOtpStatus.style.display = 'block';
+      } finally {
+        loginOtpActionButtons.forEach(actionButton => {
+          actionButton.disabled = false;
+        });
+        button.textContent = buttonText;
+      }
+    }
+
+    loginSendOtpButton.addEventListener('click', function () {
+      requestLoginOtp(this);
+    });
+
+    // loginSendWhatsAppOtpButton.addEventListener('click', function () {
+    //   requestLoginOtp(this);
+    // });
+
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      try {
+        const result = await postJson('/api/auth/verify-otp', {
+          email: pendingLoginEmail,
+          otp: loginOtpInput.value.trim()
+        });
+        localStorage.setItem('greenCycleAuth', JSON.stringify(result));
+        window.location.href = 'dashboard-en.html';
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    signupForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      if (signupSubmitButton.disabled) return;
+
+      if (!signupOtpState.token || signupOtpState.email !== signupEmailInput.value.trim()) {
+        alert('Please verify the company email with OTP before creating the account.');
+        return;
+      }
+
+      if (!signupTermsCheckbox.checked) {
+        alert('Please accept the Terms & Conditions and Privacy Policy before creating the account.');
+        return;
+      }
+
+      try {
+        const response = await fetch(apiUrl('/api/auth/signup'), {
+          method: 'POST',
+          body: buildSignupData()
+        });
+        const result = await readApiResponse(response);
+        alert(`Account created: ${result.companyName}`);
+        signupForm.reset();
+        signupOtpState = { email: '', token: '' };
+        updateSignupSubmitState();
+        hideSignupModal();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    document.querySelectorAll('.waste-image-list input[type="file"]').forEach(input => {
+      input.addEventListener('change', function () {
+        validateWasteImageInput(this);
+      });
+    });
+
+    recyclerTargetFields.forEach(field => {
+      field.querySelector('.recycler-send-all-input')?.addEventListener('change', renderRecyclerTargets);
+    });
+
+    typeTabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+        const isActiveTab = this.classList.contains('active');
+
+        typeTabs.forEach(btn => btn.classList.remove('active'));
+        formPanels.forEach(panel => panel.classList.remove('active'));
+
+        if (isActiveTab) {
+          wasteForm.hidden = true;
+          wasteFormNote.hidden = true;
+          wasteForm.setAttribute('data-form-type', '');
+          syncWastePanelFields();
+          updateWasteSubmitState();
+          return;
+        }
+
+        this.classList.add('active');
+        document.getElementById(targetId).classList.add('active');
+        wasteForm.hidden = false;
+        wasteFormNote.hidden = false;
+        wasteForm.setAttribute('data-form-type', targetId === 'individualForm' ? 'individual' : 'corporate');
+        syncWastePanelFields();
+        updateWasteSubmitState();
+      });
+    });
+
+    otpButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        requestWasteOtp(this);
+      });
+    });
+
+    otpInputWraps.forEach(wrap => {
+      const otpInput = wrap.querySelector('input');
+      otpInput.addEventListener('input', function () {
+        const formType = getWasteFormType();
+        wasteOtpState[formType].token = '';
+        updateWasteSubmitState();
+        verifyWasteOtp(this);
+      });
+    });
+
+    signupEmailInput.addEventListener('input', function () {
+      signupOtpState = { email: '', token: '' };
+      signupOtpInput.value = '';
+      signupOtpStatus.textContent = 'Request a new verification code after entering the email.';
+      updateSignupSubmitState();
+    });
+
+    signupSendOtpButton.addEventListener('click', async function () {
+      const email = signupEmailInput.value.trim();
+      if (!email || !signupEmailInput.checkValidity()) {
+        signupEmailInput.reportValidity();
+        return;
+      }
+
+      try {
+        this.disabled = true;
+        signupOtpStatus.textContent = 'Getting verification code...';
+        const result = await postJson('/api/auth/signup/request-otp', { email });
+        signupOtpState = { email, token: '' };
+        signupOtpInput.value = '';
+        signupOtpInput.focus();
+        signupOtpStatus.textContent = result.message || 'Verification code sent to your email.';
+        updateSignupSubmitState();
+      } catch (error) {
+        signupOtpStatus.textContent = error.message;
+      } finally {
+        this.disabled = false;
+      }
+    });
+
+    signupOtpInput.addEventListener('input', async function () {
+      const otp = this.value.trim();
+      signupOtpState.token = '';
+      updateSignupSubmitState();
+      if (otp.length !== 6 || !signupOtpState.email) return;
+
+      try {
+        signupOtpStatus.textContent = 'Verifying code...';
+        const result = await postJson('/api/auth/signup/verify-otp', {
+          email: signupOtpState.email,
+          otp
+        });
+        signupOtpState.token = result.verificationToken;
+        signupOtpStatus.textContent = result.message || 'Email verified.';
+      } catch (error) {
+        signupOtpStatus.textContent = error.message;
+      } finally {
+        updateSignupSubmitState();
+      }
+    });
+
+    signupTermsCheckbox.addEventListener('change', updateSignupSubmitState);
+
+    wasteForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (wasteSubmitButton.disabled) return;
+      if (!validateRecyclerTargetSelection()) return;
+
+      const originalSubmitText = wasteSubmitButton.textContent;
+      wasteSubmitButton.disabled = true;
+      wasteSubmitButton.textContent = 'Submitting...';
+
+      try {
+        const response = await fetch(apiUrl('/api/waste/submissions'), {
+          method: 'POST',
+          body: buildWasteSubmissionData()
+        });
+        const result = await readApiResponse(response);
+        if (result.session) {
+          localStorage.setItem('greenCycleAuth', JSON.stringify(result.session));
+          updateMainAuthActions();
+        }
+        successMessage.textContent = 'Thank you for contributing with us. You can now track the status of your request through your dashboard in the main menu. You can also view it at any time later by logging in.';
+        successMessage.style.display = 'block';
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const formType = getWasteFormType();
+        const submittedPhone = wasteOtpState[formType].phone;
+        wasteForm.reset();
+        renderRecyclerTargets();
+        wasteOtpState[formType] = { phone: '', token: '' };
+        const activePhoneInput = getActiveWastePhoneInput();
+        if (activePhoneInput) activePhoneInput.value = submittedPhone;
+        otpInputWraps.forEach(wrap => {
+          const isActive = wrap.closest('.form-panel')?.classList.contains('active');
+          wrap.hidden = !isActive;
+          wrap.querySelector('input').required = false;
+          wrap.querySelector('input').value = '';
+          wrap.querySelector('.otp-hint').textContent = isActive
+            ? 'This OTP was used for that request. Send a new OTP to submit another request.'
+            : '';
+        });
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        wasteSubmitButton.textContent = originalSubmitText;
+        updateWasteSubmitState();
+      }
+    });
+
+    function queueWastePrefill(input) {
+      clearTimeout(wastePrefillTimer);
+      const digits = input.value.replace(/\D/g, '');
+      if (digits.length < 4) return;
+
+      wastePrefillTimer = setTimeout(() => {
+        prefillWasteDetailsFromPhone(input);
+      }, 450);
+    }
+
+    document.querySelectorAll('#individualForm input[type="tel"], #corporateForm input[type="tel"]').forEach(input => {
+      input.addEventListener('blur', function () {
+        prefillWasteDetailsFromPhone(this);
+      });
+
+      input.addEventListener('input', function () {
+        const formType = getWasteFormType();
+        wasteOtpState[formType] = { phone: '', token: '' };
+        updateWasteSubmitState();
+        queueWastePrefill(this);
+      });
+    });
+
+    syncWastePanelFields();
+    updateWasteSubmitState();
+    loadRecyclerCompanies();
+    applyLoggedInWasteDefaults(updateMainAuthActions());
+
+    const ads = [
+      {
+        title: 'Plastic Recycling Solutions',
+        desc: 'Advanced plastic sorting and recycling technologies.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Waste Collection Services',
+        desc: 'Efficient and eco-friendly waste collection systems.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1574263867128-5cbe0f7dfaa3?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Recycling Plant Equipment',
+        desc: 'Industrial machines for waste processing and reuse.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1581093588401-22f3c4f92c95?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Electronic Waste Management',
+        desc: 'Safe disposal and recycling of electronic waste.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Composting Systems',
+        desc: 'Turn organic waste into valuable compost.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Sustainable Packaging',
+        desc: 'Eco-friendly packaging solutions for businesses.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Metal Recycling Solutions',
+        desc: 'Specialized services for sorting and recovering metal scrap.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Paper & Cardboard Recycling',
+        desc: 'Efficient collection and processing for paper and cardboard.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1604187351574-c75ca79f5807?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Waste Transport Services',
+        desc: 'Organized waste transport to recycling and treatment centers.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1590496793929-36417d3117de?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Sustainability Consulting',
+        desc: 'Practical plans to improve waste management and reduce waste.',
+        link: '#contact',
+        img: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80'
+      }
+    ];
+
+    function getRandomAds(count) {
+      return [...ads].sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+
+    function renderAds() {
+      const container = document.getElementById('adsContainer');
+      if (!container) return;
+
+      const selectedAds = getRandomAds(8);
+
+      container.innerHTML = selectedAds.map(ad => `
+        <a href="${ad.link}" class="ad-card" style="background-image:url('${ad.img}');">
+          <span class="ad-badge">Sponsored</span>
+          <h4>${ad.title}</h4>
+          <p>${ad.desc}</p>
+          <span class="ad-link">Learn More</span>
+        </a>
+      `).join('');
+    }
+
+    renderAds();
+</script>
+</body>
+</html>
