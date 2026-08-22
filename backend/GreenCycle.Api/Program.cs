@@ -97,7 +97,7 @@ app.MapPost("/api/waste/request-otp", async (WasteOtpRequest request, OtpStore o
 
     if (channel == OtpDeliveryChannel.Email && string.IsNullOrWhiteSpace(request.Email))
     {
-        return Results.BadRequest(new ApiError("Email is required so the OTP can be sent securely."));
+        return Results.BadRequest(new ApiError("Email is required so the verification code can be sent securely."));
     }
 
     var challenge = otpStore.Create(request.Phone);
@@ -123,14 +123,14 @@ app.MapPost("/api/waste/request-otp", async (WasteOtpRequest request, OtpStore o
     if (!emailResult.Success)
     {
         return Results.Json(
-            new ApiError(emailResult.ErrorMessage ?? "Email OTP is not configured on the server."),
+            new ApiError(emailResult.ErrorMessage ?? "Email verification code is not configured on the server."),
             statusCode: StatusCodes.Status503ServiceUnavailable);
     }
 
     return Results.Ok(new OtpChallengeResponse(
         request.Email!,
         null,
-        "OTP sent to the entered email address. Use the code to verify this waste submission.",
+        "Email verification code sent. Use the code to verify this waste submission.",
         null));
 });
 
@@ -204,11 +204,11 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
         return Results.BadRequest(new ApiError("A maximum of 5 waste images can be uploaded."));
     }
 
-    const long maxImageBytes = 3 * 1024 * 1024;
+    const long maxImageBytes = 10 * 1024 * 1024;
     var oversizedImage = imageFiles.FirstOrDefault(file => file.Length > maxImageBytes);
     if (oversizedImage is not null)
     {
-        return Results.BadRequest(new ApiError($"Image '{oversizedImage.FileName}' exceeds the 3 MB limit per image."));
+        return Results.BadRequest(new ApiError($"Image '{oversizedImage.FileName}' exceeds the 10 MB limit per image."));
     }
 
     var images = await SaveWasteImagesAsync(imageFiles, siteRoot, submissionId);
@@ -291,7 +291,54 @@ app.MapGet("/api/waste/prefill", async (string? phone, UserStore store) =>
         submission.Notes));
 });
 
-app.MapPost("/api/auth/signup", async (HttpRequest request, UserStore store) =>
+app.MapPost("/api/auth/signup/request-otp", async (SignupOtpRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Email))
+    {
+        return Results.BadRequest(new ApiError("Email is required."));
+    }
+
+    if (await store.FindByEmailAsync(request.Email) is not null)
+    {
+        return Results.Conflict(new ApiError("An account with this email already exists."));
+    }
+
+    var challenge = otpStore.Create(request.Email);
+    var emailResult = await emailSender.SendOtpAsync(request.Email.Trim(), challenge.Code);
+    if (!emailResult.Success)
+    {
+        return Results.Json(
+            new ApiError(emailResult.ErrorMessage ?? "Email verification code is not configured on the server."),
+            statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
+    return Results.Ok(new OtpChallengeResponse(
+        request.Email.Trim(),
+        null,
+        "Email verification code sent. Enter the code to verify account creation.",
+        null));
+});
+
+app.MapPost("/api/auth/signup/verify-otp", (SignupOtpVerifyRequest request, OtpStore otpStore) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Otp))
+    {
+        return Results.BadRequest(new ApiError("Email and OTP are required."));
+    }
+
+    if (!otpStore.Verify(request.Email, request.Otp))
+    {
+        return Results.BadRequest(new ApiError("Invalid or expired OTP."));
+    }
+
+    return Results.Ok(new
+    {
+        verificationToken = otpStore.CreateVerifiedToken(request.Email),
+        message = "Email verified. You can now create the account."
+    });
+});
+
+app.MapPost("/api/auth/signup", async (HttpRequest request, UserStore store, OtpStore otpStore) =>
 {
     if (!request.HasFormContentType)
     {
@@ -302,6 +349,7 @@ app.MapPost("/api/auth/signup", async (HttpRequest request, UserStore store) =>
     var email = GetRequired(form, "email");
     var companyName = GetRequired(form, "companyName");
     var mobile = GetRequired(form, "mobile");
+    var verificationToken = GetRequired(form, "verificationToken");
     var categories = form["wasteCategories"]
         .Select(value => value?.Trim())
         .Where(value => !string.IsNullOrWhiteSpace(value))
@@ -309,9 +357,14 @@ app.MapPost("/api/auth/signup", async (HttpRequest request, UserStore store) =>
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
 
-    if (email is null || companyName is null || mobile is null || categories.Length == 0)
+    if (email is null || companyName is null || mobile is null || verificationToken is null || categories.Length == 0)
     {
-        return Results.BadRequest(new ApiError("Company name, mobile, email, and at least one waste category are required."));
+        return Results.BadRequest(new ApiError("Company name, mobile, verified email, and at least one waste category are required."));
+    }
+
+    if (!otpStore.ConsumeVerifiedToken(email, verificationToken))
+    {
+        return Results.BadRequest(new ApiError("Please verify a new email OTP before creating the account."));
     }
 
     var logo = form.Files.GetFile("logo");
@@ -379,14 +432,14 @@ app.MapPost("/api/auth/request-otp", async (LoginRequest request, UserStore stor
     if (!emailResult.Success)
     {
         return Results.Json(
-            new ApiError(emailResult.ErrorMessage ?? "Email OTP is not configured on the server."),
+            new ApiError(emailResult.ErrorMessage ?? "Email verification code is not configured on the server."),
             statusCode: StatusCodes.Status503ServiceUnavailable);
     }
 
     return Results.Ok(new OtpChallengeResponse(
         user.Email,
         null,
-        "OTP sent to the registered email address. Use the code to finish login.",
+        "Email verification code sent. Use the code to finish login.",
         null));
 });
 
@@ -458,14 +511,14 @@ app.MapPost("/api/auth/login", async (LoginRequest request, UserStore store, Otp
     if (!emailResult.Success)
     {
         return Results.Json(
-            new ApiError(emailResult.ErrorMessage ?? "Email OTP is not configured on the server."),
+            new ApiError(emailResult.ErrorMessage ?? "Email verification code is not configured on the server."),
             statusCode: StatusCodes.Status503ServiceUnavailable);
     }
 
     return Results.Ok(new OtpChallengeResponse(
         user.Email,
         null,
-        "OTP sent to the registered email address. Use the code to finish login.",
+        "Email verification code sent. Use the code to finish login.",
         null));
 });
 
@@ -479,6 +532,7 @@ app.MapGet("/api/companies", async (UserStore store) =>
         company.Email,
         company.Address,
         company.Website,
+        company.LogoFileName,
         company.WasteCategories,
         company.CreatedAtUtc)));
 });
@@ -493,6 +547,7 @@ app.MapGet("/api/companies/recyclers", async (UserStore store) =>
         company.Email,
         company.Address,
         company.Website,
+        company.LogoFileName,
         company.WasteCategories,
         company.CreatedAtUtc)));
 });
@@ -514,6 +569,7 @@ app.MapGet("/api/waste/submissions", async (string? email, UserStore store) =>
         submission.Email,
         submission.Address,
         submission.WasteCategory,
+        submission.Quantity,
         submission.Notes,
         submission.Status,
         submission.CreatedAtUtc,
@@ -550,6 +606,7 @@ app.MapGet("/api/waste/opportunities", async (string? companyEmail, UserStore st
         item.Submission.Email,
         item.Submission.Address,
         item.Submission.WasteCategory,
+        item.Submission.Quantity,
         item.Submission.Notes,
         item.Submission.Status,
         item.Submission.CreatedAtUtc,
@@ -578,6 +635,7 @@ app.MapGet("/api/waste/company-orders", async (string? companyEmail, UserStore s
         item.Submission.Email,
         item.Submission.Address,
         item.Submission.WasteCategory,
+        item.Submission.Quantity,
         item.Submission.Notes,
         item.Submission.Status,
         item.Submission.CreatedAtUtc,
@@ -603,6 +661,7 @@ app.MapGet("/api/waste/my-bids", async (string? companyEmail, UserStore store) =
         item.Submission.Email,
         item.Submission.Address,
         item.Submission.WasteCategory,
+        item.Submission.Quantity,
         item.Submission.Notes,
         item.Submission.Status,
         item.Submission.CreatedAtUtc,
@@ -829,6 +888,98 @@ app.MapPost("/api/user-reviews", async (UserReviewRequest request, HttpRequest h
     };
 });
 
+app.MapGet("/api/articles/{articleId}/comments", async (string articleId, UserStore store) =>
+{
+    if (!IsValidArticleId(articleId))
+    {
+        return Results.BadRequest(new ApiError("Article id is invalid."));
+    }
+
+    var comments = await store.GetApprovedArticleCommentsAsync(articleId);
+    return Results.Ok(new ArticleCommentsResponse(
+        comments.Select(comment => new ArticleCommentSummary(
+            comment.Id,
+            comment.ReviewerName,
+            comment.Comment,
+            comment.CreatedAtUtc))));
+});
+
+app.MapPost("/api/articles/{articleId}/views", async (string articleId, ArticleViewRequest request, UserStore store) =>
+{
+    if (!IsValidArticleId(articleId))
+    {
+        return Results.BadRequest(new ApiError("Article id is invalid."));
+    }
+
+    var totalViews = await store.RecordArticleViewAsync(
+        articleId,
+        EmptyToNull(request.VisitorKey),
+        request.ReaderBase);
+
+    return Results.Ok(new ArticleViewResponse(articleId, totalViews));
+});
+
+app.MapPost("/api/articles/{articleId}/comments", async (string articleId, ArticleCommentRequest request, HttpRequest httpRequest, UserStore store, IEmailSender emailSender, IOptions<ReviewApprovalOptions> approvalOptions) =>
+{
+    if (!IsValidArticleId(articleId))
+    {
+        return Results.BadRequest(new ApiError("Article id is invalid."));
+    }
+
+    if (string.IsNullOrWhiteSpace(request.ReviewerName) ||
+        string.IsNullOrWhiteSpace(request.Comment))
+    {
+        return Results.BadRequest(new ApiError("Name and comment are required."));
+    }
+
+    if (request.Comment.Length > 1200)
+    {
+        return Results.BadRequest(new ApiError("Comment must be 1200 characters or less."));
+    }
+
+    var comment = new ArticleComment(
+        Guid.NewGuid(),
+        articleId.Trim(),
+        EmptyToNull(request.ArticleTitle),
+        request.ReviewerName.Trim(),
+        EmptyToNull(request.ReviewerEmail),
+        request.Comment.Trim(),
+        DateTimeOffset.UtcNow,
+        "pending",
+        CreateApprovalToken(),
+        null,
+        null);
+
+    await store.CreateArticleCommentAsync(comment);
+    var approvalEmailResult = await NotifyAdminForReviewApprovalAsync(
+        emailSender,
+        approvalOptions.Value,
+        httpRequest,
+        "Article comment pending approval",
+        $"""
+        A reader submitted a comment for an article.
+
+        Article: {comment.ArticleTitle ?? comment.ArticleId}
+        Article id: {comment.ArticleId}
+        Reader: {comment.ReviewerName}
+        Reader email: {comment.ReviewerEmail ?? "Not provided"}
+        Comment: {comment.Comment}
+        """,
+        $"/api/admin/article-comments/{comment.Id}/approve?token={WebUtility.UrlEncode(comment.ApprovalToken)}",
+        $"/api/admin/article-comments/{comment.Id}/reject?token={WebUtility.UrlEncode(comment.ApprovalToken)}");
+
+    if (!approvalEmailResult.Success)
+    {
+        return Results.Json(
+            new ApiError(approvalEmailResult.ErrorMessage ?? "Comment was saved, but the approval email could not be sent."),
+            statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
+    return Results.Created($"/api/articles/{articleId}/comments/{comment.Id}", new ReviewPendingResponse(
+        comment.Id,
+        "Comment submitted and waiting for admin approval."));
+});
+
 app.MapGet("/api/admin/company-reviews/{reviewId:guid}/approve", async (Guid reviewId, string? token, UserStore store) =>
 {
     var result = await store.ResolveCompanyReviewAsync(reviewId, token, "approved");
@@ -870,6 +1021,28 @@ app.MapGet("/api/admin/user-reviews/{reviewId:guid}/reject", async (Guid reviewI
         ReviewApprovalResult.Updated => Results.Text("User review rejected."),
         ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
         _ => Results.NotFound("Review was not found.")
+    };
+});
+
+app.MapGet("/api/admin/article-comments/{commentId:guid}/approve", async (Guid commentId, string? token, UserStore store) =>
+{
+    var result = await store.ResolveArticleCommentAsync(commentId, token, "approved");
+    return result switch
+    {
+        ReviewApprovalResult.Updated => Results.Text("Article comment approved."),
+        ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
+        _ => Results.NotFound("Article comment was not found.")
+    };
+});
+
+app.MapGet("/api/admin/article-comments/{commentId:guid}/reject", async (Guid commentId, string? token, UserStore store) =>
+{
+    var result = await store.ResolveArticleCommentAsync(commentId, token, "rejected");
+    return result switch
+    {
+        ReviewApprovalResult.Updated => Results.Text("Article comment rejected."),
+        ReviewApprovalResult.InvalidToken => Results.BadRequest("Invalid or expired approval link."),
+        _ => Results.NotFound("Article comment was not found.")
     };
 });
 
@@ -1002,7 +1175,7 @@ static async Task<IResult> NotifyAndReturnCreatedUserReview(UserReviewCreateResu
         "Review submitted and waiting for admin approval."));
 }
 
-static async Task NotifyAdminForReviewApprovalAsync(
+static async Task<EmailSendResult> NotifyAdminForReviewApprovalAsync(
     IEmailSender emailSender,
     ReviewApprovalOptions options,
     HttpRequest request,
@@ -1011,10 +1184,10 @@ static async Task NotifyAdminForReviewApprovalAsync(
     string approvePath,
     string rejectPath)
 {
-    var adminEmail = EmptyToNull(options.AdminEmail);
+    var adminEmail = EmptyToNull(options.AdminEmail) ?? "info@greencycleplatform.com";
     if (adminEmail is null)
     {
-        return;
+        return new EmailSendResult(false, "Review approval admin email is not configured on the server.");
     }
 
     var baseUrl = EmptyToNull(options.PublicBaseUrl)?.TrimEnd('/') ??
@@ -1022,7 +1195,7 @@ static async Task NotifyAdminForReviewApprovalAsync(
     var approveUrl = $"{baseUrl}{approvePath}";
     var rejectUrl = $"{baseUrl}{rejectPath}";
 
-    await emailSender.SendNotificationAsync(
+    return await emailSender.SendNotificationAsync(
         adminEmail,
         subject,
         BuildReviewApprovalEmail(details, approveUrl, rejectUrl));
@@ -1030,6 +1203,11 @@ static async Task NotifyAdminForReviewApprovalAsync(
 
 static string CreateApprovalToken() =>
     WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+
+static bool IsValidArticleId(string articleId) =>
+    !string.IsNullOrWhiteSpace(articleId) &&
+    articleId.Length <= 80 &&
+    Regex.IsMatch(articleId, "^[a-z0-9-]+$", RegexOptions.IgnoreCase);
 
 static string BuildReviewApprovalEmail(string details, string approveUrl, string rejectUrl)
 {
@@ -1202,6 +1380,10 @@ public sealed record LoginRequest(string Email, string? Channel);
 
 public sealed record OtpVerifyRequest(string Email, string Otp);
 
+public sealed record SignupOtpRequest(string Email);
+
+public sealed record SignupOtpVerifyRequest(string Email, string Otp);
+
 public sealed record WasteOtpRequest(string Phone, string? Email, string? Channel);
 
 public sealed record WasteOtpVerifyRequest(string Phone, string Otp);
@@ -1283,6 +1465,7 @@ public sealed record WasteSubmissionSummary(
     string? Email,
     string? Address,
     string WasteCategory,
+    string? Quantity,
     string? Notes,
     string Status,
     DateTimeOffset CreatedAtUtc,
@@ -1323,6 +1506,7 @@ public sealed record BidOpportunitySummary(
     string? Email,
     string? Address,
     string WasteCategory,
+    string? Quantity,
     string? Notes,
     string Status,
     DateTimeOffset CreatedAtUtc,
@@ -1342,6 +1526,7 @@ public sealed record CompanyOrderSummary(
     string? Email,
     string? Address,
     string WasteCategory,
+    string? Quantity,
     string? Notes,
     string Status,
     DateTimeOffset CreatedAtUtc,
@@ -1358,6 +1543,7 @@ public sealed record CompanyBidSummary(
     string? Email,
     string? Address,
     string WasteCategory,
+    string? Quantity,
     string? Notes,
     string Status,
     DateTimeOffset CreatedAtUtc,
@@ -1423,6 +1609,37 @@ public sealed record CompanyReviewsResponse(
     IEnumerable<CompanyReviewSummary> Reviews);
 
 public sealed record ReviewPendingResponse(Guid Id, string Message);
+
+public sealed record ArticleComment(
+    Guid Id,
+    string ArticleId,
+    string? ArticleTitle,
+    string ReviewerName,
+    string? ReviewerEmail,
+    string Comment,
+    DateTimeOffset CreatedAtUtc,
+    string Status,
+    string ApprovalToken,
+    DateTimeOffset? ReviewedAtUtc,
+    string? ReviewedBy);
+
+public sealed record ArticleCommentRequest(
+    string? ArticleTitle,
+    string? ReviewerName,
+    string? ReviewerEmail,
+    string? Comment);
+
+public sealed record ArticleCommentSummary(
+    Guid Id,
+    string ReviewerName,
+    string Comment,
+    DateTimeOffset CreatedAtUtc);
+
+public sealed record ArticleCommentsResponse(IEnumerable<ArticleCommentSummary> Comments);
+
+public sealed record ArticleViewRequest(string? VisitorKey, int ReaderBase);
+
+public sealed record ArticleViewResponse(string ArticleId, int Views);
 
 public sealed record UserReviewCreate(
     Guid WasteSubmissionId,
@@ -1603,7 +1820,7 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
             string.IsNullOrWhiteSpace(options.Username) ||
             string.IsNullOrWhiteSpace(options.Password))
         {
-            return new EmailSendResult(false, "Email OTP is not configured on the server.");
+            return new EmailSendResult(false, "Email verification code is not configured on the server.");
         }
 
         using var message = new MailMessage
@@ -1724,8 +1941,9 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSende
             await client.SendMailAsync(message);
             return new EmailSendResult(true);
         }
-        catch
+        catch (Exception ex)
         {
+            Console.Error.WriteLine($"Notification email failed for {toEmail} with subject '{subject}': {ex.Message}");
             return new EmailSendResult(false, "Could not send notification email. Please try again later.");
         }
     }
@@ -1804,6 +2022,7 @@ public sealed record CompanySummary(
     string Email,
     string? Address,
     string? Website,
+    string? LogoFileName,
     string[] WasteCategories,
     DateTimeOffset CreatedAtUtc);
 
@@ -3110,6 +3329,193 @@ public sealed class UserStore
         }
     }
 
+    public async Task CreateArticleCommentAsync(ArticleComment comment)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO article_comments (
+                    id,
+                    article_id,
+                    article_title,
+                    reviewer_name,
+                    reviewer_email,
+                    comment,
+                    created_at_utc,
+                    status,
+                    approval_token,
+                    reviewed_at_utc,
+                    reviewed_by
+                )
+                VALUES (
+                    $id,
+                    $articleId,
+                    $articleTitle,
+                    $reviewerName,
+                    $reviewerEmail,
+                    $comment,
+                    $createdAtUtc,
+                    $status,
+                    $approvalToken,
+                    $reviewedAtUtc,
+                    $reviewedBy
+                );
+                """;
+            command.Parameters.AddWithValue("$id", comment.Id.ToString());
+            command.Parameters.AddWithValue("$articleId", comment.ArticleId);
+            command.Parameters.AddWithValue("$articleTitle", ToDbValue(comment.ArticleTitle));
+            command.Parameters.AddWithValue("$reviewerName", comment.ReviewerName);
+            command.Parameters.AddWithValue("$reviewerEmail", ToDbValue(comment.ReviewerEmail));
+            command.Parameters.AddWithValue("$comment", comment.Comment);
+            command.Parameters.AddWithValue("$createdAtUtc", comment.CreatedAtUtc.ToString("O"));
+            command.Parameters.AddWithValue("$status", comment.Status);
+            command.Parameters.AddWithValue("$approvalToken", comment.ApprovalToken);
+            command.Parameters.AddWithValue("$reviewedAtUtc", ToDbValue(comment.ReviewedAtUtc?.ToString("O")));
+            command.Parameters.AddWithValue("$reviewedBy", ToDbValue(comment.ReviewedBy));
+            await command.ExecuteNonQueryAsync();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<int> RecordArticleViewAsync(string articleId, string? visitorKey, int readerBase)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var now = DateTimeOffset.UtcNow.ToString("O");
+            var normalizedArticleId = articleId.Trim();
+            var normalizedVisitorKey = EmptyToNull(visitorKey);
+
+            if (normalizedVisitorKey is not null)
+            {
+                var insertViewCommand = connection.CreateCommand();
+                insertViewCommand.CommandText = """
+                    INSERT OR IGNORE INTO article_views (
+                        article_id,
+                        visitor_key,
+                        created_at_utc
+                    )
+                    VALUES (
+                        $articleId,
+                        $visitorKey,
+                        $createdAtUtc
+                    );
+                    """;
+                insertViewCommand.Parameters.AddWithValue("$articleId", normalizedArticleId);
+                insertViewCommand.Parameters.AddWithValue("$visitorKey", normalizedVisitorKey);
+                insertViewCommand.Parameters.AddWithValue("$createdAtUtc", now);
+                await insertViewCommand.ExecuteNonQueryAsync();
+            }
+
+            var countCommand = connection.CreateCommand();
+            countCommand.CommandText = """
+                SELECT COUNT(*)
+                FROM article_views
+                WHERE article_id = $articleId COLLATE NOCASE;
+                """;
+            countCommand.Parameters.AddWithValue("$articleId", normalizedArticleId);
+            var storedViews = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+            return Math.Max(0, readerBase) + storedViews;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<IReadOnlyList<ArticleComment>> GetApprovedArticleCommentsAsync(string articleId)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT
+                    id,
+                    article_id,
+                    article_title,
+                    reviewer_name,
+                    reviewer_email,
+                    comment,
+                    created_at_utc,
+                    status,
+                    approval_token,
+                    reviewed_at_utc,
+                    reviewed_by
+                FROM article_comments
+                WHERE article_id = $articleId COLLATE NOCASE
+                  AND status = 'approved'
+                ORDER BY created_at_utc DESC;
+                """;
+            command.Parameters.AddWithValue("$articleId", articleId.Trim());
+
+            var comments = new List<ArticleComment>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                comments.Add(ReadArticleComment(reader));
+            }
+
+            return comments;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<ReviewApprovalResult> ResolveArticleCommentAsync(Guid commentId, string? token, string status)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return new ReviewApprovalResult.InvalidToken();
+        }
+
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE article_comments
+                SET status = $status,
+                    reviewed_at_utc = $reviewedAtUtc,
+                    reviewed_by = 'email-admin'
+                WHERE id = $id
+                  AND approval_token = $token
+                  AND status = 'pending';
+                """;
+            command.Parameters.AddWithValue("$id", commentId.ToString());
+            command.Parameters.AddWithValue("$token", token.Trim());
+            command.Parameters.AddWithValue("$status", status);
+            command.Parameters.AddWithValue("$reviewedAtUtc", DateTimeOffset.UtcNow.ToString("O"));
+            var updated = await command.ExecuteNonQueryAsync();
+            if (updated > 0)
+            {
+                return new ReviewApprovalResult.Updated();
+            }
+
+            var existsCommand = connection.CreateCommand();
+            existsCommand.CommandText = "SELECT 1 FROM article_comments WHERE id = $id LIMIT 1;";
+            existsCommand.Parameters.AddWithValue("$id", commentId.ToString());
+            return await existsCommand.ExecuteScalarAsync() is null
+                ? new ReviewApprovalResult.NotFound()
+                : new ReviewApprovalResult.InvalidToken();
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
     public async Task<IReadOnlyList<CompanyReview>> GetCompanyReviewsByEmailAsync(string companyEmail)
     {
         await gate.WaitAsync();
@@ -3444,6 +3850,22 @@ public sealed class UserStore
             DateTimeOffset.Parse(reader.GetString(9)));
     }
 
+    private static ArticleComment ReadArticleComment(SqliteDataReader reader)
+    {
+        return new ArticleComment(
+            Guid.Parse(reader.GetString(0)),
+            reader.GetString(1),
+            GetNullableString(reader, 2),
+            reader.GetString(3),
+            GetNullableString(reader, 4),
+            reader.GetString(5),
+            DateTimeOffset.Parse(reader.GetString(6)),
+            reader.GetString(7),
+            reader.GetString(8),
+            reader.IsDBNull(9) ? null : DateTimeOffset.Parse(reader.GetString(9)),
+            GetNullableString(reader, 10));
+    }
+
     private static async Task UpdateSubmissionStatusAsync(SqliteConnection connection, Guid submissionId, string status)
     {
         var command = connection.CreateCommand();
@@ -3603,6 +4025,28 @@ public sealed class UserStore
                 FOREIGN KEY (reviewer_company_id) REFERENCES companies(id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS article_comments (
+                id TEXT NOT NULL PRIMARY KEY,
+                article_id TEXT NOT NULL,
+                article_title TEXT NULL,
+                reviewer_name TEXT NOT NULL,
+                reviewer_email TEXT NULL,
+                comment TEXT NOT NULL,
+                created_at_utc TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                approval_token TEXT NULL,
+                reviewed_at_utc TEXT NULL,
+                reviewed_by TEXT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS article_views (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                article_id TEXT NOT NULL,
+                visitor_key TEXT NOT NULL,
+                created_at_utc TEXT NOT NULL,
+                UNIQUE (article_id, visitor_key)
+            );
+
             CREATE TABLE IF NOT EXISTS waste_bids (
                 id TEXT NOT NULL PRIMARY KEY,
                 waste_submission_id TEXT NOT NULL,
@@ -3640,6 +4084,12 @@ public sealed class UserStore
 
             CREATE INDEX IF NOT EXISTS ix_user_reviews_target_email_created_at
                 ON user_reviews(target_email, created_at_utc DESC);
+
+            CREATE INDEX IF NOT EXISTS ix_article_comments_article_status_created_at
+                ON article_comments(article_id, status, created_at_utc DESC);
+
+            CREATE INDEX IF NOT EXISTS ix_article_views_article_id
+                ON article_views(article_id);
 
             CREATE INDEX IF NOT EXISTS ix_waste_bids_submission_status
                 ON waste_bids(waste_submission_id, status);

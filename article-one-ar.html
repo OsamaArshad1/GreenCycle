@@ -12,11 +12,11 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="landing-page">
-    <header class="navbar">
+    <header class="navbar navbar-home">
     <div class="logo">
-      <div class="logo-mark">
-        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
-      </div>
+      <a class="logo-mark" href="index.html" aria-label="Green Cycle home">
+        <img src="green-cycle-logo.jpeg" alt="Green Cycle logo" />
+      </a>
       <div class="logo-links" aria-label="Brand links" lang="en" dir="ltr">
         <a href="index.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<!-- <span class="brand-registration">مسجلة لدى وزارة التجارة والصناعة الكويتية</span> --></a>
       </div>
@@ -30,6 +30,7 @@
     <div class="nav-menu">
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
+        <a href="about-us-ar.html">من نحن</a>
         <a href="index.html#objectives">أهدافنا</a>
         <div class="nav-dropdown">
           <a class="nav-dropdown-toggle" href="recycling-companies-ar.html">قائمة شركات إعادة التدوير</a>
@@ -80,9 +81,16 @@
     <section class="article-hero"><div class="article-shell"><div class="article-kicker">إنتاج الطاقة من النفايات</div><h1>مشروع إنتاج الكهرباء من النفايات وأهميته في الكويت</h1><p>من المشاريع الحيوية التي تستحق الاهتمام والتوطين، خاصة مع إمكانية الاستفادة من تجربة دبي في مشروع وارسَن لإنتاج الكهرباء من النفايات.</p></div></section>
     <section class="article-layout">
       <article class="article-body">
+        <figure class="article-lead-image">
+          <img src="article-images/article-one-1.jpeg" alt="رسم توضيحي عن إنتاج الطاقة من النفايات في الكويت" />
+        </figure>
         <h2>أهمية المشروع</h2>
         <p>من المشاريع الحيوية والشيقة والتي تستحق كل الاهتمام والتوطين هو مشروع إنتاج الطاقة من النفايات، خاصة ما تم تنفيذه في مشروع وارسَن دبي، والذي تم تشغيله في عام 2024 لإنتاج الكهرباء بقدرة تصل إلى 200 MWp وتزيد خاصية التشغيل الفعلي بنسبة تفوق 80% Capacity Factor، بحيث تصل طاقتها السنوية لأكثر من 1370 GWh، وبتكلفة قاربت المليار دولار.</p>
         <p>تم تنفيذ المشروع بنظام عقد يسمى BOOT: Build Own Operate Transfer، وعادة يتم تشغيل هذه المشاريع لمدة تصل إلى 35 سنة، وتكون تكلفة الكهرباء المنافسة فيها ما بين 8 و25 سنت لكل كيلووات ساعة.</p>
+        <figure class="article-lead-image">
+          <img src="article-images/article-one-2.png" alt="مخطط مقطعي لمحطة تحويل النفايات إلى طاقة في دبي" />
+          <figcaption>مقطع طولي لمحطة تحويل النفايات إلى طاقة في دبي.</figcaption>
+        </figure>
         <h2>الأهداف الاستراتيجية</h2>
         <ol>
           <li>توفير طاقة كهربائية موثوقة أكثر وأفضل من الاعتماد على الطاقة الشمسية وطاقة الرياح وحدهما.</li>
@@ -96,8 +104,27 @@
         <p>من التحديات المتوقعة في الدول الخليجية حرارة الجو صيفاً ونشاط الغبار، مما يصعب عمل التوربينات البخارية وعملية التسخين الداخلي، حيث تحتاج لتدفق مستمر لهواء نظيف ومعتدل الحرارة. كما تحتاج هذه المشاريع إلى تطوير البنية التحتية، خاصة مشاريع المعالجة الصحية وربطها بمحطات إنتاج الطاقة.</p>
         <h2>فرصة الكويت</h2>
         <p>نحن في الكويت ننتج سنوياً ما بين 3 و4 مليون طن من النفايات، ومعظمها يتراكم في المرادم التي أصبحت جبالاً تحيط بالمناطق السكنية، مليئة بالغازات والملوثات الخطرة على البيئة والإنسان. وبالتالي فإن مشروعين بنفس هذا الحجم يمكن أن يسهما في حماية البلد من الملوثات، وفي الوقت نفسه إنتاج طاقة كهربائية موثوقة.</p>
+        <section class="article-comments" id="comments" aria-labelledby="comments-title">
+          <h2 id="comments-title">التعليقات</h2>
+          <p>شارك تعليقك مع منصة جرين سايكل. يتم نشر التعليقات بعد موافقة الفريق.</p>
+          <form class="article-comment-form" data-article-comment-form>
+            <label for="commentName">الاسم
+              <input id="commentName" name="name" type="text" autocomplete="name" />
+            </label>
+            <label for="commentMessage">التعليق
+              <textarea id="commentMessage" name="comment" required></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">إرسال التعليق</button>
+          </form>
+        </section>
       </article>
       <aside class="article-news-panel">
+        <section class="article-engagement" aria-label="تفاعل المقال" data-article-id="article-one-ar" data-reader-base="0" data-share-text="مشروع إنتاج الكهرباء من النفايات وأهميته في الكويت" data-share-success="تم نسخ رابط المقال." data-share-error="المشاركة غير متاحة حالياً.">
+          <span class="article-stat">عدد القراء <strong data-reader-count>0</strong></span>
+          <a class="article-action" href="#comments">التعليقات</a>
+          <button class="article-action" type="button" data-share-button aria-label="مشاركة المقال">مشاركة</button>
+          <span class="article-share-status" data-share-status aria-live="polite"></span>
+        </section>
         <h2>آخر الأخبار</h2>
         <div class="news-card"><span>نفايات الألواح الشمسية</span><h4>مستقبل نفايات الألواح الشمسية</h4><a class="btn btn-outline news-detail-link" href="article-two-ar.html">عرض التفاصيل</a></div>
         <div class="news-card"><span>استراتيجية الكويت 2040</span><h4>الاستراتيجية الوطنية الكويتية لإدارة النفايات</h4><a class="btn btn-outline news-detail-link" href="article-three-ar.html">عرض التفاصيل</a></div>
@@ -105,7 +132,10 @@
       </aside>
     </section>
   </main>
-  <footer><div class="footer-wrap"><p><strong>منصة جرين سايكل</strong> - منصة للحلول الدائرية للنفايات</p><div class="footer-links"><a href="index.html">الرئيسية</a><a href="index.html#submit-waste">تسليم النفايات</a><a href="terms-and-conditions.html">الشروط والأحكام</a><a href="privacy-policy.html">سياسة الخصوصية</a></div><p>© 2026 جميع الحقوق محفوظة.</p></div></footer>
+  <footer><div class="footer-wrap"><p><strong>منصة جرين سايكل</strong> - منصة للحلول الدائرية للنفايات</p><div class="footer-links"><a href="index.html">الرئيسية</a>
+        <a href="about-us-ar.html">من نحن</a><a href="index.html#submit-waste">تسليم النفايات</a><a href="terms-and-conditions.html">الشروط والأحكام</a><a href="privacy-policy.html">سياسة الخصوصية</a></div><p>© 2026 جميع الحقوق محفوظة.</p></div></footer>
+    <script src="site-config.js"></script>
+    <script src="article-engagement.js?v=share-icons-20260822"></script>
     <script>
     const menuToggle = document.querySelector('.menu-toggle');
     const navbar = document.querySelector('.navbar');

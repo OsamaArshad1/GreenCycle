@@ -14,9 +14,9 @@
 <body class="landing-page">
     <header class="navbar navbar-home">
     <div class="logo">
-      <div class="logo-mark">
-        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
-      </div>
+      <a class="logo-mark" href="home.html" aria-label="Green Cycle home">
+        <img src="green-cycle-logo.jpeg" alt="Green Cycle logo" />
+      </a>
       <div class="logo-links" aria-label="Brand links">
         <a href="home.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<!-- <span class="brand-registration">Registered at Kuwait MOCI</span> --></a>
       </div>
@@ -30,6 +30,7 @@
     <div class="nav-menu">
       <nav class="nav-links nav-links-home">
         <a href="home.html">Home</a>
+        <a href="about-us.html">About Us</a>
         <a href="home.html#objectives">Objectives</a>
         <div class="nav-dropdown">
           <a class="nav-dropdown-toggle" href="recycling-companies.html">Recycling Companies List</a>
@@ -80,6 +81,9 @@
     <section class="article-hero"><div class="article-shell"><div class="article-kicker">Kuwait Strategy 2040</div><h1>Kuwait National Waste Management Strategy 2040</h1><p>The strategy provides a national framework for reducing harmful waste impacts, improving waste hierarchy implementation, and treating waste streams as resources.</p></div></section>
     <section class="article-layout">
       <article class="article-body">
+        <figure class="article-lead-image">
+          <img src="article-images/article-three-1.png" alt="Kuwait national waste management strategy infographic" />
+        </figure>
         <h2>Strategy Overview</h2>
         <p>In 2024, Kuwait's Environment Public Authority announced the National Waste Management Strategy until 2040. The strategy is built around a clear vision: developing an effective waste management system that reduces the negative impacts of waste generation on human health and the environment, while enabling efficient, safe, and environmentally sound use of waste streams as resources.</p>
         <p>The strategy diagnoses the current national reality, including types of waste, active landfills, and closed full landfills. It also states that household waste represents only 3-4% of Kuwait's annual waste, estimated at 37-42 million tonnes.</p>
@@ -99,8 +103,27 @@
         <p>This strategy is an important step in diagnosing current conditions and measuring waste flows. It can help guide practical solutions, monitor implementation, and hold violators accountable. Green Cycle Platform was established to create a smooth link between waste sources and recycling or scrap-management companies, while also enabling potential government oversight.</p>
         <p><a href="https://greencycleplatform.com/" target="_blank" rel="noopener">Green Cycle Platform</a></p>
         <p><a href="https://epa.gov.kw/Portals/0/PDF/Atlas_En.pdf" target="_blank" rel="noopener">Kuwait National Waste Management Strategy reference</a></p>
+        <section class="article-comments" id="comments" aria-labelledby="comments-title">
+          <h2 id="comments-title">Comments</h2>
+          <p>Share your comment with Green Cycle Platform. Comments are published after approval by the team.</p>
+          <form class="article-comment-form" data-article-comment-form>
+            <label for="commentName">Name
+              <input id="commentName" name="name" type="text" autocomplete="name" />
+            </label>
+            <label for="commentMessage">Comment
+              <textarea id="commentMessage" name="comment" required></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">Send Comment</button>
+          </form>
+        </section>
       </article>
       <aside class="article-news-panel">
+        <section class="article-engagement" aria-label="Article engagement" data-article-id="article-three-en" data-comments-id="article-three-ar" data-reader-base="0" data-share-text="Kuwait National Waste Management Strategy 2040" data-share-success="Article link copied." data-share-error="Sharing is unavailable.">
+          <span class="article-stat">Readers <strong data-reader-count>0</strong></span>
+          <a class="article-action" href="#comments">Comments</a>
+          <button class="article-action" type="button" data-share-button aria-label="Share this article">Share</button>
+          <span class="article-share-status" data-share-status aria-live="polite"></span>
+        </section>
         <h2>Latest News</h2>
         <div class="news-card"><span>Waste to Energy</span><h4>Producing Electricity from Waste</h4><a class="btn btn-outline news-detail-link" href="article-one.html">View in detail</a></div>
         <div class="news-card"><span>Solar PV Waste</span><h4>The Future of Solar Panel Waste</h4><a class="btn btn-outline news-detail-link" href="article-two.html">View in detail</a></div>
@@ -108,7 +131,10 @@
       </aside>
     </section>
   </main>
-  <footer><div class="footer-wrap"><p><strong>Green Cycle Platform</strong> - Circular waste solutions platform</p><div class="footer-links"><a href="home.html">Home</a><a href="home.html#submit-waste">Submit Waste</a><a href="terms-and-conditions.html">Terms &amp; Conditions</a><a href="privacy-policy.html">Privacy Policy</a></div><p>© 2026 All rights reserved.</p></div></footer>
+  <footer><div class="footer-wrap"><p><strong>Green Cycle Platform</strong> - Circular waste solutions platform</p><div class="footer-links"><a href="home.html">Home</a>
+        <a href="about-us.html">About Us</a><a href="home.html#submit-waste">Submit Waste</a><a href="terms-and-conditions.html">Terms &amp; Conditions</a><a href="privacy-policy.html">Privacy Policy</a></div><p>© 2026 All rights reserved.</p></div></footer>
+    <script src="site-config.js"></script>
+    <script src="article-engagement.js?v=share-icons-20260822"></script>
     <script>
     const menuToggle = document.querySelector('.menu-toggle');
     const navbar = document.querySelector('.navbar');

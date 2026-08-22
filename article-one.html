@@ -14,9 +14,9 @@
 <body class="landing-page">
     <header class="navbar navbar-home">
     <div class="logo">
-      <div class="logo-mark">
-        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
-      </div>
+      <a class="logo-mark" href="home.html" aria-label="Green Cycle home">
+        <img src="green-cycle-logo.jpeg" alt="Green Cycle logo" />
+      </a>
       <div class="logo-links" aria-label="Brand links">
         <a href="home.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<!-- <span class="brand-registration">Registered at Kuwait MOCI</span> --></a>
       </div>
@@ -30,6 +30,7 @@
     <div class="nav-menu">
       <nav class="nav-links nav-links-home">
         <a href="home.html">Home</a>
+        <a href="about-us.html">About Us</a>
         <a href="home.html#objectives">Objectives</a>
         <div class="nav-dropdown">
           <a class="nav-dropdown-toggle" href="recycling-companies.html">Recycling Companies List</a>
@@ -85,12 +86,18 @@
         <p>Lessons from Dubai's Warsan waste-to-energy project show how landfill reduction, reliable electricity generation, water reuse, and carbon management can work together in one strategic infrastructure project.</p>
       </div>
     </section>
-
     <section class="article-layout">
       <article class="article-body">
+        <figure class="article-lead-image">
+          <img src="article-images/article-one-1.jpeg" alt="Waste to energy infographic for Kuwait" />
+        </figure>
         <h2>Why Waste-to-Energy Matters</h2>
         <p>Waste-to-energy projects deserve serious attention in Kuwait because they can address two urgent needs at once: reducing landfill accumulation and generating reliable electricity. A useful regional example is Dubai's Warsan project, which began operating in 2024 with a power capacity of about 200 MWp, an operating capacity factor above 80%, and annual output exceeding 1,370 GWh. The project cost approached one billion dollars.</p>
         <p>The project was implemented through a BOOT model, meaning Build, Own, Operate, Transfer. These projects often run for up to 35 years, with competitive levelized costs of electricity commonly ranging between 8 and 25 cents per kWh.</p>
+        <figure class="article-lead-image">
+          <img src="article-images/article-one-2.png" alt="Longitudinal section diagram of a waste-to-energy plant in Dubai" />
+          <figcaption>Longitudinal section of the waste-to-energy plant in Dubai.</figcaption>
+        </figure>
 
         <h2>Strategic Benefits</h2>
         <ol>
@@ -107,9 +114,28 @@
 
         <h2>The Kuwait Opportunity</h2>
         <p>Kuwait produces approximately 3 to 4 million tonnes of waste annually, much of which accumulates in landfills that have become visible environmental burdens near residential areas. Two projects of similar scale could help Kuwait reduce pollutants while producing dependable electricity.</p>
+        <section class="article-comments" id="comments" aria-labelledby="comments-title">
+          <h2 id="comments-title">Comments</h2>
+          <p>Share your comment with Green Cycle Platform. Comments are published after approval by the team.</p>
+          <form class="article-comment-form" data-article-comment-form>
+            <label for="commentName">Name
+              <input id="commentName" name="name" type="text" autocomplete="name" />
+            </label>
+            <label for="commentMessage">Comment
+              <textarea id="commentMessage" name="comment" required></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">Send Comment</button>
+          </form>
+        </section>
       </article>
 
       <aside class="article-news-panel">
+        <section class="article-engagement" aria-label="Article engagement" data-article-id="article-one-en" data-comments-id="article-one-ar" data-reader-base="0" data-share-text="Producing Electricity from Waste and Its Importance for Kuwait" data-share-success="Article link copied." data-share-error="Sharing is unavailable.">
+          <span class="article-stat">Readers <strong data-reader-count>0</strong></span>
+          <a class="article-action" href="#comments">Comments</a>
+          <button class="article-action" type="button" data-share-button aria-label="Share this article">Share</button>
+          <span class="article-share-status" data-share-status aria-live="polite"></span>
+        </section>
         <h2>Latest News</h2>
         <div class="news-card"><span>Solar PV Waste</span><h4>The Future of Solar Panel Waste</h4><a class="btn btn-outline news-detail-link" href="article-two.html">View in detail</a></div>
         <div class="news-card"><span>Kuwait Strategy 2040</span><h4>Kuwait National Waste Management Strategy 2040</h4><a class="btn btn-outline news-detail-link" href="article-three.html">View in detail</a></div>
@@ -123,6 +149,7 @@
       <p><strong>Green Cycle Platform</strong> - Circular waste solutions platform</p>
       <div class="footer-links">
         <a href="home.html">Home</a>
+        <a href="about-us.html">About Us</a>
         <a href="home.html#submit-waste">Submit Waste</a>
         <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
         <a href="privacy-policy.html">Privacy Policy</a>
@@ -130,6 +157,8 @@
       <p>© 2026 All rights reserved.</p>
     </div>
   </footer>
+    <script src="site-config.js"></script>
+    <script src="article-engagement.js?v=share-icons-20260822"></script>
     <script>
     const menuToggle = document.querySelector('.menu-toggle');
     const navbar = document.querySelector('.navbar');

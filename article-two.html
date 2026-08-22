@@ -14,9 +14,9 @@
 <body class="landing-page">
     <header class="navbar navbar-home">
     <div class="logo">
-      <div class="logo-mark">
-        <img src="Green_logo-removebg-preview.png" alt="Green Cycle logo" />
-      </div>
+      <a class="logo-mark" href="home.html" aria-label="Green Cycle home">
+        <img src="green-cycle-logo.jpeg" alt="Green Cycle logo" />
+      </a>
       <div class="logo-links" aria-label="Brand links">
         <a href="home.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<!-- <span class="brand-registration">Registered at Kuwait MOCI</span> --></a>
       </div>
@@ -30,6 +30,7 @@
     <div class="nav-menu">
       <nav class="nav-links nav-links-home">
         <a href="home.html">Home</a>
+        <a href="about-us.html">About Us</a>
         <a href="home.html#objectives">Objectives</a>
         <div class="nav-dropdown">
           <a class="nav-dropdown-toggle" href="recycling-companies.html">Recycling Companies List</a>
@@ -80,6 +81,9 @@
     <section class="article-hero"><div class="article-shell"><div class="article-kicker">Solar PV Waste</div><h1>The Future of Solar Panel Waste</h1><p>Photovoltaic panel waste sits between pollution risk and resource opportunity. Planning early can help Kuwait and the region avoid a future waste burden while recovering valuable materials.</p></div></section>
     <section class="article-layout">
       <article class="article-body">
+        <figure class="article-lead-image">
+          <img src="article-images/article-two-1.jpg" alt="Solar PV waste preparation infographic for Kuwait" />
+        </figure>
         <h2>A Challenge That Is Coming Quickly</h2>
         <p>Many Arab countries are still struggling with general solid waste management. This challenge will grow as the region expands photovoltaic solar projects. The waste from these panels will become more visible over the coming years as the first major installations approach the end of their useful life.</p>
         <p>Kuwait installed the first phase of the Shagaya station at about 10 MW, equal to roughly 40,000 solar panels, around 2015. In less than 10 years, those panels will begin turning into waste. Kuwait is also expected to add around 4,500 MW before 2030, which could mean more than 18 million photovoltaic panels.</p>
@@ -93,8 +97,27 @@
           <li>When waste accumulates, direct it into suitable smelting and energy recovery processes instead of burying it in the desert.</li>
         </ol>
         <p>Early planning can turn this expected waste stream into an industrial opportunity for recycling, energy recovery, and circular value creation.</p>
+        <section class="article-comments" id="comments" aria-labelledby="comments-title">
+          <h2 id="comments-title">Comments</h2>
+          <p>Share your comment with Green Cycle Platform. Comments are published after approval by the team.</p>
+          <form class="article-comment-form" data-article-comment-form>
+            <label for="commentName">Name
+              <input id="commentName" name="name" type="text" autocomplete="name" />
+            </label>
+            <label for="commentMessage">Comment
+              <textarea id="commentMessage" name="comment" required></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">Send Comment</button>
+          </form>
+        </section>
       </article>
       <aside class="article-news-panel">
+        <section class="article-engagement" aria-label="Article engagement" data-article-id="article-two-en" data-comments-id="article-two-ar" data-reader-base="0" data-share-text="The Future of Solar Panel Waste" data-share-success="Article link copied." data-share-error="Sharing is unavailable.">
+          <span class="article-stat">Readers <strong data-reader-count>0</strong></span>
+          <a class="article-action" href="#comments">Comments</a>
+          <button class="article-action" type="button" data-share-button aria-label="Share this article">Share</button>
+          <span class="article-share-status" data-share-status aria-live="polite"></span>
+        </section>
         <h2>Latest News</h2>
         <div class="news-card"><span>Waste to Energy</span><h4>Producing Electricity from Waste</h4><a class="btn btn-outline news-detail-link" href="article-one.html">View in detail</a></div>
         <div class="news-card"><span>Kuwait Strategy 2040</span><h4>Kuwait National Waste Management Strategy 2040</h4><a class="btn btn-outline news-detail-link" href="article-three.html">View in detail</a></div>
@@ -102,7 +125,10 @@
       </aside>
     </section>
   </main>
-  <footer><div class="footer-wrap"><p><strong>Green Cycle Platform</strong> - Circular waste solutions platform</p><div class="footer-links"><a href="home.html">Home</a><a href="home.html#submit-waste">Submit Waste</a><a href="terms-and-conditions.html">Terms &amp; Conditions</a><a href="privacy-policy.html">Privacy Policy</a></div><p>© 2026 All rights reserved.</p></div></footer>
+  <footer><div class="footer-wrap"><p><strong>Green Cycle Platform</strong> - Circular waste solutions platform</p><div class="footer-links"><a href="home.html">Home</a>
+        <a href="about-us.html">About Us</a><a href="home.html#submit-waste">Submit Waste</a><a href="terms-and-conditions.html">Terms &amp; Conditions</a><a href="privacy-policy.html">Privacy Policy</a></div><p>© 2026 All rights reserved.</p></div></footer>
+    <script src="site-config.js"></script>
+    <script src="article-engagement.js?v=share-icons-20260822"></script>
     <script>
     const menuToggle = document.querySelector('.menu-toggle');
     const navbar = document.querySelector('.navbar');

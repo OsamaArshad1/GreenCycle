@@ -2,6 +2,16 @@
 
 Static website files plus a .NET 10 backend for login, recycling company signup, OTP verification, and local SQLite data storage.
 
+## Project Structure
+
+- Root HTML files are the deployable Arabic and English website pages.
+- `styles.css` and `site-config.js` contain shared frontend styling and configuration.
+- `carousel/` contains website images.
+- `backend/GreenCycle.Api/` contains the ASP.NET Core API.
+- `docs/legal/` contains the original legal Word and PDF documents.
+- `docs/reference/` contains archived design and content reference files.
+- `publish/` and `.tmp-*` directories are generated deployment output and are ignored by Git.
+
 ## Run Locally
 
 ```powershell

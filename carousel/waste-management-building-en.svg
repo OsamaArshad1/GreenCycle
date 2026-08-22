@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" width="1600" height="480">
+  <defs>
+    <linearGradient id="bgWm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f3d2e"/>
+      <stop offset="55%" stop-color="#165c3d"/>
+      <stop offset="100%" stop-color="#1f7a4c"/>
+    </linearGradient>
+    <radialGradient id="glowWm" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#38a169" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#38a169" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurWm" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="45"/>
+    </filter>
+    <marker id="arrowWmEn" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="480" fill="url(#bgWm)"/>
+  <rect width="1600" height="480" fill="url(#glowWm)"/>
+  <circle cx="1430" cy="70" r="180" fill="#38a169" opacity="0.22" filter="url(#blurWm)"/>
+  <circle cx="160" cy="420" r="170" fill="#86efac" opacity="0.14" filter="url(#blurWm)"/>
+
+  <rect x="100" y="60" width="1400" height="360" rx="26" fill="#07231a" opacity="0.55"/>
+
+  <circle cx="800" cy="130" r="34" fill="#2e8b57" opacity="0.95"/>
+  <g transform="translate(800,130) scale(0.19)" stroke="#ffffff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M120,-20 A120,120 0 1 0 60,110" marker-end="url(#arrowWmEn)"/>
+    <path d="M-120,20 A120,120 0 1 0 -60,-110" marker-end="url(#arrowWmEn)"/>
+  </g>
+
+  <g font-family="'Segoe UI', Tahoma, Arial, sans-serif" text-anchor="middle">
+    <text x="800" y="210" fill="#bbf7d0" font-size="20" font-weight="800" letter-spacing="0.5">BUILDING WASTE MANAGEMENT</text>
+    <text x="800" y="264" fill="#ffffff" font-size="27" font-weight="800">
+      <tspan x="800" dy="0">Contact us to learn about the steps for improving the building's</tspan>
+      <tspan x="800" dy="42">waste management system</tspan>
+    </text>
+  </g>
+</svg>

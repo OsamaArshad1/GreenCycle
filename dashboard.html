@@ -373,10 +373,10 @@
     <div class="dashboard-topbar">
       <div class="dashboard-brand">
         <a class="dashboard-brand-logo" href="index.html" aria-label="منصة جرين سايكل">
-          <img src="Green_logo-removebg-preview.png" alt="شعار جرين سايكل">
+          <img src="green-cycle-logo.jpeg" alt="شعار جرين سايكل">
         </a>
         <div class="dashboard-brand-links" aria-label="Brand links">
-          <a href="index.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<span class="brand-registration">مسجلة لدى وزارة التجارة والصناعة الكويتية</span></a>
+          <a href="index.html">Waste Trade / Recycle Hub<br />Green Cycle Platform<!-- <span class="brand-registration">مسجلة لدى وزارة التجارة والصناعة الكويتية</span> --></a>
         </div>
       </div>
       <div class="dashboard-actions">
@@ -389,6 +389,14 @@
         <a class="btn btn-outline" href="#companyReviews">التقييمات <span class="nav-badge" id="reviewsBadge">0</span></a>
         <button class="btn btn-outline" id="logoutButton">تسجيل الخروج</button>
       </div>
+    </div>
+
+    <div class="platform-news-ticker" role="region" aria-label="آخر الأخبار">
+      <a class="platform-news-label" href="index.html#news" lang="ar" dir="rtl">آخر الأخبار</a>
+      <div class="platform-news-window"><div class="platform-news-track">
+        <div class="platform-news-group"><a href="index.html#news" lang="ar" dir="rtl">مشروع إنتاج الكهرباء من النفايات وأهميته في الكويت</a><a href="index.html#news" lang="en" dir="ltr">Producing Electricity from Waste and Its Importance for Kuwait</a><a href="index.html#news" lang="ar" dir="rtl">مستقبل نفايات الألواح الشمسية الكهروضوئية</a><a href="index.html#news" lang="en" dir="ltr">The Future of Solar Panel Waste</a><a href="index.html#news" lang="ar" dir="rtl">الاستراتيجية الوطنية الكويتية لإدارة النفايات 2040</a><a href="index.html#news" lang="en" dir="ltr">Kuwait National Waste Management Strategy 2040</a></div>
+        <div class="platform-news-group" aria-hidden="true"><a href="index.html#news" lang="ar" dir="rtl">مشروع إنتاج الكهرباء من النفايات وأهميته في الكويت</a><a href="index.html#news" lang="en" dir="ltr">Producing Electricity from Waste and Its Importance for Kuwait</a><a href="index.html#news" lang="ar" dir="rtl">مستقبل نفايات الألواح الشمسية الكهروضوئية</a><a href="index.html#news" lang="en" dir="ltr">The Future of Solar Panel Waste</a><a href="index.html#news" lang="ar" dir="rtl">الاستراتيجية الوطنية الكويتية لإدارة النفايات 2040</a><a href="index.html#news" lang="en" dir="ltr">Kuwait National Waste Management Strategy 2040</a></div>
+      </div></div>
     </div>
 
     <section class="dashboard-hero">
@@ -427,6 +435,26 @@
           <div>
             <span>البريد الإلكتروني</span>
             <strong id="companyEmail">-</strong>
+          </div>
+          <div>
+            <span>رقم الموبايل</span>
+            <strong id="companyMobile">-</strong>
+          </div>
+          <div>
+            <span>العنوان</span>
+            <strong id="companyAddress">-</strong>
+          </div>
+          <div>
+            <span>الموقع الإلكتروني</span>
+            <strong id="companyWebsite">-</strong>
+          </div>
+          <div>
+            <span>أنواع النفايات</span>
+            <strong id="companyWasteCategories">-</strong>
+          </div>
+          <div>
+            <span>ملف الشعار</span>
+            <strong id="companyLogoFile">-</strong>
           </div>
           <div>
             <span>الجلسة</span>
@@ -653,6 +681,52 @@
       `;
     }
 
+    function displayValue(value) {
+      return value ? escapeHtml(value) : 'غير مذكور';
+    }
+
+    function renderSubmissionDetails(item, options = {}) {
+      const rows = [];
+      if (options.status) {
+        rows.push(`الحالة: <span class="status-pill ${statusClass(item.status)}">${escapeHtml(submissionStatusLabel(item.status))}</span>`);
+      }
+      rows.push(`نوع مقدم الطلب: ${displayValue(item.submitterType)}`);
+      rows.push(`الشخص المسؤول: ${displayValue(item.submitterName)}`);
+      rows.push(`الشركة: ${displayValue(item.companyName)}`);
+      rows.push(`الهاتف: ${displayValue(item.phone)}`);
+      rows.push(`البريد الإلكتروني: ${displayValue(item.email)}`);
+      rows.push(`المدينة / العنوان: ${displayValue(item.address)}`);
+      rows.push(`نوع النفايات: ${displayValue(item.wasteCategory)}`);
+      rows.push(`الكمية: ${displayValue(item.quantity)}`);
+      rows.push(`الصور: ${Number(item.imageCount || 0)}`);
+      return `<div class="submission-meta">${rows.map(row => `<span>${row}</span>`).join('')}</div>`;
+    }
+
+    function renderSubmissionNotes(item) {
+      return item.notes ? `<p><strong>تفاصيل إضافية:</strong> ${escapeHtml(item.notes)}</p>` : '';
+    }
+
+    async function loadAccountProfile() {
+      try {
+        const response = await fetch(apiUrl('/api/companies'));
+        const companies = await readApiResponse(response);
+        const profile = companies.find(company => (company.email || '').toLowerCase() === session.email.toLowerCase());
+        if (!profile) return;
+
+        document.getElementById('companyName').textContent = profile.companyName || session.companyName || '-';
+        document.getElementById('companyEmail').textContent = profile.email || session.email || '-';
+        document.getElementById('companyMobile').textContent = profile.mobile || '-';
+        document.getElementById('companyAddress').textContent = profile.address || '-';
+        document.getElementById('companyWebsite').textContent = profile.website || '-';
+        document.getElementById('companyWasteCategories').textContent = Array.isArray(profile.wasteCategories) && profile.wasteCategories.length > 0
+          ? profile.wasteCategories.join(', ')
+          : '-';
+        document.getElementById('companyLogoFile').textContent = profile.logoFileName || '-';
+      } catch (error) {
+        console.warn(error.message);
+      }
+    }
+
     function renderStars(rating) {
       const safeRating = Math.max(0, Math.min(5, Number(rating) || 0));
       return `${'★'.repeat(safeRating)}${'☆'.repeat(5 - safeRating)}`;
@@ -750,15 +824,11 @@
         list.innerHTML = submissions.map(item => `
           <article class="submission-card">
             <header>
-              <strong>${item.wasteCategory}</strong>
+              <strong>${escapeHtml(item.wasteCategory)}</strong>
               <span>${formatDate(item.createdAtUtc)}</span>
             </header>
-            <div class="submission-meta">
-              <span>الحالة: <span class="status-pill ${statusClass(item.status)}">${submissionStatusLabel(item.status)}</span></span>
-              <span>الهاتف: ${item.phone}</span>
-              <span>الصور: ${item.imageCount}</span>
-            </div>
-            ${item.notes ? `<p>${item.notes}</p>` : ''}
+            ${renderSubmissionDetails(item, { status: true })}
+            ${renderSubmissionNotes(item)}
             ${renderSubmissionImages(item)}
           </article>
         `).join('');
@@ -794,7 +864,8 @@
               <strong>${escapeHtml(group.submission.wasteCategory)}</strong>
               <span>${formatDate(group.submission.createdAtUtc)}</span>
             </header>
-            <p>الحالة: <span class="status-pill ${statusClass(group.submission.status)}">${escapeHtml(submissionStatusLabel(group.submission.status))}</span></p>
+            ${renderSubmissionDetails(group.submission, { status: true })}
+            ${renderSubmissionNotes(group.submission)}
             ${group.bids.map(bid => `
               <div class="submission-card">
                 <header>
@@ -840,12 +911,8 @@
               <strong>${escapeHtml(item.wasteCategory)}</strong>
               <span>${formatDate(item.createdAtUtc)}</span>
             </header>
-            <div class="submission-meta">
-              <span>الحالة: <span class="status-pill ${statusClass(item.status)}">${escapeHtml(submissionStatusLabel(item.status))}</span></span>
-              <span>الموقع: ${escapeHtml(item.address || 'غير مذكور')}</span>
-              <span>الصور: ${item.imageCount}</span>
-            </div>
-            ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
+            ${renderSubmissionDetails(item, { status: true })}
+            ${renderSubmissionNotes(item)}
             ${renderSubmissionImages(item)}
             ${item.existingBidId
               ? `<p><strong>تاريخ الاستلام:</strong> ${escapeHtml(formatPickupDate(item.existingBidPickupDate))} (${escapeHtml(bidStatusLabel(item.existingBidStatus))})</p>`
@@ -887,15 +954,9 @@
             <strong>${escapeHtml(item.wasteCategory)}</strong>
             <span>${formatDate(item.createdAtUtc)}</span>
           </header>
-          <div class="submission-meta">
-            <span>الحالة: <span class="status-pill ${statusClass(item.status)}">${escapeHtml(submissionStatusLabel(item.status))}</span></span>
-            <span>الموقع: ${escapeHtml(item.address || 'غير مذكور')}</span>
-            <span>تاريخ الاستلام: ${escapeHtml(formatPickupDate(item.acceptedBid.pickupDate))}</span>
-          </div>
-          <p>صاحب الطلب: ${escapeHtml(item.submitterName || item.companyName || 'غير مذكور')}</p>
-          <p>الهاتف: ${escapeHtml(item.phone || 'غير مذكور')}</p>
-          ${item.email ? `<p>البريد الإلكتروني: ${escapeHtml(item.email)}</p>` : ''}
-          ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
+          ${renderSubmissionDetails(item, { status: true })}
+          <p><strong>تاريخ الاستلام المقبول:</strong> ${escapeHtml(formatPickupDate(item.acceptedBid.pickupDate))}</p>
+          ${renderSubmissionNotes(item)}
           ${item.acceptedBid.notes ? `<p><strong>ملاحظات عرضك:</strong> ${escapeHtml(item.acceptedBid.notes)}</p>` : ''}
           ${renderSubmissionImages(item)}
           ${item.status === 'pickup_pending' || item.status === 'accepted'
@@ -943,13 +1004,10 @@
             <strong>${escapeHtml(item.wasteCategory)}</strong>
             <span>${formatDate(item.bid.createdAtUtc)}</span>
           </header>
-          <div class="submission-meta">
-            <span>حالة عرضك: <span class="status-pill ${statusClass(item.status === 'completed' ? 'completed' : item.bid.status)}">${escapeHtml(bidLifecycleLabel(item))}</span></span>
-            <span>حالة الطلب: ${escapeHtml(submissionStatusLabel(item.status))}</span>
-            <span>تاريخ الاستلام: ${escapeHtml(formatPickupDate(item.bid.pickupDate))}</span>
-          </div>
-          <p>الموقع: ${escapeHtml(item.address || 'غير مذكور')}</p>
-          ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ''}
+          ${renderSubmissionDetails(item, { status: true })}
+          <p><strong>حالة عرضك:</strong> <span class="status-pill ${statusClass(item.status === 'completed' ? 'completed' : item.bid.status)}">${escapeHtml(bidLifecycleLabel(item))}</span></p>
+          <p><strong>تاريخ الاستلام:</strong> ${escapeHtml(formatPickupDate(item.bid.pickupDate))}</p>
+          ${renderSubmissionNotes(item)}
           ${item.bid.notes ? `<p><strong>ملاحظات عرضك:</strong> ${escapeHtml(item.bid.notes)}</p>` : ''}
           ${renderSubmissionImages(item)}
         </article>
@@ -1010,6 +1068,7 @@
       document.getElementById('welcomeTitle').textContent = `مرحباً، ${session.companyName}`;
       document.getElementById('companyName').textContent = session.companyName;
       document.getElementById('companyEmail').textContent = session.email;
+      loadAccountProfile();
       loadSubmissions();
       loadReceivedBids();
       loadBidOpportunities();

@@ -14,3 +14,14 @@ publish/
 publish.zip
 uploads/
 *.lscache
+
+# Temporary deployment packages
+.tmp-production-deploy/
+.tmp-production-package/
+.tmp-greencycle-release.tar.gz
+.tmp-greencycle-release.zip
+.tmp-*/
+
+# Office lock files
+~$*.docx
+~$*.doc
