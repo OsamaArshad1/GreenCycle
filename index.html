@@ -108,12 +108,12 @@
       <div class="hero-slide hero-slide-platform" style="background-image: url('carousel/5.png');"></div>
       <div class="hero-slide hero-slide-smoke" style="background-image: url('carousel/collab-media-GmqezLxud8g-unsplash.jpg.jpeg');"></div>
       <div class="hero-slide hero-slide-landfill" style="background-image: url('carousel/WhatsApp Image 2026-06-25 at 9.33.39 PM (1).jpeg');"></div>
-      <div class="hero-slide hero-slide-gcc" style="background-image: url('carousel/gcc-certification.svg');"></div>
-      <div class="hero-slide hero-slide-energy" style="background-image: url('carousel/energy-efficiency.svg');"></div>
-      <div class="hero-slide hero-slide-water" style="background-image: url('carousel/water-efficiency.svg');"></div>
-      <div class="hero-slide hero-slide-air" style="background-image: url('carousel/air-quality.svg');"></div>
-      <div class="hero-slide hero-slide-waste" style="background-image: url('carousel/waste-management-building.svg');"></div>
-      <div class="hero-slide hero-slide-safety" style="background-image: url('carousel/safety-security-building.svg');"></div>
+      <div class="hero-slide hero-slide-gcc" style="background-image: url('carousel/photo-gcc-building.jpg'); background-position: center 45%;"></div>
+      <div class="hero-slide hero-slide-energy" style="background-image: url('carousel/photo-energy-solar.jpg'); background-position: center;"></div>
+      <div class="hero-slide hero-slide-water" style="background-image: url('carousel/photo-water-faucet.jpg'); background-position: center 55%;"></div>
+      <div class="hero-slide hero-slide-air" style="background-image: url('carousel/modern-living-room-indoor-air-quality-monitor-clean-air-usa.webp'); background-position: center 74%;"></div>
+      <div class="hero-slide hero-slide-waste" style="background-image: url('carousel/photo-waste-bins.jpg'); background-position: center 88%;"></div>
+      <div class="hero-slide hero-slide-safety" style="background-image: url('carousel/photo-safety-camera.jpg'); background-position: center;"></div>
     </div>
     <div class="hero-content">
       <p class="hero-copy active">
@@ -133,6 +133,24 @@
       </p>
       <p class="hero-copy">
 نساعد الشركات والمؤسسات على إظهار أثرها البيئي بمشاركة واضحة ومسؤولة في منظومة إعادة التدوير.
+      </p>
+      <p class="hero-copy">
+اشترك مع مبادرة جرين سايكل للخدمات والاعتماد لتحقيق الفعالية البيئية الخضراء لمباني المؤسسات مع تحقيق الجدوى المالية والفنية المثالية. الاعتماد يواكب التطور الكبير في حسابات البصمة الكربونية وكيفية الاستفادة من النهضة الحديثة في مفاهيم أسواق الكربون
+      </p>
+      <p class="hero-copy">
+تواصل معنا للتعرف على خطوات تقييم الطاقة في المبنى وكيفية تحسينها وتحقيق كفاءة الطاقة المثلى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تقييم استهلاك المياه في المبنى وكيفية تحسينها وتحقيق كفاءة حفظ المياه المثلى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تقييم جودة الهواء في المبنى وكيفية تحسينها وتحقيق جودة الهواء الداخلي المثلى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تحسين منظومة إدارة النفايات في المبنى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تحسين منظومة الأمن والسلامة في المبنى
       </p>
     </div>
     <div class="hero-dots" aria-label="شرائح المقدمة">
@@ -713,6 +731,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary" id="signupSubmitButton" style="width:100%;" disabled>إنشاء حساب</button>
+        <div class="success-message" id="signupSuccessMessage">شكراً على تسجيلكم معنا، يمكنكم الآن تسجيل الدخول على حسابكم ومتابعة أحدث الطلبات لتسليم النفايات من خلال لوحة التحكم الخاصة بك والموجودة في القائمة الرئيسية، كما يمكن الاطلاع عليها في أي وقت لاحق عند تسجيل الدخول.</div>
       </form>
     </div>
   </div>
@@ -745,6 +764,7 @@
     const signupOtpStatus = document.getElementById('signupOtpStatus');
     const signupTermsCheckbox = document.getElementById('signupTermsCheckbox');
     const signupSubmitButton = document.getElementById('signupSubmitButton');
+    const signupSuccessMessage = document.getElementById('signupSuccessMessage');
     const individualWasteCategoryList = document.getElementById('individualWasteCategoryList');
     const companyWasteCategoryList = document.getElementById('companyWasteCategoryList');
     const addIndividualWasteCategory = document.getElementById('addIndividualWasteCategory');
@@ -842,6 +862,7 @@
 
     function showSignupModal() {
       signupModal.classList.add('active');
+      signupSuccessMessage.style.display = 'none';
       updateSignupSubmitState();
     }
 
@@ -1624,11 +1645,11 @@
           body: buildSignupData()
         });
         const result = await readApiResponse(response);
-        alert(`تم إنشاء الحساب: ${result.companyName}`);
         signupForm.reset();
         signupOtpState = { email: '', token: '' };
         updateSignupSubmitState();
-        hideSignupModal();
+        signupSuccessMessage.style.display = 'block';
+        signupSuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (error) {
         alert(error.message);
       }

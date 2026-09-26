@@ -238,10 +238,25 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
             company.Email,
             "New Green Cycle waste order available for bidding",
             $"""
+            {GreetingAr(company.CompanyName, isCompany: true)}
+
+            هناك طلب جديد لتسليم نفايات متاح لتقديم عرض سعر عليه.
+
+            نوع النفايات: {submission.WasteCategory}
+            نوع المُرسل: {SubmitterTypeAr(submission.SubmitterType)}
+            الموقع: {submission.Address ?? "غير محدد"}
+            ملاحظات: {submission.Notes ?? "لا توجد"}
+
+            يرجى تسجيل الدخول إلى لوحة التحكم الخاصة بكم لتقديم عرض.
+
+            ---
+
+            {GreetingEn(company.CompanyName)}
+
             A new waste order is available for bidding.
 
             Waste category: {submission.WasteCategory}
-            Submitter type: {submission.SubmitterType}
+            Submitter type: {SubmitterTypeEn(submission.SubmitterType)}
             Location: {submission.Address ?? "Not provided"}
             Notes: {submission.Notes ?? "Not provided"}
 
@@ -1065,10 +1080,25 @@ static async Task<IResult> NotifyAndReturnCreatedBid(BidCreateResult.Created cre
 {
     if (!string.IsNullOrWhiteSpace(created.Submission.Email))
     {
+        var bidPlacedGreeting = GetSubmitterGreeting(created.Submission);
         await emailSender.SendNotificationAsync(
             created.Submission.Email,
             "A recycler company placed a bid on your Green Cycle waste order",
             $"""
+            {GreetingAr(bidPlacedGreeting.Name, bidPlacedGreeting.IsCompany)}
+
+            قامت شركة {created.Bid.CompanyName} بتقديم عرض سعر على طلب النفايات الخاص بك.
+
+            نوع النفايات: {created.Submission.WasteCategory}
+            تاريخ الاستلام: {created.Bid.PickupDate ?? "غير محدد"}
+            ملاحظات: {created.Bid.Notes ?? "لا توجد"}
+
+            يرجى تسجيل الدخول إلى لوحة التحكم لمراجعة العرض وقبوله.
+
+            ---
+
+            {GreetingEn(bidPlacedGreeting.Name)}
+
             {created.Bid.CompanyName} placed a bid on your waste order.
 
             Waste category: {created.Submission.WasteCategory}
@@ -1090,6 +1120,22 @@ static async Task<IResult> NotifyAndReturnAcceptedBid(BidAcceptResult.Accepted a
         accepted.Bid.CompanyEmail,
         "Your Green Cycle bid was accepted",
         $"""
+        {GreetingAr(accepted.Bid.CompanyName, isCompany: true)}
+
+        تم قبول عرض السعر الخاص بكم من قِبل مقدّم طلب النفايات.
+
+        نوع النفايات: {accepted.Submission.WasteCategory}
+        تاريخ الاستلام: {accepted.Bid.PickupDate ?? "غير محدد"}
+        هاتف مقدّم الطلب: {accepted.Submission.Phone}
+        بريد مقدّم الطلب: {accepted.Submission.Email ?? "غير محدد"}
+        الموقع: {accepted.Submission.Address ?? "غير محدد"}
+
+        يرجى التواصل مع مقدّم الطلب لإتمام عملية الاستلام والبيع.
+
+        ---
+
+        {GreetingEn(accepted.Bid.CompanyName)}
+
         Your bid was accepted by the waste submitter.
 
         Waste category: {accepted.Submission.WasteCategory}
@@ -1110,6 +1156,19 @@ static async Task<IResult> NotifyAndReturnCompletedSubmission(CompleteSubmission
         completed.Bid.CompanyEmail,
         "Green Cycle waste order completed",
         $"""
+        {GreetingAr(completed.Bid.CompanyName, isCompany: true)}
+
+        قام مقدّم طلب النفايات بتحديد هذا الطلب كمكتمل.
+
+        نوع النفايات: {completed.Submission.WasteCategory}
+        تاريخ الاستلام: {completed.Bid.PickupDate ?? "غير محدد"}
+
+        شكراً لكم على إتمام هذا الطلب عبر منصة جرين سايكل.
+
+        ---
+
+        {GreetingEn(completed.Bid.CompanyName)}
+
         The waste submitter marked this order as completed.
 
         Waste category: {completed.Submission.WasteCategory}
@@ -1128,10 +1187,25 @@ static async Task<IResult> NotifyAndReturnPickedUpSubmission(PickupSubmissionRes
 {
     if (!string.IsNullOrWhiteSpace(pickedUp.Submission.Email))
     {
+        var pickedUpGreeting = GetSubmitterGreeting(pickedUp.Submission);
         await emailSender.SendNotificationAsync(
             pickedUp.Submission.Email,
             "Green Cycle waste order picked up",
             $"""
+            {GreetingAr(pickedUpGreeting.Name, pickedUpGreeting.IsCompany)}
+
+            قامت شركة إعادة التدوير باستلام طلب النفايات الخاص بك.
+
+            الشركة: {pickedUp.Bid.CompanyName}
+            نوع النفايات: {pickedUp.Submission.WasteCategory}
+            تاريخ الاستلام: {pickedUp.Bid.PickupDate ?? "غير محدد"}
+
+            يمكنك الآن تسجيل الدخول إلى لوحة التحكم وتحديد الطلب كمكتمل.
+
+            ---
+
+            {GreetingEn(pickedUpGreeting.Name)}
+
             The recycler company marked your waste order as picked up.
 
             Company: {pickedUp.Bid.CompanyName}
@@ -1252,6 +1326,29 @@ static string? EmptyToNull(string? value)
     var trimmed = value?.Trim();
     return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
 }
+
+// Resolves the name to greet a waste submitter by: their full name for individuals,
+// their company name for corporate submitters. Falls back gracefully if either is missing.
+static (string Name, bool IsCompany) GetSubmitterGreeting(WasteSubmission submission)
+{
+    var isCorporate = string.Equals(submission.SubmitterType, "corporate", StringComparison.OrdinalIgnoreCase);
+    var name = isCorporate
+        ? EmptyToNull(submission.CompanyName) ?? EmptyToNull(submission.SubmitterName)
+        : EmptyToNull(submission.SubmitterName) ?? EmptyToNull(submission.CompanyName);
+
+    return (name ?? (isCorporate ? "Applicant" : "Applicant"), isCorporate);
+}
+
+static string GreetingEn(string name) => $"Dear {name},";
+
+static string GreetingAr(string name, bool isCompany) =>
+    isCompany ? $"عزيزي شركة {name} المحترمة،" : $"عزيزي {name}،";
+
+static string SubmitterTypeEn(string submitterType) =>
+    string.Equals(submitterType, "corporate", StringComparison.OrdinalIgnoreCase) ? "Corporate" : "Individual";
+
+static string SubmitterTypeAr(string submitterType) =>
+    string.Equals(submitterType, "corporate", StringComparison.OrdinalIgnoreCase) ? "شركة" : "فرد";
 
 static string FindApiRoot()
 {
@@ -1427,7 +1524,8 @@ public sealed record CompanyUser(
     string? Website,
     string? LogoFileName,
     string[] WasteCategories,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    bool IsRegisteredRecycler = true);
 
 public sealed record AuthResponse(Guid Id, string CompanyName, string Email, string Message);
 
@@ -2226,7 +2324,8 @@ public sealed class UserStore
                 EmptyToNull(signup.Website),
                 EmptyToNull(signup.LogoFileName),
                 signup.WasteCategories,
-                DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow,
+                IsRegisteredRecycler: true);
 
             await InsertCompanyAsync(connection, user);
             await transaction.CommitAsync();
@@ -2406,7 +2505,8 @@ public sealed class UserStore
             null,
             null,
             categories,
-            DateTimeOffset.UtcNow);
+            DateTimeOffset.UtcNow,
+            IsRegisteredRecycler: false);
 
         await InsertCompanyAsync(connection, user);
         return user;
@@ -4105,6 +4205,9 @@ public sealed class UserStore
         await AddColumnIfMissingAsync(connection, "company_reviews", "reviewed_at_utc", "TEXT NULL");
         await AddColumnIfMissingAsync(connection, "company_reviews", "reviewed_by", "TEXT NULL");
         await AddColumnIfMissingAsync(connection, "waste_bids", "pickup_date", "TEXT NULL");
+        // Existing rows default to 1 (registered) since they predate this flag and were already
+        // visible in the public directory; new rows explicitly set the correct value on insert.
+        await AddColumnIfMissingAsync(connection, "companies", "is_registered_recycler", "INTEGER NOT NULL DEFAULT 1");
 
         var reviewOrderIndexCommand = connection.CreateCommand();
         reviewOrderIndexCommand.CommandText = """
@@ -4173,7 +4276,7 @@ public sealed class UserStore
     {
         var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT id, company_name, mobile, email, address, website, logo_file_name, created_at_utc
+            SELECT id, company_name, mobile, email, address, website, logo_file_name, created_at_utc, is_registered_recycler
             FROM companies
             WHERE email = $email
             LIMIT 1;
@@ -4191,10 +4294,15 @@ public sealed class UserStore
 
     private static async Task<List<CompanyUser>> ReadUsersAsync(SqliteConnection connection)
     {
+        // Only companies that explicitly registered via "Register Recycling Companies" (تسجيل شركات
+        // إعادة التدوير) are returned here. Accounts auto-created for waste submitters (see
+        // EnsureWasteSubmitterAccountAsync) are excluded, since they should not appear in the public
+        // recycler directory or be matched as bid candidates for waste submissions.
         var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT id, company_name, mobile, email, address, website, logo_file_name, created_at_utc
+            SELECT id, company_name, mobile, email, address, website, logo_file_name, created_at_utc, is_registered_recycler
             FROM companies
+            WHERE is_registered_recycler = 1
             ORDER BY created_at_utc DESC;
             """;
 
@@ -4220,7 +4328,8 @@ public sealed class UserStore
             GetNullableString(reader, 5),
             GetNullableString(reader, 6),
             await ReadCategoriesAsync(connection, id),
-            DateTimeOffset.Parse(reader.GetString(7)));
+            DateTimeOffset.Parse(reader.GetString(7)),
+            IsRegisteredRecycler: reader.GetInt32(8) != 0);
     }
 
     private static async Task<string[]> ReadCategoriesAsync(SqliteConnection connection, Guid companyId)
@@ -4257,7 +4366,8 @@ public sealed class UserStore
                 address,
                 website,
                 logo_file_name,
-                created_at_utc
+                created_at_utc,
+                is_registered_recycler
             )
             VALUES (
                 $id,
@@ -4267,7 +4377,8 @@ public sealed class UserStore
                 $address,
                 $website,
                 $logoFileName,
-                $createdAtUtc
+                $createdAtUtc,
+                $isRegisteredRecycler
             );
             """;
 
@@ -4277,6 +4388,7 @@ public sealed class UserStore
         command.Parameters.AddWithValue("$email", user.Email);
         command.Parameters.AddWithValue("$address", ToDbValue(user.Address));
         command.Parameters.AddWithValue("$website", ToDbValue(user.Website));
+        command.Parameters.AddWithValue("$isRegisteredRecycler", user.IsRegisteredRecycler ? 1 : 0);
         command.Parameters.AddWithValue("$logoFileName", ToDbValue(user.LogoFileName));
         command.Parameters.AddWithValue("$createdAtUtc", user.CreatedAtUtc.ToString("O"));
         await command.ExecuteNonQueryAsync();
