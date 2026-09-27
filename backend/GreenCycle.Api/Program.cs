@@ -269,7 +269,7 @@ app.MapPost("/api/waste/submissions", async (HttpRequest request, UserStore stor
             sessionUser.Id,
             sessionUser.CompanyName,
             sessionUser.Email,
-            Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+            await store.CreateSessionAsync(sessionUser.Id),
             "Waste submission completed. You are now signed in.");
 
     return Results.Created($"/api/waste/submissions/{submission.Id}", new WasteSubmissionResponse(
@@ -480,8 +480,55 @@ app.MapPost("/api/auth/verify-otp", async (OtpVerifyRequest request, UserStore s
         user.Id,
         user.CompanyName,
         user.Email,
-        Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+        await store.CreateSessionAsync(user.Id),
         "Login completed."));
+});
+
+app.MapGet("/api/account/profile", async (HttpRequest request, UserStore store) =>
+{
+    var user = await store.FindBySessionAsync(GetBearerToken(request));
+    return user is null
+        ? Results.Json(new ApiError("Your session has expired. Please log in again."), statusCode: StatusCodes.Status401Unauthorized)
+        : Results.Ok(ToCompanySummary(user));
+});
+
+app.MapPut("/api/account/profile", async (ProfileUpdateRequest body, HttpRequest request, UserStore store) =>
+{
+    var user = await store.FindBySessionAsync(GetBearerToken(request));
+    if (user is null)
+    {
+        return Results.Json(new ApiError("Your session has expired. Please log in again."), statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    var companyName = body.CompanyName?.Trim();
+    var mobile = body.Mobile?.Trim();
+    var categories = (body.WasteCategories ?? [])
+        .Select(value => value?.Trim())
+        .Where(value => !string.IsNullOrWhiteSpace(value))
+        .Select(value => value!)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    if (string.IsNullOrWhiteSpace(companyName) || string.IsNullOrWhiteSpace(mobile))
+    {
+        return Results.BadRequest(new ApiError("Name and mobile are required."));
+    }
+
+    if (user.IsRegisteredRecycler && categories.Length == 0)
+    {
+        return Results.BadRequest(new ApiError("Select at least one waste category."));
+    }
+
+    var updated = await store.UpdateProfileAsync(user.Id, new ProfileUpdate(
+        companyName,
+        mobile,
+        body.Address,
+        body.Website,
+        categories));
+
+    return updated is null
+        ? Results.NotFound(new ApiError("No account was found for this session."))
+        : Results.Ok(ToCompanySummary(updated));
 });
 
 app.MapPost("/api/auth/login", async (LoginRequest request, UserStore store, OtpStore otpStore, IEmailSender emailSender, IWhatsAppSender whatsAppSender) =>
@@ -1278,6 +1325,25 @@ static async Task<EmailSendResult> NotifyAdminForReviewApprovalAsync(
 static string CreateApprovalToken() =>
     WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
 
+static string? GetBearerToken(HttpRequest request)
+{
+    var header = request.Headers.Authorization.ToString();
+    return header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+        ? EmptyToNull(header["Bearer ".Length..])
+        : null;
+}
+
+static CompanySummary ToCompanySummary(CompanyUser company) => new(
+    company.Id,
+    company.CompanyName,
+    company.Mobile,
+    company.Email,
+    company.Address,
+    company.Website,
+    company.LogoFileName,
+    company.WasteCategories,
+    company.CreatedAtUtc);
+
 static bool IsValidArticleId(string articleId) =>
     !string.IsNullOrWhiteSpace(articleId) &&
     articleId.Length <= 80 &&
@@ -1528,6 +1594,20 @@ public sealed record CompanyUser(
     bool IsRegisteredRecycler = true);
 
 public sealed record AuthResponse(Guid Id, string CompanyName, string Email, string Message);
+
+public sealed record ProfileUpdateRequest(
+    string? CompanyName,
+    string? Mobile,
+    string? Address,
+    string? Website,
+    string?[]? WasteCategories);
+
+public sealed record ProfileUpdate(
+    string CompanyName,
+    string Mobile,
+    string? Address,
+    string? Website,
+    string[] WasteCategories);
 
 public sealed record OtpChallengeResponse(string Contact, string? MaskedPhone, string Message, string? DevOtp);
 
@@ -2350,6 +2430,121 @@ public sealed class UserStore
             gate.Release();
         }
     }
+
+    public async Task<string> CreateSessionAsync(Guid companyId)
+    {
+        var token = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+        var now = DateTimeOffset.UtcNow;
+
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                DELETE FROM company_sessions WHERE expires_at_utc < $now;
+
+                INSERT INTO company_sessions (token_hash, company_id, created_at_utc, expires_at_utc)
+                VALUES ($tokenHash, $companyId, $now, $expiresAtUtc);
+                """;
+            command.Parameters.AddWithValue("$tokenHash", HashSessionToken(token));
+            command.Parameters.AddWithValue("$companyId", companyId.ToString());
+            command.Parameters.AddWithValue("$now", now.ToString("O"));
+            command.Parameters.AddWithValue("$expiresAtUtc", now.Add(SessionLifetime).ToString("O"));
+            await command.ExecuteNonQueryAsync();
+            return token;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<CompanyUser?> FindBySessionAsync(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return null;
+        }
+
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT c.id, c.company_name, c.mobile, c.email, c.address, c.website, c.logo_file_name, c.created_at_utc, c.is_registered_recycler
+                FROM company_sessions s
+                INNER JOIN companies c ON c.id = s.company_id
+                WHERE s.token_hash = $tokenHash AND s.expires_at_utc > $now
+                LIMIT 1;
+                """;
+            command.Parameters.AddWithValue("$tokenHash", HashSessionToken(token.Trim()));
+            command.Parameters.AddWithValue("$now", DateTimeOffset.UtcNow.ToString("O"));
+
+            await using var reader = await command.ExecuteReaderAsync();
+            return await reader.ReadAsync() ? await ReadCompanyAsync(connection, reader) : null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<CompanyUser?> UpdateProfileAsync(Guid companyId, ProfileUpdate update)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE companies
+                SET company_name = $companyName,
+                    mobile = $mobile,
+                    address = $address,
+                    website = $website
+                WHERE id = $id;
+
+                DELETE FROM company_waste_categories WHERE company_id = $id;
+                """;
+            command.Parameters.AddWithValue("$id", companyId.ToString());
+            command.Parameters.AddWithValue("$companyName", update.CompanyName.Trim());
+            command.Parameters.AddWithValue("$mobile", update.Mobile.Trim());
+            command.Parameters.AddWithValue("$address", ToDbValue(EmptyToNull(update.Address)));
+            command.Parameters.AddWithValue("$website", ToDbValue(EmptyToNull(update.Website)));
+            await command.ExecuteNonQueryAsync();
+
+            foreach (var category in update.WasteCategories)
+            {
+                var categoryId = await UpsertCategoryAsync(connection, category);
+                await LinkCategoryAsync(connection, companyId, categoryId);
+            }
+
+            await transaction.CommitAsync();
+
+            var selectCommand = connection.CreateCommand();
+            selectCommand.CommandText = """
+                SELECT id, company_name, mobile, email, address, website, logo_file_name, created_at_utc, is_registered_recycler
+                FROM companies
+                WHERE id = $id;
+                """;
+            selectCommand.Parameters.AddWithValue("$id", companyId.ToString());
+            await using var reader = await selectCommand.ExecuteReaderAsync();
+            return await reader.ReadAsync() ? await ReadCompanyAsync(connection, reader) : null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(30);
+
+    private static string HashSessionToken(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
     public async Task<IReadOnlyList<CompanyUser>> GetAllAsync()
     {
@@ -4047,6 +4242,14 @@ public sealed class UserStore
                 PRIMARY KEY (company_id, waste_category_id),
                 FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
                 FOREIGN KEY (waste_category_id) REFERENCES waste_categories(id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE IF NOT EXISTS company_sessions (
+                token_hash TEXT NOT NULL PRIMARY KEY,
+                company_id TEXT NOT NULL,
+                created_at_utc TEXT NOT NULL,
+                expires_at_utc TEXT NOT NULL,
+                FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
             );
 
             CREATE TABLE IF NOT EXISTS otp_challenges (

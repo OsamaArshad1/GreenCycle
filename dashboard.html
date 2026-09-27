@@ -325,6 +325,45 @@
       margin-bottom: 14px;
     }
 
+    .profile-modal {
+      max-height: calc(100vh - 40px);
+      max-width: 640px;
+      overflow-y: auto;
+      width: min(100%, 640px);
+    }
+
+    .edit-profile-button {
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .profile-category-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 6px;
+    }
+
+    .profile-category-grid label {
+      align-items: center;
+      display: flex;
+      font-size: 14px;
+      font-weight: 500;
+      gap: 8px;
+    }
+
+    .profile-category-grid input {
+      flex: 0 0 auto;
+      margin: 0;
+      width: auto;
+    }
+
+    @media (max-width: 560px) {
+      .profile-category-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .rating-stars {
       color: #d28b12;
       direction: ltr;
@@ -461,6 +500,7 @@
             <strong>تم التحقق عبر OTP</strong>
           </div>
         </div>
+        <button class="btn btn-outline edit-profile-button" type="button" id="editProfileButton">تعديل الملف الشخصي</button>
       </aside>
     </section>
 
@@ -577,7 +617,44 @@
     </div>
   </div>
 
-  <script src="site-config.js"></script>
+  <div class="review-modal-overlay" id="profileModal">
+    <div class="review-modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <div class="review-modal-head">
+        <div>
+          <h2 id="profileModalTitle">تعديل الملف الشخصي</h2>
+          <p>حدّث بيانات حسابك. البريد الإلكتروني مستخدم لتسجيل الدخول ولا يمكن تغييره من هنا.</p>
+        </div>
+        <button class="btn btn-outline" type="button" id="closeProfileModal" aria-label="إغلاق نموذج الملف الشخصي">×</button>
+      </div>
+      <form id="profileForm">
+        <div class="field">
+          <label for="profileCompanyName">اسم الشركة / الاسم *</label>
+          <input id="profileCompanyName" type="text" maxlength="200" required>
+        </div>
+        <div class="field">
+          <label for="profileMobile">رقم الموبايل *</label>
+          <input id="profileMobile" type="tel" maxlength="30" required>
+        </div>
+        <div class="field">
+          <label for="profileAddress">العنوان</label>
+          <input id="profileAddress" type="text" maxlength="300">
+        </div>
+        <div class="field">
+          <label for="profileWebsite">الموقع الإلكتروني</label>
+          <input id="profileWebsite" type="text" maxlength="300">
+        </div>
+        <div class="field">
+          <label>أنواع النفايات</label>
+          <div class="profile-category-grid" id="profileCategoryList"></div>
+        </div>
+        <button class="btn btn-primary" type="submit" id="saveProfileButton">حفظ التغييرات</button>
+        <div class="form-feedback success" id="profileSuccess">تم تحديث ملفك الشخصي.</div>
+        <div class="form-feedback error" id="profileError"></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="site-config.js?v=20260927"></script>
   <script>
     const session = JSON.parse(localStorage.getItem('greenCycleAuth') || 'null');
     const configuredApiOrigin = (window.GreenCycleConfig?.apiBaseUrl || '').replace(/\/$/, '');
@@ -706,26 +783,135 @@
       return item.notes ? `<p><strong>تفاصيل إضافية:</strong> ${escapeHtml(item.notes)}</p>` : '';
     }
 
+    const profileCategoryOptions = [
+      'نفايات بلاستيكية',
+      'ورق وكرتون',
+      'خردة معدنية',
+      'نفايات زجاجية',
+      'نفايات إلكترونية',
+      'نفايات عضوية',
+      'نفايات نسيجية',
+      'مخلفات بناء',
+      'نفايات خشبية',
+      'نفايات البطاريات',
+      'الإطارات المستعملة (نفايات التواير)',
+      'نفايات زراعية',
+      'زيوت الطبخ المستعملة',
+      'زيت المحرك المستعمل',
+      'نفايات الأجهزة الكهربائية',
+      'نفايات ألواح الطاقة الشمسية',
+      'نفايات الهواتف والأجهزة الإلكترونية',
+      'نفايات الكيبلات والوايرات',
+      'نفايات ألعاب الأطفال',
+      'فلاتر الهواء المستعملة',
+      'فلاتر الزيت المستعملة',
+      'فلاتر المياه المستعملة',
+      'نفايات مختلطة ومتنوعة',
+      'نفايات أخرى'
+    ];
+    const profileModal = document.getElementById('profileModal');
+    const profileForm = document.getElementById('profileForm');
+    let accountProfile = null;
+
+    async function fetchWithSession(url, options = {}) {
+      const response = await fetch(apiUrl(url), {
+        ...options,
+        headers: { ...(options.headers || {}), Authorization: `Bearer ${session.token}` }
+      });
+      if (response.status === 401) {
+        throw new Error('انتهت صلاحية الجلسة. يرجى تسجيل الخروج ثم تسجيل الدخول مرة أخرى لتعديل ملفك الشخصي.');
+      }
+      return readApiResponse(response);
+    }
+
+    function renderAccountProfile(profile) {
+      accountProfile = profile;
+      document.getElementById('companyName').textContent = profile.companyName || session.companyName || '-';
+      document.getElementById('companyEmail').textContent = profile.email || session.email || '-';
+      document.getElementById('companyMobile').textContent = profile.mobile || '-';
+      document.getElementById('companyAddress').textContent = profile.address || '-';
+      document.getElementById('companyWebsite').textContent = profile.website || '-';
+      document.getElementById('companyWasteCategories').textContent = Array.isArray(profile.wasteCategories) && profile.wasteCategories.length > 0
+        ? profile.wasteCategories.join(', ')
+        : '-';
+      document.getElementById('companyLogoFile').textContent = profile.logoFileName || '-';
+    }
+
     async function loadAccountProfile() {
       try {
-        const response = await fetch(apiUrl('/api/companies'));
-        const companies = await readApiResponse(response);
-        const profile = companies.find(company => (company.email || '').toLowerCase() === session.email.toLowerCase());
-        if (!profile) return;
-
-        document.getElementById('companyName').textContent = profile.companyName || session.companyName || '-';
-        document.getElementById('companyEmail').textContent = profile.email || session.email || '-';
-        document.getElementById('companyMobile').textContent = profile.mobile || '-';
-        document.getElementById('companyAddress').textContent = profile.address || '-';
-        document.getElementById('companyWebsite').textContent = profile.website || '-';
-        document.getElementById('companyWasteCategories').textContent = Array.isArray(profile.wasteCategories) && profile.wasteCategories.length > 0
-          ? profile.wasteCategories.join(', ')
-          : '-';
-        document.getElementById('companyLogoFile').textContent = profile.logoFileName || '-';
+        renderAccountProfile(await fetchWithSession('/api/account/profile'));
       } catch (error) {
         console.warn(error.message);
       }
     }
+
+    function openProfileModal() {
+      const profile = accountProfile || { companyName: session.companyName, wasteCategories: [] };
+      const selected = new Set((profile.wasteCategories || []).map(category => category.toLowerCase()));
+      const extraCategories = (profile.wasteCategories || [])
+        .filter(category => !profileCategoryOptions.some(option => option.toLowerCase() === category.toLowerCase()));
+
+      document.getElementById('profileCompanyName').value = profile.companyName || '';
+      document.getElementById('profileMobile').value = profile.mobile || '';
+      document.getElementById('profileAddress').value = profile.address || '';
+      document.getElementById('profileWebsite').value = profile.website || '';
+      document.getElementById('profileCategoryList').innerHTML = [...profileCategoryOptions, ...extraCategories]
+        .map(category => `
+          <label>
+            <input type="checkbox" value="${escapeHtml(category)}" ${selected.has(category.toLowerCase()) ? 'checked' : ''}>
+            ${escapeHtml(category)}
+          </label>
+        `).join('');
+      document.getElementById('profileSuccess').style.display = 'none';
+      document.getElementById('profileError').style.display = 'none';
+      profileModal.classList.add('active');
+      document.getElementById('profileCompanyName').focus();
+    }
+
+    function closeProfileModal() {
+      profileModal.classList.remove('active');
+    }
+
+    document.getElementById('editProfileButton').addEventListener('click', openProfileModal);
+    document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+    profileModal.addEventListener('click', function (event) {
+      if (event.target === profileModal) closeProfileModal();
+    });
+
+    profileForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = document.getElementById('saveProfileButton');
+      const errorBox = document.getElementById('profileError');
+      errorBox.style.display = 'none';
+      button.disabled = true;
+      button.textContent = 'جاري الحفظ...';
+
+      try {
+        const updated = await fetchWithSession('/api/account/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            companyName: document.getElementById('profileCompanyName').value,
+            mobile: document.getElementById('profileMobile').value,
+            address: document.getElementById('profileAddress').value,
+            website: document.getElementById('profileWebsite').value,
+            wasteCategories: Array.from(document.querySelectorAll('#profileCategoryList input:checked')).map(input => input.value)
+          })
+        });
+        renderAccountProfile(updated);
+        session.companyName = updated.companyName;
+        localStorage.setItem('greenCycleAuth', JSON.stringify(session));
+        document.getElementById('welcomeTitle').textContent = `مرحباً، ${updated.companyName}`;
+        document.getElementById('profileSuccess').style.display = 'block';
+        setTimeout(closeProfileModal, 900);
+      } catch (error) {
+        errorBox.textContent = error.message;
+        errorBox.style.display = 'block';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'حفظ التغييرات';
+      }
+    });
 
     function renderStars(rating) {
       const safeRating = Math.max(0, Math.min(5, Number(rating) || 0));
