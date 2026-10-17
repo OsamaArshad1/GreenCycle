@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260928c" />
 </head>
 <body class="landing-page">
     <header class="navbar navbar-home">
@@ -78,6 +78,45 @@
     </div></div>
   </div>
 
+  <section class="hero hero-compact" id="home">
+    <div class="hero-carousel" aria-hidden="true">
+      <div class="hero-slide hero-slide-gcc active" style="background-image: url('carousel/photo-gcc-building.jpg'); background-position: center 45%;"></div>
+      <div class="hero-slide hero-slide-energy" style="background-image: url('carousel/photo-energy-solar.jpg'); background-position: center;"></div>
+      <div class="hero-slide hero-slide-water" style="background-image: url('carousel/photo-water-faucet.jpg'); background-position: center 55%;"></div>
+      <div class="hero-slide hero-slide-air" style="background-image: url('carousel/modern-living-room-indoor-air-quality-monitor-clean-air-usa.webp'); background-position: center 74%;"></div>
+      <div class="hero-slide hero-slide-waste" style="background-image: url('carousel/photo-waste-bins.jpg'); background-position: center 88%;"></div>
+      <div class="hero-slide hero-slide-safety" style="background-image: url('carousel/photo-safety-camera.jpg'); background-position: center;"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-copy active">
+اشترك مع مبادرة جرين سايكل للخدمات والاعتماد لتحقيق الفعالية البيئية الخضراء لمباني المؤسسات مع تحقيق الجدوى المالية والفنية المثالية. الاعتماد يواكب التطور الكبير في حسابات البصمة الكربونية وكيفية الاستفادة من النهضة الحديثة في مفاهيم أسواق الكربون
+      </p>
+      <p class="hero-copy">
+تواصل معنا للتعرف على خطوات تقييم الطاقة في المبنى وكيفية تحسينها وتحقيق كفاءة الطاقة المثلى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تقييم استهلاك المياه في المبنى وكيفية تحسينها وتحقيق كفاءة حفظ المياه المثلى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تقييم جودة الهواء في المبنى وكيفية تحسينها وتحقيق جودة الهواء الداخلي المثلى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تحسين منظومة إدارة النفايات في المبنى
+      </p>
+      <p class="hero-copy">
+تواصلوا معنا للتعرف على خطوات تحسين منظومة الأمن والسلامة في المبنى
+      </p>
+    </div>
+    <div class="hero-dots" aria-label="شرائح المقدمة">
+      <button type="button" class="hero-dot active" aria-label="الشريحة الأولى"></button>
+      <button type="button" class="hero-dot" aria-label="الشريحة الثانية"></button>
+      <button type="button" class="hero-dot" aria-label="الشريحة الثالثة"></button>
+      <button type="button" class="hero-dot" aria-label="الشريحة الرابعة"></button>
+      <button type="button" class="hero-dot" aria-label="الشريحة الخامسة"></button>
+      <button type="button" class="hero-dot" aria-label="الشريحة السادسة"></button>
+    </div>
+  </section>
+
   <main>
     <section class="article-hero">
       <div class="article-shell">
@@ -130,6 +169,37 @@
       menuToggle.addEventListener('click', () => {
         const isOpen = navbar.classList.toggle('nav-open');
         menuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    const heroCopies = document.querySelectorAll('.hero-copy');
+    const heroDots = document.querySelectorAll('.hero-dot');
+
+    if (heroSlides.length > 1) {
+      let activeHeroSlide = 0;
+
+      function showHeroSlide(index) {
+        heroSlides[activeHeroSlide].classList.remove('active');
+        heroCopies[activeHeroSlide]?.classList.remove('active');
+        heroDots[activeHeroSlide]?.classList.remove('active');
+        activeHeroSlide = index;
+        heroSlides[activeHeroSlide].classList.add('active');
+        heroCopies[activeHeroSlide]?.classList.add('active');
+        heroDots[activeHeroSlide]?.classList.add('active');
+      }
+
+      let heroCarouselTimer = setInterval(() => {
+        showHeroSlide((activeHeroSlide + 1) % heroSlides.length);
+      }, 5200);
+
+      heroDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          clearInterval(heroCarouselTimer);
+          showHeroSlide(index);
+          heroCarouselTimer = setInterval(() => {
+            showHeroSlide((activeHeroSlide + 1) % heroSlides.length);
+          }, 5200);
+        });
       });
     }
   </script>

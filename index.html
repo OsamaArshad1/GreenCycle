@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260927d" />
+  <link rel="stylesheet" href="styles.css?v=20261017a" />
 </head>
 <body class="landing-page">
   <header class="navbar navbar-home">
@@ -170,6 +170,36 @@
   </section>
 
   <section class="section recent-transactions-section" id="recent-transactions">
+    <div class="site-stats" aria-label="العداد الأوتوماتيك للموقع">
+      <div class="site-stat">
+        <span class="site-stat-label">عدد عمليات تسليم النفايات عبر المنصة</span>
+        <span class="site-stat-value" data-stat="operations">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">عدد المساهمين في تسليم النفايات عبر المنصة</span>
+        <span class="site-stat-value" data-stat="users">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">عدد شركات إعادة التدوير ومدراء السكراب</span>
+        <span class="site-stat-value" data-stat="companies">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">الحجم التقريبي المحفوظ من المرادم قبل الكبس (م³)</span>
+        <span class="site-stat-value" data-stat="volume-before">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">الحجم التقريبي المحفوظ من المرادم بعد الكبس (م³)</span>
+        <span class="site-stat-value" data-stat="volume-after">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">الكمية التقريبية لحفظ الكربون في حالة إعادة الاستخدام (كجم CO₂e)</span>
+        <span class="site-stat-value" data-stat="carbon-reuse">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">الكمية التقريبية لحفظ الكربون في حالة إعادة التدوير (كجم CO₂e)</span>
+        <span class="site-stat-value" data-stat="carbon-recycle">TBD</span>
+      </div>
+    </div>
     <div class="section-title">
       <a class="btn btn-primary recent-transactions-cta" href="recent-transactions-ar.html">اضغط هنا لعرض أحدث معاملات تسليم النفايات</a>
     </div>
@@ -177,6 +207,14 @@
 
   <section class="section" id="submit-waste">
     <div class="submit-panel">
+      <div class="country-tabs" role="tablist" aria-label="اختر الدولة">
+        <button type="button" class="country-tab active" role="tab" aria-selected="true">الكويت</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="قريباً">السعودية</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="قريباً">الإمارات</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="قريباً">قطر</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="قريباً">البحرين</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="قريباً">عُمان</button>
+      </div>
       <div class="hero-card">
         <h2>خطوات تسليم النفايات</h2>
       <p>اختر نوع التسليم أدناه وأدخل تفاصيل النفايات المطلوبة ليتم توجيهها إلى الجهة المناسبة للجمع أو إعادة التدوير.</p>
@@ -436,7 +474,7 @@
 
 <section class="section training-programs-section" id="training-programs">
   <div class="hero-card training-programs-card">
-    <h3>برامجنا التدريبية 👇👇</h3>
+    <h3>برامجنا التدريبية </h3>
     <p>قائمة لأهم البرامج التدريبية لعام 2026-2027 والتي يقدمها معهد الاستدامة للتدريب.</p>
     <div class="training-programs-list" aria-label="أمثلة على البرامج التدريبية">
       <span>الطاقة المتجددة</span>

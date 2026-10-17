@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260927d" />
+  <link rel="stylesheet" href="styles.css?v=20261017a" />
 </head>
 <body class="landing-page">
   <header class="navbar navbar-home">
@@ -170,6 +170,36 @@ Contact us to learn about the steps for improving the building's safety and secu
   </section>
 
   <section class="section recent-transactions-section" id="recent-transactions">
+    <div class="site-stats" aria-label="Live site counters">
+      <div class="site-stat">
+        <span class="site-stat-label">Number of Waste Submissions via the Platform</span>
+        <span class="site-stat-value" data-stat="operations">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">Number of Contributors Submitting Waste via the Platform</span>
+        <span class="site-stat-value" data-stat="users">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">Number of Recycling Companies &amp; Scrap Managers</span>
+        <span class="site-stat-value" data-stat="companies">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">Approx. Landfill Volume Saved Before Compaction (m³)</span>
+        <span class="site-stat-value" data-stat="volume-before">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">Approx. Landfill Volume Saved After Compaction (m³)</span>
+        <span class="site-stat-value" data-stat="volume-after">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">Approx. Carbon Saved Through Reuse (kg CO₂e)</span>
+        <span class="site-stat-value" data-stat="carbon-reuse">TBD</span>
+      </div>
+      <div class="site-stat">
+        <span class="site-stat-label">Approx. Carbon Saved Through Recycling (kg CO₂e)</span>
+        <span class="site-stat-value" data-stat="carbon-recycle">TBD</span>
+      </div>
+    </div>
     <div class="section-title">
       <a class="btn btn-primary recent-transactions-cta" href="recent-transactions.html">Click here to view the recent waste submission transactions</a>
     </div>
@@ -177,6 +207,14 @@ Contact us to learn about the steps for improving the building's safety and secu
 
   <section class="section" id="submit-waste">
     <div class="submit-panel">
+      <div class="country-tabs" role="tablist" aria-label="Choose country">
+        <button type="button" class="country-tab active" role="tab" aria-selected="true">Kuwait</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="Coming soon">Saudi Arabia</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="Coming soon">UAE</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="Coming soon">Qatar</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="Coming soon">Bahrain</button>
+        <button type="button" class="country-tab" role="tab" aria-selected="false" aria-disabled="true" disabled title="Coming soon">Oman</button>
+      </div>
       <div class="hero-card">
         <h2>Waste Material Submission</h2>
       <p>Select the type of submission below and provide the required waste details so the right collection or recycling process can be assigned.</p>
