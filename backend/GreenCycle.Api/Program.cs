@@ -829,6 +829,30 @@ app.MapPost("/api/waste/submissions/{submissionId:guid}/complete", async (Guid s
     };
 });
 
+app.MapDelete("/api/waste/submissions/{submissionId:guid}", async (Guid submissionId, HttpRequest request, UserStore store) =>
+{
+    var user = await store.FindBySessionAsync(GetBearerToken(request));
+    if (user is null)
+    {
+        return Results.Json(new ApiError("Your session has expired. Please log in again."), statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    var result = await store.DeleteWasteSubmissionAsync(submissionId, user.Email);
+    if (result is DeleteSubmissionResult.Deleted)
+    {
+        DeleteWasteImages(siteRoot, submissionId);
+    }
+
+    return result switch
+    {
+        DeleteSubmissionResult.Deleted => Results.NoContent(),
+        DeleteSubmissionResult.NotFound => Results.NotFound(new ApiError("Submission was not found.")),
+        DeleteSubmissionResult.NotOwner => Results.BadRequest(new ApiError("Only the waste submitter can delete this request.")),
+        DeleteSubmissionResult.Locked => Results.BadRequest(new ApiError("This request can no longer be deleted because a bid has been accepted.")),
+        _ => Results.BadRequest(new ApiError("Request could not be deleted."))
+    };
+});
+
 app.MapGet("/api/company-reviews", async (string? companyEmail, UserStore store) =>
 {
     if (string.IsNullOrWhiteSpace(companyEmail))
@@ -1479,6 +1503,24 @@ static string[] SplitWasteCategories(string wasteCategory)
         .Where(category => !string.IsNullOrWhiteSpace(category))
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
+}
+
+static void DeleteWasteImages(string siteRoot, Guid submissionId)
+{
+    var folder = Path.Combine(siteRoot, "uploads", "waste", submissionId.ToString("N"));
+    try
+    {
+        if (Directory.Exists(folder))
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+    catch (IOException)
+    {
+    }
+    catch (UnauthorizedAccessException)
+    {
+    }
 }
 
 static async Task<WasteSubmissionImage[]> SaveWasteImagesAsync(IReadOnlyList<IFormFile> imageFiles, string siteRoot, Guid submissionId)
@@ -2232,6 +2274,14 @@ public abstract record CompleteSubmissionResult
     public sealed record NotOwner : CompleteSubmissionResult;
     public sealed record NoAcceptedBid : CompleteSubmissionResult;
     public sealed record NotPickedUp : CompleteSubmissionResult;
+}
+
+public abstract record DeleteSubmissionResult
+{
+    public sealed record Deleted : DeleteSubmissionResult;
+    public sealed record NotFound : DeleteSubmissionResult;
+    public sealed record NotOwner : DeleteSubmissionResult;
+    public sealed record Locked : DeleteSubmissionResult;
 }
 
 public abstract record PickupSubmissionResult
@@ -3291,6 +3341,49 @@ public sealed class UserStore
             await UpdateSubmissionStatusAsync(connection, submissionId, "completed");
             await transaction.CommitAsync();
             return new CompleteSubmissionResult.Completed(acceptedBid, submission with { Status = "completed" });
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<DeleteSubmissionResult> DeleteWasteSubmissionAsync(Guid submissionId, string requesterEmail)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await using var connection = await OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            var submission = await ReadWasteSubmissionByIdAsync(connection, submissionId);
+            if (submission is null)
+            {
+                return new DeleteSubmissionResult.NotFound();
+            }
+
+            if (!string.Equals(submission.Email, requesterEmail.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return new DeleteSubmissionResult.NotOwner();
+            }
+
+            if (submission.Status is not ("received" or "bidding"))
+            {
+                return new DeleteSubmissionResult.Locked();
+            }
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                DELETE FROM waste_submission_images WHERE waste_submission_id = $id;
+                DELETE FROM waste_submission_targets WHERE waste_submission_id = $id;
+                DELETE FROM waste_bids WHERE waste_submission_id = $id;
+                DELETE FROM user_reviews WHERE waste_submission_id = $id;
+                UPDATE company_reviews SET waste_submission_id = NULL WHERE waste_submission_id = $id;
+                DELETE FROM waste_submissions WHERE id = $id;
+                """;
+            command.Parameters.AddWithValue("$id", submissionId.ToString());
+            await command.ExecuteNonQueryAsync();
+            await transaction.CommitAsync();
+            return new DeleteSubmissionResult.Deleted();
         }
         finally
         {

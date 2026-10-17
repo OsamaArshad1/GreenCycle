@@ -184,6 +184,17 @@
       background: #fbfdf9;
     }
 
+    .delete-submission-btn {
+      margin-top: 12px;
+      color: #b42318;
+      border-color: #b42318;
+    }
+
+    .delete-submission-btn:hover {
+      background: #b42318;
+      color: #fff;
+    }
+
     .submission-card header,
     .review-card header,
     .bid-card header {
@@ -1016,6 +1027,9 @@
             ${renderSubmissionDetails(item, { status: true })}
             ${renderSubmissionNotes(item)}
             ${renderSubmissionImages(item)}
+            ${item.status === 'received' || item.status === 'bidding'
+              ? `<button class="btn btn-outline delete-submission-btn" type="button" data-submission-id="${item.id}">حذف الطلب</button>`
+              : ''}
           </article>
         `).join('');
       } catch (error) {
@@ -1272,6 +1286,41 @@
       gallery.hidden = !isOpen;
       button.setAttribute('aria-expanded', String(isOpen));
       button.textContent = isOpen ? 'إخفاء الصور' : 'عرض الصور';
+    });
+
+    document.getElementById('submissionList').addEventListener('click', async function (event) {
+      const button = event.target.closest('.delete-submission-btn');
+      if (!button) return;
+      if (!confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن ذلك.')) return;
+
+      const originalText = button.textContent;
+      try {
+        clearDashboardMessages();
+        button.disabled = true;
+        button.textContent = 'جاري الحذف...';
+        const response = await fetch(apiUrl(`/api/waste/submissions/${button.dataset.submissionId}`), {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${session.token}` }
+        });
+        if (response.status === 401) {
+          throw new Error('انتهت صلاحية الجلسة. يرجى تسجيل الخروج ثم تسجيل الدخول مرة أخرى.');
+        }
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.message || 'تعذر حذف الطلب.');
+        }
+        const success = document.getElementById('dashboardSuccess');
+        success.textContent = 'تم حذف الطلب.';
+        success.style.display = 'block';
+        await loadSubmissions();
+        await loadReceivedBids();
+        await loadBidOpportunities();
+        await loadMyBids();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = originalText;
+        showDashboardError(error.message);
+      }
     });
 
     document.getElementById('bidOpportunityList').addEventListener('submit', async function (event) {

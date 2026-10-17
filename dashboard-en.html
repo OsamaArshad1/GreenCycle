@@ -181,6 +181,17 @@
       background: #fbfdf9;
     }
 
+    .delete-submission-btn {
+      margin-top: 12px;
+      color: #b42318;
+      border-color: #b42318;
+    }
+
+    .delete-submission-btn:hover {
+      background: #b42318;
+      color: #fff;
+    }
+
     .submission-card header,
     .review-card header,
     .bid-card header {
@@ -1001,6 +1012,9 @@
             ${renderSubmissionDetails(item, { status: true })}
             ${renderSubmissionNotes(item)}
             ${renderSubmissionImages(item)}
+            ${item.status === 'received' || item.status === 'bidding'
+              ? `<button class="btn btn-outline delete-submission-btn" type="button" data-submission-id="${item.id}">Delete request</button>`
+              : ''}
           </article>
         `).join('');
       } catch (error) {
@@ -1257,6 +1271,41 @@
       gallery.hidden = !isOpen;
       button.setAttribute('aria-expanded', String(isOpen));
       button.textContent = isOpen ? 'Hide images' : 'View images';
+    });
+
+    document.getElementById('submissionList').addEventListener('click', async function (event) {
+      const button = event.target.closest('.delete-submission-btn');
+      if (!button) return;
+      if (!confirm('Are you sure you want to delete this request? This cannot be undone.')) return;
+
+      const originalText = button.textContent;
+      try {
+        clearDashboardMessages();
+        button.disabled = true;
+        button.textContent = 'Deleting...';
+        const response = await fetch(apiUrl(`/api/waste/submissions/${button.dataset.submissionId}`), {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${session.token}` }
+        });
+        if (response.status === 401) {
+          throw new Error('Your session has expired. Please log out and log in again.');
+        }
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.message || 'The request could not be deleted.');
+        }
+        const success = document.getElementById('dashboardSuccess');
+        success.textContent = 'Request deleted.';
+        success.style.display = 'block';
+        await loadSubmissions();
+        await loadReceivedBids();
+        await loadBidOpportunities();
+        await loadMyBids();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = originalText;
+        showDashboardError(error.message);
+      }
     });
 
     document.getElementById('bidOpportunityList').addEventListener('submit', async function (event) {
